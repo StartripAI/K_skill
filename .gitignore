@@ -1,0 +1,21 @@
+node_modules/
+dist/
+dist-web/
+.DS_Store
+*.log
+coverage/
+.playwright-mcp/
+kskill-*.png
+kskill-*.md
+
+# Local persona data and private chat logs
+private/
+local-packs/
+pursuit-output/
+*.wechat.txt
+*.imessage.txt
+*.qq.txt
+
+# Generated exports during local testing
+examples/**/exports/
+tmp/

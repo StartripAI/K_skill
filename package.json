@@ -1,0 +1,49 @@
+{
+  "name": "kskill",
+  "version": "0.1.0",
+  "description": "Persona Pack OS for chats, characters, memories, minds, and respectful pursuit coaching.",
+  "type": "module",
+  "bin": {
+    "kskill": "dist/packages/cli/src/index.js"
+  },
+  "scripts": {
+    "build": "node scripts/clean-build.mjs && tsc -p tsconfig.json --noEmit && vite build --config apps/web/vite.config.ts && node scripts/build-cli.mjs && node scripts/postbuild.mjs",
+    "dev": "vite --host 127.0.0.1 --config apps/web/vite.config.ts",
+    "serve": "vite --host 127.0.0.1 --config apps/web/vite.config.ts",
+    "cli": "tsx packages/cli/src/index.ts",
+    "lint": "tsc -p tsconfig.json --noEmit && node scripts/check-i18n.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "agent-skills",
+    "persona",
+    "sillytavern",
+    "prompt-engineering",
+    "character-card",
+    "relationship-memory",
+    "crush-coach"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "commander": "^14.0.2",
+    "lucide-react": "^0.561.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "vite": "^7.2.7",
+    "yaml": "^2.8.2",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  }
+}

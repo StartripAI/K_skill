@@ -1,0 +1,11 @@
+node_modules/
+dist-web/
+.playwright-mcp/
+kskill-*.png
+kskill-*.md
+local-packs/
+tmp/
+pursuit-output/
+coverage/
+*.log
+.DS_Store
