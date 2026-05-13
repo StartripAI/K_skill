@@ -14,7 +14,7 @@
 有些人、有些角色、有些关系，不是几句简介能装下的。
 TA 的语音会有停顿，聊天里会有只属于你们的梗，照片和表情会留下当时的气氛，很多共同经历也散在截图、笔记、PDF、视频字幕和零碎回忆里。
 
-K.skill 做的事，就是把这些材料整理成一份可以再次打开的 persona pack：能看见证据，能继续聊天，能带着声音、关系节奏、角色设定和 Prompt Stack 一起导出。它默认在本地跑，适合把私人的聊天、原创角色、公开资料里的思路，整理成你以后还拿得起来的 AI 人格包。
+K.skill 像一个本地的记忆房间：你把这些材料放进来，它把来源、声音、关系节奏、角色设定和 Prompt Stack 收在同一个 persona pack 里。以后再打开时，你不只看到一段简介，而是能听见声音的影子、看见判断的来处，也能继续聊下去。
 
 ## Voice Memory：把声音也放进人格里
 
@@ -56,9 +56,9 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 
 `local-voice-clone` 的边界很清楚：K.skill 负责把 persona 里的文本、语言、voice profile 和 reference audio 交给你的本地语音引擎；本地引擎负责生成音频；K.skill 再把结果放回 GUI、CLI 和导出包。这样声音可以进入体验，但你仍然能检查每一步从哪里来。
 
-把 K.skill 想成五个清楚的功能边界，再叠加不同场景：
+你可以从五个入口打开它，每个入口都在帮你留住一种关系感：
 
-| 功能边界 | 你丢进去 | K.skill 给你什么 |
+| 入口 | 你放进去 | 会留下什么 |
 |---|---|---|
 | **Voice Memory** | 语音、录音、voice note、声音素材 | ASR transcript、voice DNA、TTS preview、能放进人格包的声音记忆 |
 | **Crush Coach** | 你和 TA 的聊天记录、最近一条消息、你的目标 | 聊天节奏、热度信号、风险信号、3 条像你本人会发的回复 |
@@ -66,7 +66,7 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 | **Character World** | 原创角色、动漫 OC、电影人物、NPC、世界观 | 角色身份、说话方式、lorebook、Prompt Stack、可导出角色包 |
 | **Life Mentor** | 公开文章、访谈、演讲、原则、你自己的决策笔记 | 表达习惯、mental models、heuristics、evidence / confidence、可追问的思考陪跑 |
 
-README 里写到的命令、例子和导出流程，都对应仓库里的真实文件和检查。你可以先用样例把感觉跑通，再换成自己的材料。
+你可以先用样例听一遍它怎么处理声音、关系和角色，再换成自己的材料。
 
 ## 先看 6 个场景
 
@@ -123,9 +123,9 @@ K.skill 读出来：
 
 ## 四个主工作流
 
-K.skill 的主工作流是四条线，Voice Memory 是可以叠加在四条线上的声音层。选之前先看边界，目的清楚，后面导入和导出都会更顺。
+真正使用时，先想清楚你想打开哪一种关系：当下那条消息、长期的一段关系、一个角色世界，还是公开资料里的思路。Voice Memory 是叠在这些入口上的声音层。
 
-| 边界 | 它负责什么 | 最适合的打开方式 |
+| 入口 | 它负责什么 | 适合怎么打开 |
 |---|---|---|
 | **Voice Memory** | 让声音进入 persona pack：ASR、voice DNA、TTS preview、声音证据 | 给其他工作流补上声音感，也可以单独做 voice profile |
 | **Crush Coach / 我要追TA** | 读聊天节奏、写回复、判断下一步 | 看 evidence、confidence 和几条可选回复，再按你的语气改 |
@@ -157,7 +157,7 @@ GUI：
 4. `Parse preview` 会显示 message、asset、transcript、reaction 和 attachment kind。
 5. 右侧 `Persona Voice` 会展示 voice DNA、TTS preview 和 sticker intents，导出 ZIP 时一起带走。
 
-一句话理解功能边界：
+一句话记住每个入口：
 
 - **Voice Memory**：让声音、转写、voice DNA 和 TTS preview 进入人格包。
 - **Crush Coach**：帮你读聊天节奏，把下一句回自然。
@@ -490,7 +490,7 @@ npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-p
 
 ![K.skill export matrix](assets/readme/export-matrix.png)
 
-一份 persona pack 不应该困在一个界面里。K.skill 会把同一份身份、记忆、证据和 Prompt Stack 转成不同工具能吃的格式。
+一份 persona pack 不应该困在一个界面里。K.skill 会把同一份身份、记忆、证据和 Prompt Stack 转成你能继续带走的格式。
 
 | 目标 | 生成什么 | 怎么用 |
 |---|---|---|
@@ -512,14 +512,14 @@ npm run check:exports
 本项目默认本地运行。私人聊天记录不会进入仓库。
 除非你自己配置外部模型 provider，否则资料不会主动发到第三方模型。你可以先用 stub ASR / stub TTS 和本地样例跑完整流程，再决定要不要接自己的语音或模型服务。
 
-K.skill 的使用感更接近“整理一份能继续打开的关系 / 角色 / 思考档案”，而不是一次性问答。它更适合做这几件事：
+用起来更像是在整理一份能继续打开的关系、角色或思考档案，而不是问完就散的一次性对话。你会在这些时刻打开它：
 
 ```text
-帮你读聊天氛围
-帮你整理关系记忆
-帮你做原创角色
-帮你把公开资料变成 Life Mentor
-帮你导出成常用人格包格式
+想读懂一段聊天的气氛
+想把一段关系慢慢收好
+想让原创角色真的开口
+想把公开资料变成 Life Mentor
+想把同一份人格包带到常用格式里
 ```
 
 它会尽量把判断说清楚：证据是什么、置信度多少、下一步为什么这样建议。这样你不是盲发，而是带着上下文、聊天节奏和自己的判断往前走。

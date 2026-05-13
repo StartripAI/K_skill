@@ -15,7 +15,7 @@ Hay voces que quieres volver a oír, bromas que solo existen dentro de un chat, 
 
 K.skill convierte esos fragmentos en persona packs locales que puedes volver a abrir y conversar. Puedes poner voice notes, chats, screenshots, arte de personajes, mundos narrativos, textos públicos o principios personales, y convertirlos en algo que puedes revisar, seguir hablando y exportar. El texto ordena lo que pasó; la voz devuelve la temperatura de ese momento.
 
-Los comandos, samples y salidas que aparecen en este README son reales y se verifican. No son texto decorativo.
+Puedes empezar con los samples, ver cómo una voz, una relación o un personaje se convierten en pack, y luego cambiarlo por tu propio material.
 
 ## Voice Memory: poner la voz dentro de la persona
 

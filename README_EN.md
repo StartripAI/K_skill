@@ -13,7 +13,7 @@
 
 Some people, relationships, and characters cannot be captured by a short prompt. A voice note has pauses. A chat has private jokes. A photo or sticker can carry the mood better than a paragraph. Shared history often lives across screenshots, notes, PDFs, transcripts, and half-remembered moments.
 
-K.skill gathers that material into a persona pack you can inspect, reopen, keep chatting with, and export. The pack keeps the evidence, the voice, the relationship rhythm, the character rules, and the Prompt Stack together. It runs locally by default, so private chats, original characters, and public-material thinking models can stay in your own workspace while you shape them.
+K.skill gathers that material into a local persona pack you can reopen. The pack keeps evidence, voice, relationship rhythm, character rules, and the Prompt Stack together, so you are not left with a flat summary. You can see what it remembers, hear the trace of the voice, and keep talking from there.
 
 ## Voice Memory: Put The Voice Into The Persona
 
@@ -91,11 +91,11 @@ Slightly forward: Low-pressure idea: if you feel like going one day, call me. I 
 
 When the vibe cools down, K.skill helps you close cleanly, pause, or return later with a lighter topic. When the window is still open, it helps you place the next sentence where it feels easy to answer.
 
-## Four Product Workflows
+## Four Ways In
 
-K.skill has four main workflows, with Voice Memory as a voice layer that can sit on top of all of them. Pick the lane by what you want to do with the material.
+In practice, choose the kind of memory you are trying to reopen: the message in front of you, a long relationship, a character world, or a set of public ideas. Voice Memory is the voice layer that can sit on top of each path.
 
-| Boundary | What it handles | Suggested way to open it |
+| Path | What it holds | How it opens |
 |---|---|---|
 | **Voice Memory** | ASR, transcript evidence, voice DNA, TTS preview, voice material inside the persona pack | Add it to any workflow, or use it alone to create a voice profile |
 | **Crush Coach** | reply writing, timing, warmth signals, risk signals, chat rhythm | Read evidence, confidence, and reply options; edit the one that feels most like you |
@@ -438,14 +438,14 @@ npm run check:exports
 
 K.skill is local-first. Private chats stay outside the repository. Content leaves your machine only when you explicitly configure an external model provider. You can run the full sample flow with stub ASR / stub TTS before connecting your own voice or model service.
 
-The feel is closer to keeping a relationship, character, or thinking archive open over time than asking a one-off question. K.skill is useful for:
+The feel is closer to keeping a relationship, character, or thinking archive open over time than asking a one-off question. You open it when you want to:
 
-- reading the vibe of a chat
-- organizing relationship memory
-- building original characters
-- turning public material into a Life Mentor
-- exporting the same pack into common persona formats
-- keeping evidence and confidence visible
+- read the vibe of a chat
+- keep relationship memory in one place
+- let an original character find a voice
+- turn public material into a Life Mentor
+- carry the same persona pack into common formats
+- keep evidence and confidence visible
 
 ## Development And Verification
 
