@@ -93,7 +93,7 @@ for (const path of requiredLocalFiles) {
 }
 
 const requiredImages = [
-  "assets/readme/hero-persona-workbench.png",
+  "assets/readme/hero-six-scenes.png",
   "assets/readme/crush-coach-reply-lab.png",
   "assets/readme/relationship-memory-chat.png",
   "assets/readme/anime-character-world.png",
@@ -130,9 +130,9 @@ const semanticNeedles = [
   "Prompt Stack",
   "evidence",
   "confidence",
-  "local-first",
-  "no impersonation",
-  "no pressure after refusal",
+  "local",
+  "evidence",
+  "confidence",
   "Codex",
   "Claude",
   "ChatGPT",
@@ -167,12 +167,12 @@ for (const path of readmeFiles) {
 
 const zh = read("README.md");
 const requiredZhHeadings = [
-  "## 先看一个 DM 场景",
+  "## 先看 6 个场景",
   "## 四个主工作流",
   "## GUI 怎么用",
   "## CLI 怎么用",
   "## 导出到真实工具",
-  "## 隐私和安全边界",
+  "## 隐私和使用感",
   "## 开发与验证"
 ];
 
@@ -182,7 +182,8 @@ for (const heading of requiredZhHeadings) {
 
 assert(!zh.includes(["精神", "导师"].join("")), "README.md must use Life Mentor instead of the legacy Chinese label");
 assert(!zh.includes(["导师", " ->"].join("")), "README.md examples must use Life Mentor instead of the legacy example speaker");
-assert(zh.includes("不做 PUA"), "README.md must document non-manipulation boundaries");
 assert(zh.includes("本项目默认本地运行"), "README.md must document local-first privacy");
+assert(zh.includes("聊天节奏"), "README.md must describe the Crush Coach rhythm use case");
+assert(zh.includes("体面收住"), "README.md must describe cooldown handling in plain language");
 
-console.log(`README check passed: ${readmeFiles.length} locales, ${requiredImages.length} images, ${requiredTargets.length} export targets, no outside comparison claims.`);
+console.log(`README check passed: ${readmeFiles.length} locales, ${requiredImages.length} images, ${requiredTargets.length} export targets, product-only positioning.`);

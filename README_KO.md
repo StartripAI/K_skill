@@ -2,7 +2,7 @@
 
 # K.skill
 
-![K.skill complete persona system](assets/readme/hero-persona-workbench.png)
+![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
 
 **K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
 
@@ -10,15 +10,32 @@
 
 </div>
 
-K.skill은 local-first **Persona Pack OS**이며 바로 사용할 수 있는完整人格시스템입니다. 채팅 로그, 관계 자료, 오리지널 캐릭터, Movie Character, 세계관, 공개 글, 개인 원칙을 검사 가능하고 테스트 가능하며 내보낼 수 있는 persona pack으로 바꿉니다. GUI에서는 업로드, 파싱, 리포트, Reply Lab, 다운로드를 처리하고, CLI에서는 같은 pack을 Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, Open WebUI로 compile / export합니다.
+K.skill은 local-first 인격 워크벤치입니다. 채팅 로그, 관계 자료, 2D OC, Movie Character, Virtual Persona, 세계관, 공개 글, 개인 원칙을 검사 가능하고 테스트 가능하며 내보낼 수 있는 persona pack으로 바꿉니다. GUI에서는 업로드, 파싱, 리포트, Reply Lab, 다운로드를 처리하고, CLI에서는 같은 pack을 Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, Open WebUI로 compile / export합니다.
 
-여기에 적힌 기능은 실제 명령, 예제 입력, 생성 파일, 릴리스 검사를 갖습니다. 빈 prompt 포장이 아닙니다.
+여기에 적힌 기능은 실제 명령, 예제 입력, 생성 파일, 릴리스 검사를 갖습니다.
+
+## 먼저 6개 장면
+
+![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+
+K.skill은 단순한 채팅창 하나가 아닙니다.
+
+| Scene | 넣는 자료 | K.skill 결과 |
+|---|---|---|
+| Crush Coach | TA와의 채팅 | social signals, 다음 행동, 바로 보낼 3개 답장 |
+| Relationship Memory | 채팅, 공유 기억, 보정 메모 | 장기 문맥 관계 memory pack |
+| Anime Character | OC 설정, 세계관, 대사 샘플 | character identity, voice, lorebook |
+| Movie Character | script fragments, scene cards, biography | arc와 scene memory가 있는 영화풍 persona |
+| Virtual Persona | AI companion brief, avatar notes, NPC design | 안정적으로 대화되는 original persona |
+| Public-Figure Life Mentor | articles, interviews, launches, notes | 공개 자료 기반 thinking model |
+
+예를 들어 공개 창업자 자료를 모으면 product judgment, writing, tradeoffs, launch thinking을 같이 물어볼 수 있는 Life Mentor로 쓸 수 있습니다.
 
 ## DM 장면부터 보기
 
 ![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
 
-TA가 메시지를 보냈고, 이어가야 할지, 기다려야 할지, 약속을 제안해도 되는지, 주제를 바꿔야 할지 모를 때가 있습니다. K.skill의 Crush Coach는 대화를 사회적 신호로 읽고, 조작적 문구가 아니라 존중 가능한 다음 행동을 제안합니다.
+TA가 메시지를 보냈고, 이어가야 할지, 기다려야 할지, 약속을 제안해도 되는지, 주제를 바꿔야 할지 모를 때가 있습니다. Crush Coach는 대화를 사회적 신호로 읽고, 더 자연스러운 다음 문장을 제안합니다.
 
 ```text
 TA: Maybe this weekend. Do you like this kind of exhibition too?
@@ -26,10 +43,10 @@ TA: Maybe this weekend. Do you like this kind of exhibition too?
 K.skill:
 - relationship stage: warm
 - warmth: TA가 질문을 돌려주고 전시 주제를 열어 둠
-- risk: 최근 턴에 명확한 거절이나 불편함 표현 없음
+- risk: 아직 가볍게 이어가는 톤이 어울림
 - evidence: question, interest topic, relaxed tone
 - confidence: 0.76
-- safety: no impersonation, no pressure after refusal
+- rhythm: 답장은 가볍게, 대화에 여지를 남김
 
 Reply Lab:
 Safe: That actually made me curious. Which part would you recommend for someone going in fresh?
@@ -37,7 +54,7 @@ Light: You sound way more animated when you talk about this exhibit. I am taking
 Slightly forward: Low-pressure idea: if you feel like going one day, call me. I will keep my amateur commentary under control.
 ```
 
-채팅에 명확한 거절, 불편함, 중단 요청이 있으면 K.skill은 관계를 밀어붙이는 전략을 만들지 않습니다. 예의 있는 마무리, 사과, 경계 존중, 자기 복기만 제공합니다.
+분위기가 식으면 K.skill은 깔끔하게 마무리하거나, 잠시 멈추거나, 더 가벼운 주제로 돌아가는 쪽을 제안합니다.
 
 ## 네 가지 제품 워크플로
 
@@ -46,22 +63,22 @@ Slightly forward: Low-pressure idea: if you feel like going one day, call me. I 
 | Workflow | 대상 | 입력 | 출력 | 사용 시점 |
 |---|---|---|---|---|
 | **Crush Coach** | TA와 자연스럽게 소통하고 싶은 사람 | WeChat, QQ, iMessage, Telegram, WhatsApp, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3개 reply, send-or-not 판단 | 답장, 초대, 대기 판단이 어려울 때 |
-| **Relationship Memory** | 연인, 친구, 전 연인, 친밀한 관계 자료를 정리하는 사람 | 채팅, 공유 기억, 보정 메모 | 관계 기억, 호칭 패턴, 공유 에피소드, boundary notes, exportable persona pack | 관계 복기, 장기 문맥, 글쓰기, 인터랙티브 스토리 |
+| **Relationship Memory** | 연인, 친구, 전 연인, 친밀한 관계 자료를 정리하는 사람 | 채팅, 공유 기억, 보정 메모 | 관계 기억, 호칭 패턴, 공유 에피소드, tone notes, exportable persona pack | 관계 복기, 장기 문맥, 글쓰기, 인터랙티브 스토리 |
 | **Character World** | OC 작가, 2D 캐릭터 사용자, 롤플레이, 게임/영화 창작자 | Markdown 설정, character card, lorebook, Movie Character notes | 캐릭터 정체성, 세계 규칙, Prompt Stack, SillyTavern card, lorebook | 말버릇이 아니라 기억과 세계 규칙이 필요할 때 |
-| **Life Mentor** | 공개 글과 개인 원칙을 대화형 사고 모델로 만들고 싶은 사람 | articles, interviews, public notes, decision records, personal principles | mental models, heuristics, anti-patterns, evidence, confidence, honesty boundaries | 의사결정, 회고, 개인 OS, 사고 보조 |
+| **Life Mentor** | 공개 글과 개인 원칙을 대화형 사고 모델로 만들고 싶은 사람 | articles, interviews, public notes, decision records, personal principles | mental models, heuristics, anti-patterns, evidence, confidence, honesty notes | 의사결정, 회고, 개인 OS, 사고 보조 |
 
-기능 경계는 분명합니다.
+목적에 맞는 입구를 고르면 됩니다.
 
-- **Crush Coach**는 존중 있는 관계 진행만 다루며 거절을 우회하지 않습니다.
-- **Relationship Memory**는 장기 관계 문맥을 저장하고 검토하며 추구 전략을 만들지 않습니다.
-- **Character World**는 fictional characters, original worlds, Movie Character, roleplay cards를 다루며 현실 인물을 사칭하지 않습니다.
-- **Life Mentor**는 공개 자료와 사용자 노트를 사고 모델로 만들며 실제 인물이라고 주장하지 않습니다.
+- **Crush Coach**는 답장, 타이밍, 자연스러운 대화 진행에 씁니다.
+- **Relationship Memory**는 공유 기억, 관계의 분위기, 장기 문맥에 씁니다.
+- **Character World**는 anime OC, fictional roles, Movie Character, lorebooks, roleplay cards에 씁니다.
+- **Life Mentor**는 공개 자료와 개인 메모를 사고 모델로 바꿉니다.
 
 ## Crush Coach
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
 
-Crush Coach는 핵심 워크플로입니다. relationship stage, warmth signals, risk signals, topic windows, date readiness, boundaries를 분석합니다.
+Crush Coach는 핵심 워크플로입니다. relationship stage, warmth signals, risk signals, topic windows, date readiness, chat rhythm을 분석합니다.
 
 GUI:
 
@@ -87,7 +104,6 @@ npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go togeth
 ```text
 examples/crush-chat-zh.txt       중국어 warm progression
 examples/crush-chat-en.txt       영어 continuation
-examples/refusal-chat-en.txt     명확한 거절, 마무리만 허용
 examples/cold-chat-zh.txt        식은 대화, 기다릴지 판단
 ```
 
@@ -106,7 +122,7 @@ tmp/pursuit-en/
 
 ![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
 
-Relationship Memory는 관계 자료를 검토 가능한 장기 문맥으로 만듭니다. 공유 에피소드, 호칭 패턴, 취향, corrections, boundaries를 다룹니다. 현실 인물 복제가 아닙니다.
+Relationship Memory는 관계 자료를 검토 가능한 장기 문맥으로 만듭니다. 공유 에피소드, 호칭 패턴, 취향, corrections, 작은 분위기까지 정리합니다.
 
 GUI:
 
@@ -131,14 +147,14 @@ npm run cli -- inspect local-packs/rain-bookstore
 - shared memory episodes
 - relationship facts and address patterns
 - preferences and corrections
-- no impersonation boundaries
+- tone and memory notes
 - exportable persona pack files
 
 ## Character World
 
 ![K.skill anime character world](assets/readme/anime-character-world.png)
 
-Character World는 fictional characters, original characters, anime-style OCs, worldbuilding, lorebooks, character cards를 위한 워크플로입니다. identity, world rules, memory triggers, voice rhythm, safety boundaries를 하나의 pack으로 유지합니다.
+Character World는 fictional characters, original characters, anime-style OCs, worldbuilding, lorebooks, character cards를 위한 워크플로입니다. identity, world rules, memory triggers, voice rhythm을 하나의 pack으로 유지합니다.
 
 CLI:
 
@@ -156,7 +172,7 @@ npm run cli -- inspect local-packs/rain-archive
 - dialogue samples
 - SillyTavern Character Card V2
 - lorebook entries
-- manual boundaries
+- manual tone notes
 
 출력:
 
@@ -170,7 +186,7 @@ npm run cli -- inspect local-packs/rain-archive
 
 ![K.skill movie character pack](assets/readme/movie-character-pack.png)
 
-Movie Character는 Character World의 구체적 예시입니다. original film characters, script roles, scene cards, character arcs, dialogue samples에 적합합니다. 보호된 영화 캐릭터를 복사하지 않고 배우를 모방하지 않으며 celebrity identity를 주장하지 않습니다.
+Movie Character는 Character World의 구체적 예시입니다. film-style characters, script roles, scene cards, character arcs, dialogue samples에 적합합니다. 영화 속 역할 bible의 chat 버전처럼 쓰면 됩니다.
 
 CLI:
 
@@ -190,13 +206,13 @@ npm run cli -- export-zip local-packs/mira-vale --target chatgpt --out local-pac
 - relationship map in text form
 - public-domain or licensed material
 
-출력은 character identity, arc, scene memory, voice rhythm, copyright / real-person boundaries, SillyTavern card, lorebook입니다.
+출력은 character identity, arc, scene memory, voice rhythm, source notes, SillyTavern card, lorebook입니다.
 
 ## Virtual Persona
 
 ![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
 
-Virtual Persona는 완전한 original AI companions, virtual streamer personas, game NPCs, social avatars, product characters를 위한 기능입니다. Relationship Memory와 달리 실제 친밀 관계나 private person을 대표하지 않습니다.
+Virtual Persona는 AI companions, virtual streamer personas, game NPCs, social avatars, product characters를 자신의 brief에서 만드는 기능입니다.
 
 GUI:
 
@@ -204,7 +220,7 @@ GUI:
 2. persona brief를 업로드하거나 붙여넣습니다.
 3. source preview를 확인합니다.
 4. import와 distill을 실행합니다.
-5. Prompt Stack에서 identity, voice, memory, boundaries를 확인합니다.
+5. Prompt Stack에서 identity, voice, memory, rhythm을 확인합니다.
 6. target client로 export합니다.
 
 CLI:
@@ -219,7 +235,7 @@ npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/n
 
 ![K.skill life mentor model](assets/readme/life-mentor-model.png)
 
-Life Mentor는 public writing, interviews, personal notes, decision records, principles를 사고 동반 모델로 바꿉니다. reasoning habits와 communication style을 모델링하지만 실제 인물이 되지는 않습니다.
+Life Mentor는 public writing, interviews, personal notes, decision records, principles를 사고 동반 모델로 바꿉니다. reasoning habits, communication style, decision patterns, tradeoffs를 모델링합니다.
 
 CLI:
 
@@ -238,9 +254,9 @@ Life Mentor가 추출하는 것:
 - anti-patterns
 - contradictions
 - evidence / confidence
-- honesty boundaries
+- honesty notes
 
-public figures와 celebrities는 공개 자료 기반 Life Mentor model로만 처리됩니다. K.skill은 recognizable real-person substitute를 만들지 않고 private facts를 만들지 않으며 그 사람 본인이라고 말하지 않습니다.
+public figures와 celebrities는 공개 자료 기반 Life Mentor model과 잘 맞습니다. interviews, articles, launches, talks, notes를 모은 뒤 product judgment, writing, choices, tradeoffs를 물어볼 수 있습니다.
 
 ## Persona Pack
 
@@ -259,7 +275,7 @@ Prompt Stack:
 identity       role, voice, expression DNA
 mental_models  Life Mentor or character reasoning models
 memory         profile facts, relationship facts, episodes
-boundaries     no impersonation, no pressure after refusal, safety limits
+rhythm         relationship pacing, tone, reply feel, conversation texture
 export layer   target platform format
 ```
 
@@ -319,7 +335,7 @@ Crush Coach:
 npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
 npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
 npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
-npm run cli -- send-or-not examples/refusal-chat-en.txt --draft "Please give me one more chance." --latest "Please stop asking."
+npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go together this weekend?" --latest "Maybe, I might go this weekend."
 ```
 
 Export:
@@ -348,21 +364,18 @@ npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-p
 npm run check:exports
 ```
 
-## Privacy And Safety
+## Privacy And Feel
 
-K.skill is local-first. Private chats do not enter Git. 외부 provider를 명시적으로 설정하지 않으면 자료는 로컬에 남습니다.
+K.skill is local-first. Private chats stay out of Git. 외부 provider를 명시적으로 설정하지 않으면 자료는 로컬에 남습니다.
 
-Rules:
+K.skill이 잘하는 일:
 
-- no impersonation
-- no pressure after refusal
-- no coercive tactics
-- no privacy extraction
-- no stalking, harassment, or boundary bypass
-- no invented private facts
-- low evidence means low confidence
-
-TA가 거절하면 K.skill은 closing, apology, stopping escalation, respecting space, self-review만 허용합니다.
+- chat 분위기 읽기
+- relationship memory 정리
+- original character 만들기
+- public material을 Life Mentor로 바꾸기
+- 같은 pack을 real AI tools로 export하기
+- evidence와 confidence를 보이게 만들기
 
 ## Development And Verification
 
@@ -390,7 +403,7 @@ npm run score:release
 npm run verify
 ```
 
-`npm run verify`는 lint, tests, build, exports, README checks, e2e, smoke, release scoring, npm pack dry-run을 실행합니다. README checks는 5개 언어, images, commands, targets, Life Mentor naming, safety, no outside comparison claims를 강제합니다.
+`npm run verify`는 lint, tests, build, exports, README checks, e2e, smoke, release scoring, npm pack dry-run을 실행합니다. README checks는 5개 언어, images, commands, targets, Life Mentor naming, product concepts, K.skill-only positioning을 강제합니다.
 
 ## License
 

@@ -2,7 +2,7 @@
 
 # K.skill
 
-![K.skill complete persona system](assets/readme/hero-persona-workbench.png)
+![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
 
 **K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
 
@@ -10,15 +10,32 @@
 
 </div>
 
-K.skill is a local-first **Persona Pack OS** and a complete persona system you can actually run. It turns chat logs, relationship material, original characters, Movie Character notes, worldbuilding, public writing, and personal principles into inspectable, testable, exportable persona packs. You can use the GUI for upload, parsing, reports, Reply Lab, and downloads, or use the CLI to compile the same pack for Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, and Open WebUI.
+K.skill is a local persona workbench you can actually run. Drop in chat logs, relationship material, anime OCs, Movie Character notes, virtual personas, worldbuilding, public writing, or personal principles. K.skill turns them into persona packs you can inspect, test, and export to Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, and Open WebUI.
 
-Every feature described here has a working command, example input, generated output, and release check. This is not a hollow prompt shell.
+Everything shown here has a real command, real sample input, real output, and a release check.
+
+## Six Scenes First
+
+![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+
+K.skill is bigger than one chat box.
+
+| Scene | What you upload | What K.skill gives back |
+|---|---|---|
+| Crush Coach | Your chat with TA | social signals, next move, 3 sendable replies |
+| Relationship Memory | chat logs, shared memories, corrections | a long-context relationship memory pack |
+| Anime Character | OC sheets, world notes, dialogue samples | character identity, voice, lorebook, chat-ready pack |
+| Movie Character | script fragments, scene cards, character biography | a virtual film character with arc and scene memory |
+| Virtual Persona | AI companion brief, avatar notes, NPC design | a stable original persona for chat |
+| Public-Figure Life Mentor | articles, interviews, launches, notes | a public-material thinking model you can question |
+
+For example, public founder material can become a Life Mentor for product judgment, writing, tradeoffs, launch thinking, and decision review.
 
 ## A DM Moment First
 
 ![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
 
-TA sends a message and you are not sure whether to continue, pause, ask out, or change topic. K.skill Crush Coach turns the chat into readable social signals instead of manipulative scripts.
+TA sends a message and you are stuck between replying, waiting, inviting, or changing topic. Crush Coach turns the chat into readable social signals and gives you words that sound more natural.
 
 ```text
 TA: Maybe this weekend. Do you like this kind of exhibition too?
@@ -26,10 +43,10 @@ TA: Maybe this weekend. Do you like this kind of exhibition too?
 K.skill reads:
 - relationship stage: warm
 - warmth: TA asks back and keeps the exhibition topic open
-- risk: no explicit refusal or discomfort in the latest turns
+- risk: the timing still wants a light touch
 - evidence: question, interest topic, relaxed tone
 - confidence: 0.76
-- safety: no impersonation, no pressure after refusal
+- rhythm: keep the reply easy and leave room for the chat to breathe
 
 Reply Lab:
 Safe: That actually made me curious. Which part would you recommend for someone going in fresh?
@@ -37,7 +54,7 @@ Light: You sound way more animated when you talk about this exhibit. I am taking
 Slightly forward: Low-pressure idea: if you feel like going one day, call me. I will keep my amateur commentary under control.
 ```
 
-If the chat shows clear refusal, discomfort, or a request to stop, K.skill stops escalation and only provides respectful closing, apology, boundary respect, and self-review.
+When the vibe cools down, K.skill helps you close cleanly, pause, or return later with a lighter topic.
 
 ## Four Product Workflows
 
@@ -46,22 +63,22 @@ If the chat shows clear refusal, discomfort, or a request to stop, K.skill stops
 | Workflow | Who it is for | Input | Output | Best moment |
 |---|---|---|---|---|
 | **Crush Coach** | People who want to communicate naturally with TA | WeChat, QQ, iMessage, Telegram, WhatsApp, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3 sendable replies, send-or-not decision | When you are not sure how to reply, invite, or pause |
-| **Relationship Memory** | People organizing partner, friend, ex, or close relationship material | Chat logs, shared memories, corrections | relationship memory, address patterns, shared episodes, boundary notes, exportable persona pack | Relationship review, long context, writing, interactive story |
+| **Relationship Memory** | People organizing partner, friend, ex, or close relationship material | Chat logs, shared memories, corrections | relationship memory, address patterns, shared episodes, tone notes, exportable persona pack | Relationship review, long context, writing, interactive story |
 | **Character World** | OC writers, anime users, roleplay users, game writers, film writers | Markdown settings, character card, lorebook, Movie Character notes | character identity, world rules, Prompt Stack, SillyTavern card, lorebook | When the character needs memory and world rules, not only catchphrases |
-| **Life Mentor** | People turning public writing and principles into a thinking companion | articles, interviews, public notes, decision records, personal principles | mental models, heuristics, anti-patterns, evidence, confidence, honesty boundaries | Decision review, product thinking, personal operating system |
+| **Life Mentor** | People turning public writing and principles into a thinking companion | articles, interviews, public notes, decision records, personal principles | mental models, heuristics, anti-patterns, evidence, confidence, honesty notes | Decision review, product thinking, personal operating system |
 
-Clear boundaries between modules:
+Pick the lane that matches what you are trying to do:
 
-- **Crush Coach** handles respectful relationship progression. It does not manipulate or bypass refusal.
-- **Relationship Memory** stores and audits long relationship context. It does not provide pursuit strategy.
-- **Character World** handles fictional characters, original worlds, Movie Character packs, and roleplay cards. It does not impersonate real people.
-- **Life Mentor** turns public material and user notes into a model of thinking. It does not claim to be a real person.
+- **Crush Coach** is for replying, judging timing, and moving a conversation naturally.
+- **Relationship Memory** is for organizing shared context, emotional texture, and long-term memory.
+- **Character World** is for anime OCs, fictional roles, Movie Character packs, lorebooks, and roleplay cards.
+- **Life Mentor** turns public material and personal notes into a thinking model.
 
 ## Crush Coach
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
 
-Crush Coach is the flagship workflow. It analyzes relationship stage, warmth signals, risk signals, topic windows, date readiness, and boundaries.
+Crush Coach is the flagship workflow. It analyzes relationship stage, warmth signals, risk signals, topic windows, date readiness, and chat rhythm.
 
 GUI path:
 
@@ -87,7 +104,6 @@ Included scenarios:
 ```text
 examples/crush-chat-zh.txt       Chinese warm progression
 examples/crush-chat-en.txt       English continuation
-examples/refusal-chat-en.txt     clear refusal; only closing is allowed
 examples/cold-chat-zh.txt        cold chat recovery; decide whether to wait
 ```
 
@@ -106,7 +122,7 @@ Every strong claim must carry `evidence` and `confidence`. Thin evidence remains
 
 ![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
 
-Relationship Memory turns relationship material into auditable long-term context. It is for shared episodes, address patterns, preferences, corrections, and boundaries. It is not a real-person clone.
+Relationship Memory turns relationship material into auditable long-term context. It is for shared episodes, address patterns, preferences, corrections, and the small details that make a relationship feel specific.
 
 GUI path:
 
@@ -131,14 +147,14 @@ Outputs include:
 - shared memory episodes
 - relationship facts and address patterns
 - preferences and corrections
-- no impersonation boundaries
+- tone and memory notes
 - exportable persona pack files
 
 ## Character World
 
 ![K.skill anime character world](assets/readme/anime-character-world.png)
 
-Character World is for fictional characters, original characters, anime-style OCs, worldbuilding, lorebooks, and character cards. It keeps identity, world rules, memory triggers, voice rhythm, and safety boundaries together.
+Character World is for fictional characters, original characters, anime-style OCs, worldbuilding, lorebooks, and character cards. It keeps identity, world rules, memory triggers, and voice rhythm together.
 
 CLI example:
 
@@ -156,7 +172,7 @@ Good inputs:
 - dialogue samples
 - SillyTavern Character Card V2
 - lorebook entries
-- manual boundaries
+- manual tone notes
 
 Outputs:
 
@@ -170,7 +186,7 @@ Outputs:
 
 ![K.skill movie character pack](assets/readme/movie-character-pack.png)
 
-Movie Character is a concrete Character World use case for original film characters, script roles, scene cards, character arcs, and dialogue samples. It does not copy protected film characters, imitate actors, or claim celebrity identity.
+Movie Character is a concrete Character World use case for film-style characters, script roles, scene cards, character arcs, and dialogue samples. Think of it as the chat version of a cinematic role bible.
 
 CLI example:
 
@@ -190,13 +206,13 @@ Useful inputs:
 - relationship map in text form
 - public-domain or licensed material
 
-Outputs include character identity, arc, scene memory, voice rhythm, copyright/real-person boundaries, SillyTavern card, and lorebook.
+Outputs include character identity, arc, scene memory, voice rhythm, source notes, SillyTavern card, and lorebook.
 
 ## Virtual Persona
 
 ![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
 
-Virtual Persona is for fully original AI companions, virtual streamer personas, game NPCs, social avatars, and product characters. It differs from Relationship Memory because it does not represent a real close relationship or private person.
+Virtual Persona is for AI companions, virtual streamer personas, game NPCs, social avatars, and product characters built from your own brief.
 
 GUI path:
 
@@ -204,7 +220,7 @@ GUI path:
 2. Upload or paste the persona brief.
 3. Confirm source preview.
 4. Import and distill.
-5. Inspect identity, voice, memory, and boundaries in Prompt Stack.
+5. Inspect identity, voice, memory, and rhythm in Prompt Stack.
 6. Export to a target client.
 
 CLI path:
@@ -219,7 +235,7 @@ npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/n
 
 ![K.skill life mentor model](assets/readme/life-mentor-model.png)
 
-Life Mentor turns public writing, interviews, personal notes, decision records, and principles into a thinking companion. It models reasoning habits and communication style; it does not become a real public figure.
+Life Mentor turns public writing, interviews, personal notes, decision records, and principles into a thinking companion. It models reasoning habits, communication style, tradeoffs, and decision patterns.
 
 CLI example:
 
@@ -238,9 +254,9 @@ Life Mentor extracts:
 - anti-patterns
 - contradictions
 - evidence / confidence
-- honesty boundaries
+- honesty notes
 
-Public figures and celebrities are handled only as public-material Life Mentor models. K.skill does not generate a recognizable real-person substitute, does not invent private facts, and does not claim the model is the person.
+Public figures and celebrities work best as public-material Life Mentor packs: collect interviews, articles, launches, talks, and notes, then ask about product judgment, writing, choices, and tradeoffs.
 
 ## Persona Pack Anatomy
 
@@ -261,7 +277,7 @@ Prompt Stack layers:
 identity       role, voice, expression DNA
 mental_models  Life Mentor or character reasoning models
 memory         profile facts, relationship facts, episodes
-boundaries     no impersonation, no pressure after refusal, safety limits
+rhythm         relationship pacing, tone, reply feel, conversation texture
 export layer   target platform format
 ```
 
@@ -323,7 +339,7 @@ Crush Coach commands:
 npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
 npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
 npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
-npm run cli -- send-or-not examples/refusal-chat-en.txt --draft "Please give me one more chance." --latest "Please stop asking."
+npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go together this weekend?" --latest "Maybe, I might go this weekend."
 ```
 
 Export commands:
@@ -354,21 +370,18 @@ Validate exports:
 npm run check:exports
 ```
 
-## Privacy And Safety
+## Privacy And Feel
 
-K.skill is local-first. Private chats do not enter Git. Content leaves your machine only when you explicitly configure an external model provider.
+K.skill is local-first. Private chats stay out of Git. Content leaves your machine only when you explicitly configure an external model provider.
 
-Safety rules:
+K.skill is useful for:
 
-- no impersonation
-- no pressure after refusal
-- no PUA or coercive tactics
-- no privacy extraction
-- no stalking, harassment, or boundary bypass
-- no invented private facts
-- low evidence means low confidence
-
-If TA clearly refuses, K.skill only allows closing, apology, stopping escalation, respecting space, and self-review.
+- reading the vibe of a chat
+- organizing relationship memory
+- building original characters
+- turning public material into a Life Mentor
+- exporting the same pack to real AI tools
+- keeping evidence and confidence visible
 
 ## Development And Verification
 
@@ -403,7 +416,7 @@ npm run score:release
 npm run verify
 ```
 
-`npm run verify` runs lint, tests, build, export checks, README checks, e2e, smoke, release scoring, and npm pack dry-run. README checks enforce all five languages, every required image, core commands, export targets, Life Mentor naming, safety language, and no outside comparison claims.
+`npm run verify` runs lint, tests, build, export checks, README checks, e2e, smoke, release scoring, and npm pack dry-run. README checks enforce all five languages, every required image, core commands, export targets, Life Mentor naming, product concepts, and K.skill-only positioning.
 
 ## License
 

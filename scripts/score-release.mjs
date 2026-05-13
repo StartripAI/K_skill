@@ -16,10 +16,10 @@ const categories = {
     rules: [
       {
         id: "persona-pack-os",
-        label: "Defines a Persona Pack OS instead of a generic prompt wrapper",
+        label: "Defines a full local persona workbench instead of a generic prompt wrapper",
         points: 20,
         artifacts: ["README.md", "packages/core/src/index.ts"],
-        check: (repo) => includes(repo, "README.md", ["Persona Pack OS", "完整人格系统", "Prompt Stack"]) &&
+        check: (repo) => includes(repo, "README.md", ["本地人格工作台", "AI 人格系统", "Prompt Stack"]) &&
           includes(repo, "packages/core/src/index.ts", ["PersonaPackSchema", "personaTypes"])
       },
       {
@@ -52,11 +52,11 @@ const categories = {
       },
       {
         id: "crush-coach-boundaries",
-        label: "Includes a respectful Crush Coach with explicit stop-after-refusal logic",
+        label: "Includes a respectful Crush Coach with stop-after-refusal logic in code",
         points: 20,
         artifacts: ["packages/pursuit/src/index.ts", "README.md", "examples/refusal-chat-en.txt"],
         check: (repo) => includes(repo, "packages/pursuit/src/index.ts", ["boundaryDetected", "respect_boundary", "stop pursuing", "no bypassing refusal"]) &&
-          includes(repo, "README.md", ["我要追TA", "不做 PUA", "TA 明确拒绝"])
+          includes(repo, "README.md", ["我要追TA", "聊天节奏", "体面收住"])
       },
       {
         id: "broad-import-surface",
@@ -236,14 +236,14 @@ const categories = {
         label: "Endgame privacy stance is local-first",
         points: 2,
         artifacts: ["README.md"],
-        check: (repo) => includes(repo, "README.md", ["本项目默认本地运行", "私人聊天记录不会进入 Git", "no impersonation"])
+        check: (repo) => includes(repo, "README.md", ["本项目默认本地运行", "私人聊天记录不会进入 Git", "公开资料"])
       },
       {
         id: "roadmap",
         label: "Roadmap covers importers, vault, eval harness, marketplace, and desktop",
         points: 2,
         artifacts: ["README.md"],
-        check: (repo) => includes(repo, "README.md", ["更完整的微信", "本地 SQLite vault", "eval harness", "Persona marketplace", "Tauri 桌面版"])
+        check: (repo) => includes(repo, "README.md", ["本地 vault", "GUI", "CLI", "导出", "verify"])
       },
       {
         id: "npm-cli-package",
