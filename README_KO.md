@@ -4,7 +4,8 @@
 
 ![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
 
-**K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
+**채팅, 캐릭터, 관계 기억, Life Mentor를 바로 쓸 수 있는 AI persona pack으로 만드는 로컬 인격 워크벤치.**  
+**Local persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · **한국어** · [Español](README_ES.md)
 
@@ -78,7 +79,7 @@ Slightly forward: Low-pressure idea: if you feel like going one day, call me. I 
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
 
-Crush Coach는 핵심 워크플로입니다. relationship stage, warmth signals, risk signals, topic windows, date readiness, chat rhythm을 분석합니다.
+Crush Coach는 “이 메시지를 어떻게 답장하지?”에서 시작할 때 쓰는 입구입니다. relationship stage, warmth signals, risk signals, topic windows, date readiness, chat rhythm을 분석합니다.
 
 GUI:
 

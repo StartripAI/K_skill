@@ -4,7 +4,8 @@
 
 ![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
 
-**把聊天记录、角色设定、关系记忆和公开资料，变成你能直接拿去聊天的 AI 人格系统。**
+**把聊天记录、角色设定、关系记忆和公开资料，整理成能直接使用的 AI 人格系统。**  
+**Local persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
 
 **中文** · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
 
@@ -98,7 +99,7 @@ K.skill 正式分成四条线。别混着用，按你的目的选就行。
 - **Character World**：帮你做角色。
 - **Life Mentor**：帮你提炼思路。
 
-## 我要追TA：最强卖点
+## 我要追TA：先把这条消息回好
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
 

@@ -1,6 +1,6 @@
 # K.skill Usage
 
-K.skill is a local-first Persona Pack OS for four complete workflows:
+K.skill 是本地人格工作台，也是 a local persona workbench for four complete workflows:
 
 - **Crush Coach**: analyze chat logs, relationship stage, warmth/risk signals, chat rhythm, Reply Lab, topic plan, and send-or-not decisions.
 - **Relationship Memory**: turn close relationship material into auditable memory, corrections, evidence, and exportable persona packs.

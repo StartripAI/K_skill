@@ -4,7 +4,8 @@
 
 ![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
 
-**K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
+**Workbench local para convertir chats, personajes, memoria de relación y Life Mentor en AI persona packs listos para usar.**  
+**Local persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · **Español**
 

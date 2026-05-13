@@ -1,7 +1,7 @@
 {
   "name": "kskill",
   "version": "0.1.0",
-  "description": "Persona Pack OS for chats, characters, memories, minds, and respectful pursuit coaching.",
+  "description": "本地人格工作台 / Local persona workbench for chats, characters, relationship memory, Crush Coach, and Life Mentor packs.",
   "type": "module",
   "main": "./dist/packages/core/src/index.js",
   "types": "./dist/packages/core/src/index.d.ts",
