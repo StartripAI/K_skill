@@ -2,37 +2,39 @@
 
 # K.skill
 
-![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
+![K.skill film voice memory hero](assets/readme/hero-voice-memory-film-v3.png)
 
-**음성, 채팅, 이미지, 캐릭터 설정, 관계 기억을 듣고 말하고 내보낼 수 있는 persona pack으로 만드는 로컬 워크벤치.**<br>
-**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
+**목소리, 채팅, 이미지, 캐릭터 설정, 관계의 기억을 듣고, 말하고, 가져갈 수 있는 persona pack으로.**<br>
+**A voice-first place to keep chats, memories, characters, and Life Mentor packs alive locally.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · **한국어** · [Español](README_ES.md)
 
 </div>
 
-K.skill은 local-first 인격 워크벤치입니다. voice note, 채팅 로그, 스크린샷, 캐릭터 이미지, 세계관, 공개 글, 개인 원칙을 검사할 수 있고, 계속 대화할 수 있고, 내보낼 수 있는 persona pack으로 바꿉니다. 텍스트는 일을 정리하고, 목소리는 그때의 느낌을 다시 가져옵니다.
+다시 듣고 싶은 목소리, 채팅방 안에서만 통하는 농담, 사진에 남은 표정, 꿈에 나온 사람, 아직 윤곽만 있는 캐릭터. 그런 조각들은 짧은 설명으로 적는 순간 금방 옅어집니다.
 
-여기에 적힌 기능은 실제 명령, 예제 입력, 생성 파일, 릴리스 검사를 갖습니다.
+K.skill은 그 조각들을 다시 열어 대화할 수 있는 local-first persona pack으로 묶습니다. voice note, 채팅 로그, 스크린샷, 캐릭터 이미지, 세계관, 공개 글, 개인 원칙을 넣으면 다시 확인할 수 있고, 이어서 대화할 수 있고, 필요한 곳으로 내보낼 수 있는 형태가 됩니다. 텍스트는 무슨 일이 있었는지 풀어 주고, 목소리는 그때 남아 있던 온도를 다시 데려옵니다.
+
+README에 적힌 명령, 샘플, 출력은 실제로 실행되는 것들입니다. 분위기만 적어 둔 설명이 아닙니다.
 
 ## Voice Memory: 목소리까지 persona에 넣기
 
-![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
+![K.skill voice memory flow](assets/readme/voice-memory-anime-v3.png)
 
-우리가 기억하는 건 문장만이 아닐 때가 많습니다.<br>
-잠깐 멈추는 방식, 웃음, 말버릇, 답장의 속도, 목소리의 온도. 이런 작은 것들이 긴 메모보다 더 “그 사람 같다”는 느낌을 줍니다. 캐릭터도 마찬가지입니다. 목소리의 결이 있으면 대화가 훨씬 빨리 살아납니다.
+우리가 떠올리는 건 문장만이 아닐 때가 많습니다.<br>
+잠깐 멈추는 방식, 웃음, 말버릇, 반 박자 늦는 답장, 갑자기 부드러워지는 목소리. 이런 작은 것들이 긴 메모보다 더 선명하게 “그 사람”을 데려옵니다. 꿈에 나온 사람이나 아직 이름만 있는 캐릭터도 같습니다. 목소리의 기척이 있으면 대화가 훨씬 가까워집니다.
 
-K.skill은 Voice Memory를 워크벤치의 첫 입구로 둡니다. 음성은 먼저 확인 가능한 transcript가 되고, 그다음 voice DNA, chat rhythm, relationship memory, character tone, export 가능한 pack으로 정리됩니다. voice note 하나로 시작해도 되고, 채팅, 이미지, sticker, PDF, video transcript와 함께 넣어도 됩니다.
+K.skill에서 Voice Memory는 첫 입구입니다. 음성은 먼저 확인 가능한 transcript가 되고, 그다음 voice DNA, chat rhythm, relationship memory, character tone, export 가능한 pack으로 가라앉습니다. voice note 하나로 시작해도 되고, 채팅, 이미지, sticker, PDF, video transcript와 함께 넣어도 됩니다.
 
-| Moment | 넣는 자료 | K.skill 결과 |
+| 하고 싶은 일 | 넣는 자료 | K.skill 결과 |
 |---|---|---|
 | 누군가가 그리울 때 | voice note, 오래된 채팅, 사진, 함께한 순간 | voice DNA, relationship memory, chat rhythm, 다시 열 수 있는 persona pack |
-| 꿈속의 캐릭터 | description, character image, line audio, world notes | 목소리 감각이 있고 이야기를 이어갈 수 있는 original character |
-| 관계를 돌아볼 때 | old voice clips, screenshots, timeline, memory notes | 읽고, 듣고, 다시 보고, export할 수 있는 Relationship Memory |
+| 꿈에 나온 사람을 붙잡고 싶을 때 | description, character image, line audio, world notes | 목소리 감각이 있고 이야기를 이어갈 수 있는 original character |
+| 관계를 조용히 돌아볼 때 | old voice clips, screenshots, timeline, memory notes | 읽고, 듣고, 다시 보고, export할 수 있는 Relationship Memory |
 | TA가 voice note를 보냈을 때 | TA voice note, 최근 채팅, 내 목표 | ASR transcript, tone read, warmth signals, 고쳐 쓸 수 있는 3 reply drafts |
-| Movie / Virtual Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
+| Movie / Virtual Character를 만들 때 | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
 
-먼저 내장 샘플로 돌리고, 그다음 자신의 local voice engine에 연결할 수 있습니다.
+먼저 내장 샘플로 흐름을 확인하고, 그다음 자신의 local voice engine에 연결할 수 있습니다.
 
 ```bash
 npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
@@ -47,32 +49,30 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
   --out tmp/memory-voice.wav
 ```
 
-`local-voice-clone`은 `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath`, `outFile`을 stdin JSON으로 로컬 voice engine에 전달합니다. engine이 `outFile`에 음성을 쓰고, K.skill이 GUI, CLI, export로 가져옵니다.
-
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+`local-voice-clone`은 `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath`, `outFile`을 stdin JSON으로 local voice engine에 전달합니다. engine이 `outFile`에 음성을 쓰면, K.skill이 그것을 GUI, CLI, export로 가져옵니다.
 
 ## 먼저 6개 장면
 
-![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+![K.skill six social persona scenes](assets/readme/persona-scenes-social-v3.png)
 
-K.skill은 단순한 채팅창 하나가 아닙니다.
+K.skill은 단순한 채팅창 하나가 아닙니다. 시작점은 6개입니다.
 
 | Scene | 넣는 자료 | K.skill 결과 |
 |---|---|---|
-| Crush Coach | TA와의 채팅 | social signals, 다음 행동, 바로 보낼 3개 답장 |
-| Relationship Memory | 채팅, 공유 기억, 보정 메모 | 장기 문맥 관계 memory pack |
-| Anime Character | OC 설정, 세계관, 대사 샘플 | character identity, voice, lorebook |
+| Crush Coach | TA와의 채팅 | social signals, 다음 행동, 자연스럽게 보낼 3개 답장 |
+| Relationship Memory | 채팅, 공유 기억, 보정 메모 | 오래 다시 열 수 있는 관계 memory pack |
+| Anime Character | OC 설정, 세계관, 대사 샘플 | character identity, voice, lorebook, 채팅 입구 |
 | Movie Character | script fragments, scene cards, biography | arc와 scene memory가 있는 영화풍 persona |
 | Virtual Persona | AI companion brief, avatar notes, NPC design | 안정적으로 대화되는 original persona |
 | Public-Figure Life Mentor | articles, interviews, launches, notes | 공개 자료 기반 thinking model |
 
-예를 들어 공개 창업자 자료를 모으면 product judgment, writing, tradeoffs, launch thinking을 같이 물어볼 수 있는 Life Mentor로 쓸 수 있습니다.
+공개된 창업자나 작가의 글, interviews, launches, notes를 모으면 product judgment, writing, tradeoffs, launch thinking을 함께 뜯어볼 수 있는 Life Mentor로 쓸 수 있습니다.
 
 ## DM 장면부터 보기
 
 ![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
 
-TA가 메시지를 보냈고, 이어가야 할지, 기다려야 할지, 약속을 제안해도 되는지, 주제를 바꿔야 할지 모를 때가 있습니다. Crush Coach는 대화를 사회적 신호로 읽고, 더 자연스러운 다음 문장을 제안합니다.
+TA가 메시지를 보냈고, 바로 이어가야 할지, 기다려야 할지, 약속을 제안해도 되는지, 주제를 바꿔야 할지 모를 때가 있습니다. Crush Coach는 그 망설임을 social signals로 다시 읽고, 지금의 공기에 맞는 다음 문장을 제안합니다.
 
 ```text
 TA: Maybe this weekend. Do you like this kind of exhibition too?
@@ -91,30 +91,28 @@ Light: You sound way more animated when you talk about this exhibit. I am taking
 Slightly forward: Low-pressure idea: if you feel like going one day, call me. I will keep my amateur commentary under control.
 ```
 
-분위기가 식으면 K.skill은 깔끔하게 마무리하거나, 잠시 멈추거나, 더 가벼운 주제로 돌아가는 쪽을 제안합니다.
+분위기가 식으면 K.skill은 무리해서 밀지 않습니다. 깔끔하게 마무리하거나, 잠시 멈추거나, 더 가벼운 주제로 돌아가도록 대화에 여지를 남깁니다.
 
 ## 네 가지 제품 워크플로
 
-![K.skill GUI workflow](assets/readme/web-gui-flow.png)
-
 | Workflow | 대상 | 입력 | 출력 | 사용 시점 |
 |---|---|---|---|---|
-| **Crush Coach** | TA와 자연스럽게 소통하고 싶은 사람 | WeChat, QQ, iMessage, Telegram, WhatsApp, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3개 reply, send-or-not 판단 | 답장, 초대, 대기 판단이 어려울 때 |
-| **Relationship Memory** | 연인, 친구, 전 연인, 친밀한 관계 자료를 정리하는 사람 | 채팅, 공유 기억, 보정 메모 | 관계 기억, 호칭 패턴, 공유 에피소드, tone notes, exportable persona pack | 관계 복기, 장기 문맥, 글쓰기, 인터랙티브 스토리 |
-| **Character World** | OC 작가, 2D 캐릭터 사용자, 롤플레이, 게임/영화 창작자 | Markdown 설정, character card, lorebook, Movie Character notes | 캐릭터 정체성, 세계 규칙, Prompt Stack, SillyTavern card, lorebook | 말버릇이 아니라 기억과 세계 규칙이 필요할 때 |
+| **Crush Coach** | TA와 자연스럽게 소통하고 싶은 사람 | messaging app export, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3개 reply, send-or-not 판단 | 답장, 초대, 대기 판단이 어려울 때 |
+| **Relationship Memory** | 연인, 친구, 전 연인, 친밀한 관계를 정리하는 사람 | 채팅, 공유 기억, 보정 메모 | 관계 기억, 호칭 패턴, 공유 에피소드, tone notes, exportable persona pack | 관계 복기, 장기 문맥, 글쓰기, 인터랙티브 스토리 |
+| **Character World** | OC 작가, 2D 캐릭터 사용자, 롤플레이, 게임/영화 창작자 | Markdown 설정, character card, lorebook, Movie Character notes | 캐릭터 정체성, 세계 규칙, Prompt Stack, character card, lorebook | 말버릇이 아니라 기억과 세계 규칙이 필요할 때 |
 | **Life Mentor** | 공개 글과 개인 원칙을 대화형 사고 모델로 만들고 싶은 사람 | articles, interviews, public notes, decision records, personal principles | mental models, heuristics, anti-patterns, evidence, confidence, honesty notes | 의사결정, 회고, 개인 OS, 사고 보조 |
 
 목적에 맞는 입구를 고르면 됩니다.
 
 - **Crush Coach**는 답장, 타이밍, 자연스러운 대화 진행에 씁니다.
-- **Relationship Memory**는 공유 기억, 관계의 분위기, 장기 문맥에 씁니다.
+- **Relationship Memory**는 공유 기억, 관계의 분위기, 장기 문맥을 남기는 데 씁니다.
 - **Character World**는 anime OC, fictional roles, Movie Character, lorebooks, roleplay cards에 씁니다.
-- **Life Mentor**는 공개 자료와 개인 메모를 사고 모델로 바꿉니다.
+- **Life Mentor**는 공개 자료와 개인 메모를 질문할 수 있는 사고 모델로 바꿉니다.
 
 ## Voice Studio
 
-K.skill은 이제 텍스트만 다루지 않습니다. 하나의 intake에서 **voice note**, 녹음, screenshot, image 파일, sticker, emoji 메모, PDF, video transcript, mixed ZIP을 받을 수 있습니다.  
-먼저 **multimodal import**를 실행합니다. 텍스트는 chat turns가 되고, 음성은 **ASR**로 transcript evidence가 되며, image / screenshot / PDF / video transcript는 media evidence가 되고, sticker는 **sticker intents**로 정리됩니다. Crush Coach, Relationship Memory, Character World, Life Mentor가 같은 evidence trail을 이어서 씁니다.
+K.skill은 텍스트만 읽는 곳이 아닙니다. 하나의 intake에 **voice note**, 녹음, screenshot, image 파일, sticker, emoji 메모, PDF, video transcript, mixed ZIP을 함께 넣을 수 있습니다.
+먼저 **multimodal import**가 실행됩니다. 텍스트는 chat turns가 되고, 음성은 **ASR**를 거쳐 transcript evidence가 되며, image / screenshot / PDF / video transcript는 media evidence가 되고, sticker는 **sticker intents**로 정리됩니다. Crush Coach, Relationship Memory, Character World, Life Mentor가 같은 evidence trail을 이어서 씁니다.
 
 CLI:
 
@@ -135,9 +133,7 @@ GUI:
 
 ## Crush Coach
 
-![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
-
-Crush Coach는 “이 메시지를 어떻게 답장하지?”에서 시작할 때 쓰는 입구입니다. relationship stage, warmth signals, risk signals, topic windows, date readiness, chat rhythm을 분석합니다.
+Crush Coach는 “이 메시지를 어떻게 답장하지?”에서 시작할 때 쓰는 입구입니다. relationship stage, warmth signals, risk signals, topic windows, date readiness, chat rhythm을 보고, 밀어도 되는지, 살짝 물러나야 하는지, 가볍게 남겨야 하는지 나눕니다.
 
 GUI:
 
@@ -181,7 +177,7 @@ tmp/pursuit-en/
 
 ![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
 
-Relationship Memory는 관계 자료를 검토 가능한 장기 문맥으로 만듭니다. 공유 에피소드, 호칭 패턴, 취향, corrections, 작은 분위기까지 정리합니다.
+Relationship Memory는 관계 자료를 나중에 확인할 수 있는 장기 문맥으로 만듭니다. 공유 에피소드, 호칭 패턴, 취향, corrections, 너무 많이 말한 것, 말하지 못한 것, 작은 분위기까지 억지로 극화하지 않고 정리합니다.
 
 GUI:
 
@@ -213,7 +209,7 @@ npm run cli -- inspect local-packs/rain-bookstore
 
 ![K.skill anime character world](assets/readme/anime-character-world.png)
 
-Character World는 fictional characters, original characters, anime-style OCs, worldbuilding, lorebooks, character cards를 위한 워크플로입니다. identity, world rules, memory triggers, voice rhythm을 하나의 pack으로 유지합니다.
+Character World는 fictional characters, original characters, anime-style OCs, worldbuilding, lorebooks, character cards를 위한 워크플로입니다. 그 캐릭터가 누구인지, 어떤 세계에 사는지, 무엇에 반응하는지, 어떤 voice rhythm으로 말하는지를 하나의 pack으로 유지합니다.
 
 CLI:
 
@@ -229,7 +225,7 @@ npm run cli -- inspect local-packs/rain-archive
 - original character sheets
 - worldbuilding Markdown
 - dialogue samples
-- SillyTavern Character Card V2
+- character card JSON
 - lorebook entries
 - manual tone notes
 
@@ -239,13 +235,13 @@ npm run cli -- inspect local-packs/rain-archive
 - `persona.md`
 - `memory.lorebook`
 - `Prompt Stack`
-- real client export bundles
+- supported persona format bundles
 
 ## Movie Character
 
 ![K.skill movie character pack](assets/readme/movie-character-pack.png)
 
-Movie Character는 Character World의 구체적 예시입니다. film-style characters, script roles, scene cards, character arcs, dialogue samples에 적합합니다. 영화 속 역할 bible의 chat 버전처럼 쓰면 됩니다.
+Movie Character는 Character World 안에서 영화 속 인물을 대화 가능한 형태로 만드는 사용 방식입니다. script fragments, scene cards, character arcs, dialogue samples를 넣으면 인물의 곡선, 장면 기억, 대사의 간격을 가진 chat 버전의 캐릭터 자료가 됩니다.
 
 CLI:
 
@@ -265,13 +261,13 @@ npm run cli -- export-zip local-packs/mira-vale --target chatgpt --out local-pac
 - relationship map in text form
 - public-domain or licensed material
 
-출력은 character identity, arc, scene memory, voice rhythm, source notes, SillyTavern card, lorebook입니다.
+출력에는 character identity, arc, scene memory, voice rhythm, source notes, character card, lorebook이 포함됩니다.
 
 ## Virtual Persona
 
 ![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
 
-Virtual Persona는 AI companions, virtual streamer personas, game NPCs, social avatars, product characters를 자신의 brief에서 만드는 기능입니다.
+Virtual Persona는 AI companions, virtual streamer personas, game NPCs, social avatars, product characters를 자신의 brief에서 만드는 흐름입니다. 실제 누군가를 흉내 내기보다, 목소리, 거리감, 기억, 반응 습관을 가진 original persona를 안정시키는 데 씁니다.
 
 GUI:
 
@@ -294,7 +290,7 @@ npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/n
 
 ![K.skill life mentor model](assets/readme/life-mentor-model.png)
 
-Life Mentor는 public writing, interviews, personal notes, decision records, principles를 사고 동반 모델로 바꿉니다. reasoning habits, communication style, decision patterns, tradeoffs를 모델링합니다.
+Life Mentor는 public writing, interviews, personal notes, decision records, principles를 대화 가능한 사고 동반 모델로 바꿉니다. reasoning habits, communication style, decision patterns, tradeoffs를 근거와 함께 꺼내 볼 수 있게 합니다.
 
 CLI:
 
@@ -315,9 +311,11 @@ Life Mentor가 추출하는 것:
 - evidence / confidence
 - honesty notes
 
-public figures와 celebrities는 공개 자료 기반 Life Mentor model과 잘 맞습니다. interviews, articles, launches, talks, notes를 모은 뒤 product judgment, writing, choices, tradeoffs를 물어볼 수 있습니다.
+public figures와 celebrities는 공개 자료만으로 만드는 Life Mentor model과 잘 맞습니다. interviews, articles, launches, talks, notes를 모은 뒤 product judgment, writing, choices, tradeoffs를 자료에 기대어 물어볼 수 있습니다.
 
 ## Persona Pack
+
+persona pack은 마지막에 남는 이동 가능한 인격 폴더입니다. 목소리, 기억, 자료, 판단의 근거를 같은 곳에 두기 때문에 나중에 다시 열어도 무엇을 바탕으로 만들어졌는지 확인할 수 있습니다.
 
 ```text
 persona.yaml          structured persona pack
@@ -328,7 +326,7 @@ distillation/         evidence, claims, contradictions, runs
 exports/              target-specific files
 ```
 
-Prompt Stack:
+Prompt Stack은 내용을 블랙박스로 두지 않기 위한 분해도입니다.
 
 ```text
 identity       role, voice, expression DNA
@@ -340,7 +338,7 @@ export layer   target platform format
 
 ## GUI
 
-![K.skill local GUI flow](assets/readme/web-gui-flow.png)
+처음에는 GUI로 만져 보는 편이 가장 쉽습니다. 로컬에서 켜고, 자료를 넣고, preview를 본 뒤 pack으로 저장합니다.
 
 ```bash
 npm install
@@ -384,6 +382,8 @@ PATCH /api/packs/:id/memory
 
 ## CLI
 
+개발자, 배치 처리, 자동화에는 CLI를 쓰면 됩니다. 아래 명령은 package scripts와 구현된 명령에 맞춰 둔 실제 명령입니다.
+
 ```bash
 npm run cli -- --help
 npm run cli -- init "My Pack" --type relationship --language en --out local-packs/my-pack
@@ -414,16 +414,16 @@ npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-p
 
 ![K.skill export matrix](assets/readme/export-matrix.png)
 
+하나의 persona pack을 쓰려는 장소에 맞는 형식으로 export할 수 있습니다.
+
 | Target | Files | How to use |
 |---|---|---|
-| Codex | `SKILL.md`, `references/persona.md`, `references/memory.md`, `references/evidence.json` | Codex skills path에 배치 |
-| Claude | `SKILL.md`, `references/` | Claude Code skill로 설치 |
-| ChatGPT | `instructions.md`, `knowledge/`, `gpt-config.json` | GPT 또는 Project에 instructions와 knowledge 업로드 |
-| DeepSeek | `system-prompt.json`, `api-request.json` | system context 또는 request template로 사용 |
-| SillyTavern | `character-card-v2.json`, `lorebook.json` | card와 lorebook import |
-| Hermes | `SOUL.md`, `skills/` | `SOUL.md`를 primary identity로 사용 |
-| LobeChat | `lobe-agent.json` | agent JSON import |
-| Open WebUI | `openwebui-agent.json` | agent/model JSON import |
+| Skill folder | `SKILL.md`, `references/persona.md`, `references/memory.md`, `references/evidence.json` | local skills path에 배치 |
+| Instruction bundle | `instructions.md`, `knowledge/`, config JSON | chat persona instructions와 knowledge로 사용 |
+| API context | `system-prompt.json`, `api-request.json` | system context 또는 request template로 사용 |
+| Character card | character card JSON, lorebook JSON | card와 lorebook을 읽는 환경으로 import |
+| Soul archive | `SOUL.md`, `skills/` | `SOUL.md`를 primary identity로 사용 |
+| Agent JSON | agent / model JSON | JSON config를 받는 local / self-hosted 환경으로 import |
 
 ```bash
 npm run check:exports
@@ -431,20 +431,21 @@ npm run check:exports
 
 ## Privacy And Feel
 
-K.skill is local-first. Private chats stay out of Git. 외부 provider를 명시적으로 설정하지 않으면 자료는 로컬에 남습니다.
+K.skill is local-first. Private chats stay outside the repository. 외부 provider를 명시적으로 설정하지 않으면 자료는 내 컴퓨터에 남습니다.
 
 K.skill이 잘하는 일:
 
 - chat 분위기 읽기
 - relationship memory 정리
-- original character 만들기
+- 꿈에 나온 사람이나 original character 만들기
+- Virtual Persona와 Movie Character의 세계 유지하기
 - public material을 Life Mentor로 바꾸기
-- 같은 pack을 real AI tools로 export하기
+- 같은 pack을 자주 쓰는 persona format으로 export하기
 - evidence와 confidence를 보이게 만들기
 
-## Development And Verification
+판단은 가능한 한 근거와 함께 보여줍니다. 왜 이 답장이 맞는지, 왜 지금은 기다리는 편이 나은지, 어떤 자료에서 Life Mentor의 사고 방식을 가져왔는지 나중에 따라갈 수 있게 하기 위해서입니다.
 
-![K.skill complete product workbench](assets/readme/hero-persona-workbench.png)
+## Development And Verification
 
 ```bash
 git clone https://github.com/StartripAI/K_skill.git
@@ -468,7 +469,7 @@ npm run score:release
 npm run verify
 ```
 
-`npm run verify`는 lint, tests, build, exports, README checks, e2e, smoke, release scoring, npm pack dry-run을 실행합니다. README checks는 5개 언어, images, commands, targets, Life Mentor naming, product concepts, K.skill-only positioning을 강제합니다.
+`npm run verify`는 위의 local quality chain을 고정 순서로 실행하며 build, exports, README checks, e2e, smoke, scoring, package dry-run까지 포함합니다. README checks는 5개 언어, images, commands, targets, Life Mentor naming, product concepts, K.skill-only positioning을 강제합니다.
 
 ## License
 

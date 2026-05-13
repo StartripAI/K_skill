@@ -2,35 +2,37 @@
 
 # K.skill
 
-![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
+![K.skill film voice memory hero](assets/readme/hero-voice-memory-film-v3.png)
 
-**Workbench local para convertir voz, chats, imágenes, personajes y memoria de relación en persona packs que puedes escuchar, conversar y exportar.**<br>
-**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
+**Voz, chats, imágenes, personajes y memoria de relación convertidos en persona packs que puedes escuchar, conversar y llevar contigo.**<br>
+**A voice-first place to keep chats, memories, characters, and Life Mentor packs alive locally.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · **Español**
 
 </div>
 
-K.skill es un workbench local de personas que se puede usar de verdad. Puedes poner voice notes, chats, screenshots, arte de personajes, mundos narrativos, textos públicos o principios personales, y convertirlos en persona packs que se pueden revisar, seguir conversando y exportar. El texto ordena lo que pasó; la voz devuelve la sensación.
+Hay voces que quieres volver a oír, bromas que solo existen dentro de un chat, fotos con una expresión concreta, alguien que apareció en un sueño, o un personaje que todavía no tiene forma completa. Cuando lo reduces a una descripción corta, algo se pierde.
 
-Cada capacidad escrita aquí tiene comando real, ejemplo real, salida real y puerta de verificación.
+K.skill convierte esos fragmentos en persona packs locales que puedes volver a abrir y conversar. Puedes poner voice notes, chats, screenshots, arte de personajes, mundos narrativos, textos públicos o principios personales, y convertirlos en algo que puedes revisar, seguir hablando y exportar. El texto ordena lo que pasó; la voz devuelve la temperatura de ese momento.
+
+Los comandos, samples y salidas que aparecen en este README son reales y se verifican. No son texto decorativo.
 
 ## Voice Memory: poner la voz dentro de la persona
 
-![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
+![K.skill voice memory flow](assets/readme/voice-memory-anime-v3.png)
 
 Muchas veces no recordamos solo la frase, sino cómo sonaba.<br>
-Una pausa, una risa, una muletilla, la velocidad de una respuesta o un tono más suave pueden traer más presencia que una página de notas. Con personajes pasa igual: cuando hay sensación de voz, la conversación arranca con más vida.
+Una pausa, una risa, una muletilla, una respuesta que llega medio segundo tarde, una voz que de pronto se ablanda. Esos detalles pueden traer a una persona con más fuerza que una página de notas. También pasa con alguien que apareció en un sueño, o con un personaje que todavía existe solo en una imagen. Cuando hay sensación de voz, la conversación se acerca.
 
-K.skill pone Voice Memory al inicio del workbench. El audio primero se convierte en transcript revisable; después se organiza como voice DNA, ritmo de chat, memoria de relación, tono de personaje y archivos exportables. Puedes empezar con una sola voice note, o mezclar voz con chats, imágenes, stickers, PDFs y video transcripts.
+K.skill pone Voice Memory como entrada principal. El audio primero se convierte en transcript revisable; después se asienta como voice DNA, chat rhythm, relationship memory, tono de personaje y archivos exportables. Puedes empezar con una sola voice note, o mezclar voz con chats, imágenes, stickers, PDFs y video transcripts.
 
-| Moment | Qué agregas | Qué construye K.skill |
+| Lo que quieres hacer | Qué agregas | Qué construye K.skill |
 |---|---|---|
 | Extrañar a alguien | voice notes, chats antiguos, fotos, momentos compartidos | voice DNA, relationship memory, chat rhythm, persona pack que puedes volver a abrir |
-| Personaje de un sueño | descripción, character image, line audio, world notes | personaje original con sensación de voz y espacio para crecer |
-| Recordar una relación | old voice clips, screenshots, timeline, memory notes | Relationship Memory que puedes leer, escuchar, revisar y exportar |
+| Dar forma a alguien que viste en un sueño | descripción, character image, line audio, world notes | original character con sensación de voz y espacio narrativo |
+| Revisar una relación con calma | old voice clips, screenshots, timeline, memory notes | Relationship Memory que puedes leer, escuchar, revisar y exportar |
 | TA manda una voice note | TA voice note, chat reciente, tu objetivo | ASR transcript, tone read, warmth signals, 3 borradores editables |
-| Movie / Virtual Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
+| Crear un Movie / Virtual Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
 
 Empieza con los samples incluidos y luego conecta tu propio local voice engine:
 
@@ -47,32 +49,30 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
   --out tmp/memory-voice.wav
 ```
 
-`local-voice-clone` envía `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath` y `outFile` a tu motor local de voz por stdin JSON. El motor escribe audio en `outFile`; K.skill lo trae de vuelta a GUI, CLI y exports.
-
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+`local-voice-clone` envía `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath` y `outFile` a tu local voice engine por stdin JSON. El motor escribe audio en `outFile`; K.skill lo trae de vuelta a GUI, CLI y exports.
 
 ## Primero, 6 escenas
 
-![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+![K.skill six social persona scenes](assets/readme/persona-scenes-social-v3.png)
 
-K.skill no es solo una caja de chat.
+K.skill no es solo una caja de chat. Tiene seis entradas claras.
 
 | Escena | Qué subes | Qué devuelve K.skill |
 |---|---|---|
-| Crush Coach | tu chat con TA | señales sociales, próximo paso, 3 respuestas enviables |
+| Crush Coach | tu chat con TA | señales sociales, próximo paso, 3 respuestas naturales |
 | Relationship Memory | chats, recuerdos, correcciones | memory pack de relación con contexto largo |
-| Anime Character | OC sheets, world notes, dialogue samples | character identity, voice, lorebook |
+| Anime Character | OC sheets, world notes, dialogue samples | character identity, voice, lorebook, entrada de chat |
 | Movie Character | script fragments, scene cards, biography | personaje de cine virtual con arc y scene memory |
-| Virtual Persona | AI companion brief, avatar notes, NPC design | persona original estable para chat |
-| Public-Figure Life Mentor | articles, interviews, launches, notes | modelo de pensamiento basado en material público |
+| Virtual Persona | AI companion brief, avatar notes, NPC design | original persona estable para chat |
+| Public-Figure Life Mentor | articles, interviews, launches, notes | thinking model basado en material público |
 
-Por ejemplo, material público de un founder puede convertirse en un Life Mentor para product judgment, writing, tradeoffs, launch thinking y decision review.
+Por ejemplo, textos, interviews, launches y notes públicos de una persona pueden convertirse en un Life Mentor para revisar product judgment, writing, tradeoffs, launch thinking y decision review.
 
 ## Primero, una escena DM
 
 ![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
 
-TA responde y dudas si continuar, esperar, invitar o cambiar de tema. Crush Coach convierte el chat en señales sociales legibles y te da frases que suenan más naturales.
+TA responde y dudas si contestar ya, esperar, invitar o cambiar de tema. Crush Coach convierte esa duda en social signals legibles y propone una frase que cabe en el momento.
 
 ```text
 TA: Maybe this weekend. Do you like this kind of exhibition too?
@@ -91,17 +91,15 @@ Light: You sound way more animated when you talk about this exhibit. I am taking
 Slightly forward: Low-pressure idea: if you feel like going one day, call me. I will keep my amateur commentary under control.
 ```
 
-Cuando la conversación se enfría, K.skill ayuda a cerrar con estilo, pausar o volver después con un tema más ligero.
+Cuando la conversación se enfría, K.skill no empuja. Ayuda a cerrar con cuidado, pausar o volver después con un tema más ligero.
 
 ## Cuatro Workflows
 
-![K.skill GUI workflow](assets/readme/web-gui-flow.png)
-
 | Workflow | Para quién | Entrada | Salida | Cuándo usarlo |
 |---|---|---|---|---|
-| **Crush Coach** | Personas que quieren comunicarse naturalmente con TA | WeChat, QQ, iMessage, Telegram, WhatsApp, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3 respuestas, send-or-not | Cuando dudas cómo responder, invitar o pausar |
+| **Crush Coach** | Personas que quieren comunicarse naturalmente con TA | export de app de mensajería, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3 respuestas, send-or-not | Cuando dudas cómo responder, invitar o pausar |
 | **Relationship Memory** | Personas que ordenan material de pareja, amistad, ex o relación cercana | chats, recuerdos compartidos, correcciones | memoria de relación, patrones de trato, episodios, tono, exportable persona pack | Revisión de relación, contexto largo, escritura, narrativa interactiva |
-| **Character World** | Creadores de OC, usuarios 2D, roleplay, juegos y cine | Markdown, character card, lorebook, Movie Character notes | identidad, reglas de mundo, Prompt Stack, SillyTavern card, lorebook | Cuando el personaje necesita memoria y reglas, no solo muletillas |
+| **Character World** | Creadores de OC, usuarios 2D, roleplay, juegos y cine | Markdown, character card, lorebook, Movie Character notes | identidad, reglas de mundo, Prompt Stack, character card, lorebook | Cuando el personaje necesita memoria y reglas, no solo muletillas |
 | **Life Mentor** | Personas que convierten textos públicos y principios en modelo de pensamiento | artículos, entrevistas, notas públicas, decisiones, principios | mental models, heuristics, anti-patterns, evidence, confidence, honesty notes | Decisiones, revisión, sistema personal, pensamiento asistido |
 
 Elige el carril según lo que quieres conseguir:
@@ -109,12 +107,12 @@ Elige el carril según lo que quieres conseguir:
 - **Crush Coach** es para responder, leer timing y mover la conversación de forma natural.
 - **Relationship Memory** es para ordenar recuerdos compartidos, textura emocional y contexto largo.
 - **Character World** es para anime OCs, roles ficticios, Movie Character, lorebooks y roleplay cards.
-- **Life Mentor** convierte material público y notas propias en un modelo de pensamiento.
+- **Life Mentor** convierte material público y notas propias en un modelo de pensamiento al que puedes preguntar.
 
 ## Voice Studio
 
-K.skill ya no trabaja solo con texto. En el mismo intake puedes subir **voice note**, grabación, screenshot, image, sticker, notas de emoji, PDF, video transcript y mixed ZIP.  
-Primero hace **multimodal import**: el texto pasa a chat turns, el audio pasa por **ASR** y queda como transcript evidence, image / screenshot / PDF / video transcript se guarda como media evidence, y los stickers se ordenan como **sticker intents**. Crush Coach, Relationship Memory, Character World y Life Mentor usan ese mismo hilo de evidence.
+K.skill no es un lector de texto. En el mismo intake puedes subir **voice note**, grabación, screenshot, image, sticker, notas de emoji, PDF, video transcript y mixed ZIP.
+Primero hace **multimodal import**: el texto pasa a chat turns, el audio pasa por **ASR** y queda como transcript evidence, image / screenshot / PDF / video transcript se guarda como media evidence, y los stickers se ordenan como **sticker intents**. Crush Coach, Relationship Memory, Character World y Life Mentor leen ese mismo hilo de evidence.
 
 CLI:
 
@@ -135,9 +133,7 @@ GUI:
 
 ## Crush Coach
 
-![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
-
-Crush Coach analiza relationship stage, warmth signals, risk signals, topic windows, date readiness y chat rhythm.
+Crush Coach empieza en “¿qué respondo ahora?”. Analiza relationship stage, warmth signals, risk signals, topic windows, date readiness y chat rhythm para separar cuándo avanzar, cuándo aflojar y cuándo dejar aire.
 
 GUI:
 
@@ -181,7 +177,7 @@ Cada juicio fuerte debe traer `evidence` y `confidence`. Si la evidencia es déb
 
 ![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
 
-Relationship Memory convierte material de relación en contexto largo auditable. Sirve para episodios compartidos, formas de llamarse, preferencias, corrections y pequeños detalles de ambiente.
+Relationship Memory convierte material de relación en contexto largo que puedes revisar después. Sirve para episodios compartidos, formas de llamarse, preferencias, corrections, cosas que se dijeron de más, cosas que no se dijeron y pequeños detalles de ambiente, sin forzar una historia donde no la hay.
 
 GUI:
 
@@ -213,7 +209,7 @@ Salidas:
 
 ![K.skill anime character world](assets/readme/anime-character-world.png)
 
-Character World es para fictional characters, original characters, OCs estilo anime, worldbuilding, lorebooks y character cards. Mantiene identity, world rules, memory triggers y voice rhythm en el mismo pack.
+Character World es para fictional characters, original characters, OCs estilo anime, worldbuilding, lorebooks y character cards. Mantiene en el mismo pack quién es el personaje, qué reglas tiene su mundo, qué recuerdos lo activan y con qué voice rhythm habla.
 
 CLI:
 
@@ -229,7 +225,7 @@ Entradas útiles:
 - original character sheets
 - worldbuilding Markdown
 - dialogue samples
-- SillyTavern Character Card V2
+- character card JSON
 - lorebook entries
 - manual tone notes
 
@@ -239,13 +235,13 @@ Salidas:
 - `persona.md`
 - `memory.lorebook`
 - `Prompt Stack`
-- real client export bundles
+- supported persona format bundles
 
 ## Movie Character
 
 ![K.skill movie character pack](assets/readme/movie-character-pack.png)
 
-Movie Character es un caso concreto de Character World para personajes con sabor cinematográfico, roles de guion, scene cards, character arcs y dialogue samples. Piensa en ello como la versión chat de una biblia de personaje.
+Movie Character es el uso de Character World para convertir una figura de guion en alguien con quien se puede hablar. Si subes script fragments, scene cards, character arcs y dialogue samples, K.skill conserva arco, memoria de escena y ritmo de fraseo en una versión chat del personaje.
 
 CLI:
 
@@ -265,13 +261,13 @@ Entradas:
 - relationship map in text form
 - public-domain or licensed material
 
-La salida incluye character identity, arc, scene memory, voice rhythm, source notes, SillyTavern card y lorebook.
+La salida incluye character identity, arc, scene memory, voice rhythm, source notes, character card y lorebook.
 
 ## Virtual Persona
 
 ![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
 
-Virtual Persona sirve para crear AI companions, virtual streamer personas, game NPCs, social avatars y product characters desde tu propio brief.
+Virtual Persona sirve para crear AI companions, virtual streamer personas, game NPCs, social avatars y product characters desde tu propio brief. No busca copiar a alguien real: sirve para estabilizar una original persona con voz, distancia, memoria y hábitos de respuesta.
 
 GUI:
 
@@ -294,7 +290,7 @@ npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/n
 
 ![K.skill life mentor model](assets/readme/life-mentor-model.png)
 
-Life Mentor convierte public writing, interviews, personal notes, decision records y principles en un compañero de pensamiento. Modela hábitos de razonamiento, estilo de comunicación, patrones de decisión y tradeoffs.
+Life Mentor convierte public writing, interviews, personal notes, decision records y principles en un compañero de pensamiento conversable. Extrae hábitos de razonamiento, estilo de comunicación, patrones de decisión y tradeoffs con evidencia a la vista.
 
 CLI:
 
@@ -315,9 +311,11 @@ Life Mentor extrae:
 - evidence / confidence
 - honesty notes
 
-public figures y celebrities funcionan muy bien como Life Mentor models basados en material público. Junta interviews, articles, launches, talks y notes; luego pregunta sobre product judgment, writing, choices y tradeoffs.
+public figures y celebrities funcionan bien como Life Mentor models basados solo en material público. Junta interviews, articles, launches, talks y notes; luego pregunta sobre product judgment, writing, choices y tradeoffs desde esa base documental.
 
 ## Persona Pack
+
+Un persona pack es la carpeta de personalidad que queda al final. Guarda voz, memoria, fuentes y razones de las decisiones en el mismo lugar, para que puedas volver después y ver de dónde salió cada cosa.
 
 ```text
 persona.yaml          structured persona pack
@@ -328,7 +326,7 @@ distillation/         evidence, claims, contradictions, runs
 exports/              target-specific files
 ```
 
-Prompt Stack:
+Prompt Stack evita que el pack sea una caja negra:
 
 ```text
 identity       role, voice, expression DNA
@@ -340,7 +338,7 @@ export layer   target platform format
 
 ## GUI
 
-![K.skill local GUI flow](assets/readme/web-gui-flow.png)
+Para empezar, la GUI es el camino más directo: arrancas localmente, subes material, revisas preview y luego guardas el pack.
 
 ```bash
 npm install
@@ -384,6 +382,8 @@ PATCH /api/packs/:id/memory
 
 ## CLI
 
+Para desarrollo, lotes y automatización, usa CLI. Los comandos de esta sección coinciden con package scripts y comandos implementados.
+
 ```bash
 npm run cli -- --help
 npm run cli -- init "My Pack" --type relationship --language en --out local-packs/my-pack
@@ -414,16 +414,16 @@ npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-p
 
 ![K.skill export matrix](assets/readme/export-matrix.png)
 
+Un mismo persona pack puede exportarse al formato que espera cada destino.
+
 | Target | Files | Uso |
 |---|---|---|
-| Codex | `SKILL.md`, `references/persona.md`, `references/memory.md`, `references/evidence.json` | Coloca el directorio exportado en tu ruta de skills |
-| Claude | `SKILL.md`, `references/` | Instala como skill de Claude Code |
-| ChatGPT | `instructions.md`, `knowledge/`, `gpt-config.json` | Pega instructions en GPT o Project y sube knowledge |
-| DeepSeek | `system-prompt.json`, `api-request.json` | Úsalo como system context o request template |
-| SillyTavern | `character-card-v2.json`, `lorebook.json` | Importa card y lorebook |
-| Hermes | `SOUL.md`, `skills/` | Usa `SOUL.md` como identidad principal |
-| LobeChat | `lobe-agent.json` | Importa el agent JSON |
-| Open WebUI | `openwebui-agent.json` | Importa agent/model JSON |
+| Skill folder | `SKILL.md`, `references/persona.md`, `references/memory.md`, `references/evidence.json` | Coloca el directorio exportado en tu ruta local de skills |
+| Instruction bundle | `instructions.md`, `knowledge/`, config JSON | Úsalo como instructions y knowledge de la persona |
+| API context | `system-prompt.json`, `api-request.json` | Úsalo como system context o request template |
+| Character card | character card JSON, lorebook JSON | Importa card y lorebook en entornos compatibles |
+| Soul archive | `SOUL.md`, `skills/` | Usa `SOUL.md` como identidad principal |
+| Agent JSON | agent / model JSON | Importa en entornos locales o self-hosted que acepten JSON config |
 
 ```bash
 npm run check:exports
@@ -431,20 +431,21 @@ npm run check:exports
 
 ## Privacy And Feel
 
-K.skill is local-first. Private chats stay out of Git. El contenido solo sale de tu máquina si configuras explícitamente un provider externo.
+K.skill is local-first. Private chats stay outside the repository. El contenido se queda en tu máquina salvo que configures explícitamente un provider externo.
 
 K.skill sirve para:
 
 - leer el ambiente de un chat
 - ordenar relationship memory
-- crear original characters
+- dar forma a alguien de un sueño o crear original characters
+- sostener el mundo de una Virtual Persona o un Movie Character
 - convertir public material en Life Mentor
-- exportar el mismo pack a real AI tools
+- exportar el mismo pack a formatos de persona comunes
 - mostrar evidence y confidence
 
-## Development And Verification
+Las decisiones intentan quedar explicadas: por qué esa respuesta, por qué conviene esperar, de qué fuente salió una idea del Life Mentor y cuánta confianza merece.
 
-![K.skill complete product workbench](assets/readme/hero-persona-workbench.png)
+## Development And Verification
 
 ```bash
 git clone https://github.com/StartripAI/K_skill.git
@@ -468,7 +469,7 @@ npm run score:release
 npm run verify
 ```
 
-`npm run verify` ejecuta lint, tests, build, exports, README checks, e2e, smoke, release scoring y npm pack dry-run. README checks exige cinco idiomas, images, commands, targets, Life Mentor naming, product concepts y K.skill-only positioning.
+`npm run verify` ejecuta la cadena local de calidad anterior en orden fijo, con build, exports, README checks, e2e, smoke, scoring y un package dry-run. README checks exige cinco idiomas, images, commands, targets, Life Mentor naming, product concepts y K.skill-only positioning.
 
 ## License
 

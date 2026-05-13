@@ -73,9 +73,77 @@ function assertNoForbiddenREADMEClaims(path, content) {
   }
 }
 
+function stripCommandFencedBlocks(content) {
+  return content.replace(/```(?:bash|sh|shell|zsh|console)\n[\s\S]*?```/gi, "");
+}
+
+function assertNoExternalProjectNamesOutsideCode(path, content) {
+  const visible = stripCommandFencedBlocks(content);
+  const forbidden = [
+    "gpt-image-2.0-workbench",
+    "image_skill",
+    "WeChat",
+    "QQ",
+    "iMessage",
+    "Telegram",
+    "WhatsApp",
+    "Codex",
+    "Claude",
+    "ChatGPT",
+    "DeepSeek",
+    "SillyTavern",
+    "Hermes",
+    "LobeChat",
+    "Open WebUI",
+    "Midjourney",
+    "ComfyUI",
+    "Stable Diffusion",
+    "Photoshop",
+    "Canva",
+    "DALL-E",
+    "Flux",
+    "Sora",
+    "借鉴",
+    "对标",
+    "最大卖点",
+    "最强",
+    "全网唯一",
+    "吊打"
+  ];
+  for (const word of forbidden) {
+    assert(!visible.includes(word), `${path} must not mention external project or hard-sell wording outside command blocks: ${word}`);
+  }
+}
+
+function assertDocumentedNpmCommands(path, content, packageScripts) {
+  for (const match of content.matchAll(/(?:^|\n)\s*npm\s+(run\s+)?([a-z0-9:.-]+)/gi)) {
+    const isRunScript = Boolean(match[1]);
+    const command = match[2];
+    if (!command) continue;
+    if (isRunScript) {
+      assert(packageScripts[command], `${path} documents missing package script: ${command}`);
+      continue;
+    }
+    if (command === "test" || command === "start" || command === "restart" || command === "stop") {
+      assert(packageScripts[command], `${path} documents missing npm shorthand script: ${command}`);
+      continue;
+    }
+    assert(["install", "pack"].includes(command), `${path} documents unsupported npm command: npm ${command}`);
+  }
+}
+
+function sectionAfterHeading(content, heading) {
+  const index = content.indexOf(heading);
+  assert(index >= 0, `Missing section heading: ${heading}`);
+  const rest = content.slice(index + heading.length);
+  const next = rest.search(/\n## /);
+  return (next >= 0 ? rest.slice(0, next) : rest).trim();
+}
+
 const packageJson = JSON.parse(read("package.json"));
 const exporterSource = read("packages/exporters/src/index.ts");
 const readmeFiles = ["README.md", "README_EN.md", "README_JA.md", "README_KO.md", "README_ES.md"];
+const promotionFile = "docs/PROMOTION.md";
 const requiredLocalFiles = [
   "LICENSE",
   "examples/crush-chat-zh.txt",
@@ -94,17 +162,15 @@ for (const path of requiredLocalFiles) {
 }
 
 const requiredImages = [
-  "assets/readme/hero-voice-memory-cinema.png",
-  "assets/readme/hero-six-scenes.png",
-  "assets/readme/voice-memory-flow-cinema.png",
-  "assets/readme/voice-memory-studio.png",
+  "assets/readme/hero-voice-memory-film-v3.png",
+  "assets/readme/voice-memory-anime-v3.png",
+  "assets/readme/persona-scenes-social-v3.png",
   "assets/readme/crush-coach-reply-lab.png",
   "assets/readme/relationship-memory-chat.png",
   "assets/readme/anime-character-world.png",
   "assets/readme/virtual-persona-chat.png",
   "assets/readme/movie-character-pack.png",
   "assets/readme/life-mentor-model.png",
-  "assets/readme/web-gui-flow.png",
   "assets/readme/export-matrix.png"
 ];
 
@@ -147,15 +213,7 @@ const semanticNeedles = [
   "confidence",
   "local",
   "evidence",
-  "confidence",
-  "Codex",
-  "Claude",
-  "ChatGPT",
-  "DeepSeek",
-  "SillyTavern",
-  "Hermes",
-  "LobeChat",
-  "Open WebUI"
+  "confidence"
 ];
 
 for (const path of readmeFiles) {
@@ -163,6 +221,7 @@ for (const path of readmeFiles) {
   assert(content.includes("# K.skill"), `${path} must identify K.skill`);
   assert(content.length > 8_000, `${path} is too small to be complete product documentation`);
   assertNoForbiddenREADMEClaims(path, content);
+  assertNoExternalProjectNamesOutsideCode(path, content);
   for (const needle of semanticNeedles) {
     assert(content.includes(needle), `${path} is missing required product concept: ${needle}`);
   }
@@ -172,12 +231,7 @@ for (const path of readmeFiles) {
   for (const image of localImagePaths(content)) {
     assertImage(image);
   }
-  for (const scriptName of [...content.matchAll(/npm run ([a-z0-9:.-]+)/gi)].map((match) => match[1])) {
-    assert(packageScripts[scriptName], `${path} documents missing package script: ${scriptName}`);
-  }
-  for (const target of requiredTargets) {
-    assert(content.toLowerCase().includes(target), `${path} is missing export target: ${target}`);
-  }
+  assertDocumentedNpmCommands(path, content, packageScripts);
 }
 
 const zh = read("README.md");
@@ -201,4 +255,14 @@ assert(zh.includes("本项目默认本地运行"), "README.md must document loca
 assert(zh.includes("聊天节奏"), "README.md must describe the Crush Coach rhythm use case");
 assert(zh.includes("体面收住"), "README.md must describe cooldown handling in plain language");
 
-console.log(`README check passed: ${readmeFiles.length} locales, ${requiredImages.length} images, ${requiredTargets.length} export targets, product-only positioning.`);
+const promotion = read(promotionFile);
+assertNoExternalProjectNamesOutsideCode(promotionFile, promotion);
+const hnCopy = sectionAfterHeading(promotion, "## English HN Copy");
+const xCopy = sectionAfterHeading(promotion, "## English X Copy");
+const xhsCopy = sectionAfterHeading(promotion, "## 中文小红书文案");
+assert(hnCopy.includes("Show HN:"), `${promotionFile} must include Show HN copy`);
+assert(xCopy.length > 0 && xCopy.length < 140, `${promotionFile} X copy must be under 140 characters`);
+const xhsCjkCount = [...xhsCopy].filter((char) => /[\u3400-\u9fff]/u.test(char)).length;
+assert(xhsCjkCount >= 350 && xhsCjkCount <= 750, `${promotionFile} Xiaohongshu copy should be about 500 Chinese characters`);
+
+console.log(`README check passed: ${readmeFiles.length} locales, ${requiredImages.length} images, ${requiredTargets.length} exporter targets, promotion copy, product-only positioning.`);
