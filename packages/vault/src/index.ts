@@ -1,17 +1,19 @@
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, normalize } from "node:path";
 import Database from "better-sqlite3";
 import {
   createId,
   createPersonaPack,
   nowIso,
   validatePersonaPack,
+  type MediaAsset,
   type PackLanguage,
   type PersonaPack,
   type PersonaType
 } from "../../core/src/index.js";
 import type { ChatMessage, ParsedSource } from "../../importers/src/index.js";
+import type { ParsedAsset } from "../../media/src/index.js";
 
 export type StoredPackSummary = {
   id: string;
@@ -53,6 +55,11 @@ export type StoredExport = {
   manifest: unknown;
   instructions: string;
   createdAt: string;
+};
+
+export type StoredAsset = {
+  asset: MediaAsset;
+  path: string;
 };
 
 export type VaultStore = ReturnType<typeof openVault>;
@@ -136,6 +143,23 @@ function migrate(db: Database.Database): void {
       payload_json TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS assets (
+      id TEXT PRIMARY KEY,
+      pack_id TEXT NOT NULL REFERENCES packs(id) ON DELETE CASCADE,
+      source_id TEXT NOT NULL,
+      message_id TEXT,
+      kind TEXT NOT NULL,
+      filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      byte_length INTEGER NOT NULL,
+      sha256 TEXT NOT NULL,
+      storage_key TEXT NOT NULL,
+      metadata_json TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      UNIQUE(pack_id, sha256)
+    );
+    CREATE INDEX IF NOT EXISTS idx_assets_pack ON assets(pack_id);
   `);
 }
 
@@ -149,6 +173,8 @@ function parsePack(row: { pack_json: string }): PersonaPack {
 
 export function openVault(dbPath = defaultVaultPath()) {
   mkdirSync(dirname(dbPath), { recursive: true });
+  const assetRoot = join(dirname(dbPath), "assets");
+  mkdirSync(assetRoot, { recursive: true });
   const db = new Database(dbPath);
   migrate(db);
 
@@ -212,6 +238,55 @@ export function openVault(dbPath = defaultVaultPath()) {
     return { inserted: true, sourceId };
   });
 
+  const addAssetsTx = db.transaction((packId: string, assets: ParsedAsset[]) => {
+    const stored: StoredAsset[] = [];
+    for (const item of assets) {
+      const asset = item.asset;
+      const assetPath = assetPathFor(asset.storageKey);
+      if (item.bytes && !existsSync(assetPath)) {
+        mkdirSync(dirname(assetPath), { recursive: true });
+        writeFileSync(assetPath, item.bytes);
+      }
+      const existing = db.prepare("SELECT id FROM assets WHERE pack_id = ? AND sha256 = ?").get(packId, asset.sha256) as { id: string } | undefined;
+      if (!existing) {
+        db.prepare(`
+          INSERT INTO assets (id, pack_id, source_id, message_id, kind, filename, mime_type, byte_length, sha256, storage_key, metadata_json, created_at)
+          VALUES (@id, @packId, @sourceId, @messageId, @kind, @filename, @mimeType, @byteLength, @sha256, @storageKey, @metadataJson, @createdAt)
+        `).run({
+          id: asset.id,
+          packId,
+          sourceId: asset.sourceId,
+          messageId: asset.messageId ?? null,
+          kind: asset.kind,
+          filename: asset.filename,
+          mimeType: asset.mimeType,
+          byteLength: asset.byteLength,
+          sha256: asset.sha256,
+          storageKey: asset.storageKey,
+          metadataJson: JSON.stringify(asset.metadata),
+          createdAt: asset.createdAt
+        });
+      }
+      stored.push({ asset: existing ? { ...asset, id: existing.id } : asset, path: assetPath });
+    }
+
+    const pack = getPack(packId);
+    if (pack) {
+      const seen = new Set(pack.assets.map((asset) => asset.sha256));
+      const nextAssets = [...pack.assets];
+      for (const item of stored) {
+        if (!seen.has(item.asset.sha256)) nextAssets.push(item.asset);
+      }
+      upsertPackTx({ ...pack, updatedAt: nowIso(), assets: nextAssets });
+    }
+    return stored;
+  });
+
+  function assetPathFor(storageKey: string): string {
+    const normalized = normalize(storageKey).replace(/^(\.\.(\/|\\|$))+/, "");
+    return join(assetRoot, normalized);
+  }
+
   function createPack(input: { name: string; type: PersonaType; language: PackLanguage; description?: string; idSeed?: string }): PersonaPack {
     const pack = createPersonaPack({
       name: input.name,
@@ -261,6 +336,10 @@ export function openVault(dbPath = defaultVaultPath()) {
     return addSourceTx(packId, source);
   }
 
+  function addAssets(packId: string, assets: ParsedAsset[]): StoredAsset[] {
+    return addAssetsTx(packId, assets);
+  }
+
   function listSources(packId: string): StoredSource[] {
     const rows = db.prepare("SELECT * FROM sources WHERE pack_id = ? ORDER BY imported_at ASC").all(packId) as Array<Record<string, unknown>>;
     return rows.map((row) => ({
@@ -279,6 +358,24 @@ export function openVault(dbPath = defaultVaultPath()) {
 
   function getMessages(packId: string): ChatMessage[] {
     return listSources(packId).flatMap((source) => source.messages);
+  }
+
+  function listAssets(packId: string): MediaAsset[] {
+    const rows = db.prepare("SELECT * FROM assets WHERE pack_id = ? ORDER BY created_at ASC").all(packId) as Array<Record<string, unknown>>;
+    return rows.map(rowToAsset);
+  }
+
+  function getAsset(id: string): StoredAsset | undefined {
+    const row = db.prepare("SELECT * FROM assets WHERE id = ?").get(id) as Record<string, unknown> | undefined;
+    if (!row) return undefined;
+    const asset = rowToAsset(row);
+    return { asset, path: assetPathFor(asset.storageKey) };
+  }
+
+  function readAssetBytes(id: string): Uint8Array | undefined {
+    const stored = getAsset(id);
+    if (!stored || !existsSync(stored.path)) return undefined;
+    return new Uint8Array(readFileSync(stored.path));
   }
 
   function addReport(packId: string, kind: string, report: unknown, markdown: string): StoredReport {
@@ -374,8 +471,12 @@ export function openVault(dbPath = defaultVaultPath()) {
     findPackByName,
     listPacks,
     addSource,
+    addAssets,
     listSources,
     getMessages,
+    listAssets,
+    getAsset,
+    readAssetBytes,
     addReport,
     getReport,
     listReports,
@@ -383,4 +484,21 @@ export function openVault(dbPath = defaultVaultPath()) {
     getExport,
     patchMemory
   };
+}
+
+function rowToAsset(row: Record<string, unknown>): MediaAsset {
+  const asset: MediaAsset = {
+    id: String(row.id),
+    kind: row.kind as MediaAsset["kind"],
+    sourceId: String(row.source_id),
+    filename: String(row.filename),
+    mimeType: String(row.mime_type),
+    byteLength: Number(row.byte_length),
+    sha256: String(row.sha256),
+    storageKey: String(row.storage_key),
+    metadata: JSON.parse(String(row.metadata_json || "{}")) as Record<string, unknown>,
+    createdAt: String(row.created_at)
+  };
+  if (row.message_id) asset.messageId = String(row.message_id);
+  return asset;
 }

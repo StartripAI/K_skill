@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { Command } from "commander";
@@ -28,7 +28,9 @@ import {
   type ReplyStyle
 } from "../../pursuit/src/index.js";
 import { exportPersonaPack, exportPersonaPackZipToFile, exportTargets, type ExportTarget } from "../../exporters/src/index.js";
+import { parseMediaFile } from "../../media/src/index.js";
 import { startKskillServer } from "../../server/src/index.js";
+import { synthesizeSpeech, transcribeAudio, voicePreviewManifest, type VoiceProviderId } from "../../voice/src/index.js";
 
 const program = new Command();
 
@@ -116,15 +118,19 @@ program
   .option("--preview", "only parse and print import preview")
   .option("--format <format>", "wechat | qq | imessage | telegram | whatsapp | markdown | sillytavern")
   .option("--provider <provider>", "none | openai-compatible | deepseek | anthropic-compatible | ollama", "none")
+  .option("--media", "parse audio, image, sticker, PDF, video transcript, or mixed media input")
   .option("--model <model>", "model name")
   .option("--base-url <url>", "OpenAI-compatible or Ollama base URL")
   .option("--timeout-ms <ms>", "LLM timeout in milliseconds")
   .option("--max-retries <n>", "LLM retry count")
   .option("--require-llm", "fail instead of falling back when LLM distillation fails")
-  .action(async (file: string, options: { pack?: string; type: PersonaType; name?: string; preview?: boolean; format?: string } & LlmOptions) => {
-    const source = parseSourceFromFile(file, { type: options.type, consentConfirmed: false });
+  .action(async (file: string, options: { pack?: string; type: PersonaType; name?: string; preview?: boolean; format?: string; media?: boolean } & LlmOptions) => {
+    const mediaResult = options.media
+      ? await parseMediaFile({ name: file, bytes: new Uint8Array(readFileSync(file)) }, { consentConfirmed: false, asr: { providerId: options.provider as VoiceProviderId, language: "zh" } })
+      : undefined;
+    const source = mediaResult?.sources[0] ?? parseSourceFromFile(file, { type: options.type, consentConfirmed: false });
     if (options.preview) {
-      const preview = parseImport({ name: file, text: source.text, forcedFormat: options.format });
+      const preview = options.media ? mediaResult : parseImport({ name: file, text: source.text, forcedFormat: options.format });
       console.log(JSON.stringify(preview, null, 2));
       return;
     }
@@ -132,10 +138,61 @@ program
     const pack = existsSync(join(packDir, "persona.yaml"))
       ? loadPack(packDir)
       : createPersonaPack({ name: options.name ?? file, type: options.type, language: source.source.language });
-    const distilled = await distillWithOptions(pack, source, options);
+    const distilledBase = await distillWithOptions(pack, source, options.media ? { ...options, provider: "none" } : options);
+    const distilled: PersonaPack = mediaResult?.assets.length
+      ? { ...distilledBase, assets: [...distilledBase.assets, ...mediaResult.assets.map((item) => item.asset)] }
+      : distilledBase;
     savePack(packDir, distilled);
     writeTextFile(join(packDir, "sources", `${source.source.id}.txt`), source.text);
     console.log(`Imported ${file} into ${packDir}`);
+  });
+
+program
+  .command("transcribe")
+  .description("Transcribe an audio or transcript sidecar file with a provider-neutral ASR adapter")
+  .argument("<file>", "audio file, transcript JSON, or VTT sidecar")
+  .option("--provider <provider>", "stub-asr | local-whisper | openai-compatible-asr", "stub-asr")
+  .option("-l, --language <lang>", "zh | en | ja | ko | es", "zh")
+  .option("-o, --out <file>", "output JSON path")
+  .action(async (file: string, options: { provider: VoiceProviderId; language: PackLanguage; out?: string }) => {
+    const result = await transcribeAudio({ bytes: new Uint8Array(readFileSync(file)), filename: file, mimeType: "application/octet-stream" }, {
+      providerId: options.provider,
+      language: options.language,
+      timestamps: "segment"
+    });
+    const out = resolve(options.out ?? "transcript.json");
+    writeJsonFile(out, result);
+    console.log(`Transcribed ${file} -> ${out}`);
+  });
+
+program
+  .command("speak")
+  .description("Generate a deterministic TTS preview for a persona pack or text")
+  .argument("<pack>", "pack directory")
+  .requiredOption("--text <text>", "text to synthesize")
+  .option("--provider <provider>", "stub-tts | local-piper | openai-compatible-tts", "stub-tts")
+  .option("--voice <voice>", "voice id")
+  .option("-o, --out <file>", "output audio path", "preview.wav")
+  .action(async (packDir: string, options: { text: string; provider: VoiceProviderId; voice?: string; out: string }) => {
+    const pack = loadPack(resolve(packDir));
+    const audio = await synthesizeSpeech(options.text, {
+      providerId: options.provider,
+      ...(options.voice ? { voice: options.voice } : {}),
+      language: pack.language,
+      format: "wav"
+    });
+    writeFileSync(resolve(options.out), audio.bytes);
+    writeJsonFile(`${resolve(options.out)}.manifest.json`, voicePreviewManifest(audio, pack.language, pack.id));
+    console.log(`Wrote TTS preview to ${resolve(options.out)}`);
+  });
+
+program
+  .command("voice-profile")
+  .description("Print the Voice DNA profile for a persona pack")
+  .argument("<pack>", "pack directory")
+  .action((packDir: string) => {
+    const pack = loadPack(resolve(packDir));
+    console.log(JSON.stringify({ voiceProfile: pack.voiceProfile, stickerIntents: pack.stickerIntents, assets: pack.assets }, null, 2));
   });
 
 program

@@ -15,13 +15,17 @@ import {
   Inbox,
   Layers3,
   Loader2,
+  Mic,
+  MicOff,
   MessageCircle,
   MessageCircleHeart,
+  Paperclip,
   RefreshCw,
   Send,
   ShieldCheck,
   Sparkles,
   UploadCloud,
+  Volume2,
   WandSparkles,
   X
 } from "lucide-react";
@@ -39,7 +43,8 @@ import {
   type PursuitReport,
   type ReplyStyle,
   type ReplySuggestion,
-  type TopicPlan
+  type TopicPlan,
+  type VoiceProviderInfo
 } from "./api.ts";
 import "./styles.css";
 
@@ -110,6 +115,10 @@ function safeFilename(value: string): string {
     .replace(/^-+|-+$/g, "") || "kskill-pack";
 }
 
+function isVoiceLike(file: File): boolean {
+  return file.type.startsWith("audio/") || /\.(wav|mp3|m4a|aac|ogg|webm|flac)$/i.test(file.name);
+}
+
 function downloadBlob(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
@@ -130,6 +139,8 @@ function confidencePercent(report: PursuitReport | null): number {
 
 function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
   const [packs, setPacks] = useState<PackSummary[]>([]);
   const [activePackId, setActivePackId] = useState("");
   const [workflow, setWorkflow] = useState<PersonaType>("pursuit");
@@ -137,6 +148,10 @@ function App() {
   const [packName, setPackName] = useState("K.skill DM Pack");
   const [consentConfirmed, setConsentConfirmed] = useState(true);
   const [files, setFiles] = useState<File[]>([]);
+  const [intakeMode, setIntakeMode] = useState<"files" | "paste" | "record" | "media">("files");
+  const [voiceProviders, setVoiceProviders] = useState<VoiceProviderInfo[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaNotice, setMediaNotice] = useState("Text, voice notes, screenshots, stickers, PDFs, video transcripts, and ZIP bundles stay in the local vault.");
   const [isDragging, setIsDragging] = useState(false);
   const [pasteName, setPasteName] = useState("dm-paste.txt");
   const [pasteText, setPasteText] = useState("");
@@ -161,6 +176,8 @@ function App() {
   const canRunPursuit = (activePackId.length > 0 || pasteText.trim().length > 0 || files.length > 0) && busyAction === null;
   const canDownloadReport = reportId.length > 0 && busyAction === null;
   const reportConfidence = confidencePercent(report);
+  const asrProvider = useMemo(() => voiceProviders.find((provider) => provider.kind === "asr" && provider.configured) ?? voiceProviders.find((provider) => provider.kind === "asr"), [voiceProviders]);
+  const ttsProvider = useMemo(() => voiceProviders.find((provider) => provider.kind === "tts" && provider.configured) ?? voiceProviders.find((provider) => provider.kind === "tts"), [voiceProviders]);
 
   const refreshPacks = useCallback(async (quiet = false) => {
     if (!quiet) setStatus({ tone: "busy", message: "Refreshing pack vault" });
@@ -178,6 +195,14 @@ function App() {
     void refreshPacks(true);
   }, [refreshPacks]);
 
+  useEffect(() => {
+    api.listVoiceProviders()
+      .then(setVoiceProviders)
+      .catch((error: unknown) => {
+        setMediaNotice(`Voice Studio provider list unavailable: ${errorMessage(error)}`);
+      });
+  }, []);
+
   const ensureActivePack = useCallback(async (): Promise<string> => {
     if (activePackId) return activePackId;
     const created = await api.createPack({
@@ -194,7 +219,80 @@ function App() {
   function addFiles(nextFiles: File[]): void {
     if (nextFiles.length === 0) return;
     setFiles((current) => [...current, ...nextFiles]);
-    setStatus({ tone: "neutral", message: `${nextFiles.length} file${nextFiles.length === 1 ? "" : "s"} staged for import` });
+    setStatus({ tone: "neutral", message: `${nextFiles.length} file${nextFiles.length === 1 ? "" : "s"} staged for multimodal import` });
+  }
+
+  async function transcribeVoiceNote(file: File, fillLatest = true): Promise<void> {
+    setBusyAction("asr");
+    setStatus({ tone: "busy", message: `Transcribing ${file.name}` });
+    try {
+      const result = await api.transcribeAudio({
+        file,
+        providerId: asrProvider?.id ?? "stub-asr",
+        language
+      });
+      if (fillLatest && result.text.trim().length > 0) setLatest(result.text.trim());
+      setMediaNotice(`ASR ready · ${result.language} · ${Math.round(result.confidence * 100)}% confidence · ${result.durationMs}ms`);
+      setStatus({ tone: "success", message: "Voice note transcribed into Reply Lab" });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleRecordToggle(): Promise<void> {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setStatus({ tone: "error", message: "Browser recording is unavailable; upload a voice note file instead" });
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordedChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) recordedChunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        setIsRecording(false);
+        const blob = new Blob(recordedChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        const file = new File([blob], `voice-note-${Date.now()}.webm`, { type: blob.type });
+        addFiles([file]);
+        void transcribeVoiceNote(file);
+      };
+      recorder.start();
+      setIsRecording(true);
+      setStatus({ tone: "busy", message: "Recording voice note" });
+    } catch (error) {
+      setIsRecording(false);
+      setStatus({ tone: "error", message: errorMessage(error) });
+    }
+  }
+
+  async function handleTtsPreview(): Promise<void> {
+    const text = latest.trim();
+    if (!text) return;
+    setBusyAction("tts");
+    setStatus({ tone: "busy", message: "Generating voice preview" });
+    try {
+      const blob = await api.synthesizeSpeech({
+        text,
+        providerId: ttsProvider?.id ?? "stub-tts",
+        language
+      });
+      downloadBlob("kskill-voice-preview.wav", blob);
+      setStatus({ tone: "success", message: "Voice preview download started" });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
   }
 
   function handleFileSelection(event: ChangeEvent<HTMLInputElement>): void {
@@ -419,6 +517,42 @@ function App() {
             <ImageUp size={20} />
           </div>
 
+          <div className="intake-tabs" role="tablist" aria-label="Intake modes">
+            {[
+              { id: "files", label: "Files", icon: <UploadCloud size={15} /> },
+              { id: "paste", label: "Paste", icon: <MessageCircle size={15} /> },
+              { id: "record", label: "Record", icon: <Mic size={15} /> },
+              { id: "media", label: "Media", icon: <Paperclip size={15} /> }
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={intakeMode === item.id ? "active" : ""}
+                onClick={() => setIntakeMode(item.id as typeof intakeMode)}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {intakeMode === "record" && (
+            <div className="voice-record-panel">
+              <button className={`record-button ${isRecording ? "recording" : ""}`} type="button" onClick={() => void handleRecordToggle()}>
+                {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
+                {isRecording ? "Stop and transcribe" : "Record voice note"}
+              </button>
+              <p>{asrProvider ? `${asrProvider.label} · ${asrProvider.mode}` : "Voice provider list loading"}</p>
+            </div>
+          )}
+
+          {intakeMode === "media" && (
+            <div className="media-note">
+              <Paperclip size={18} />
+              <span>{mediaNotice}</span>
+            </div>
+          )}
+
           <div
             className={`dropzone ${isDragging ? "dragging" : ""}`}
             onDragEnter={(event) => {
@@ -434,12 +568,12 @@ function App() {
               className="sr-only"
               type="file"
               multiple
-              accept=".txt,.md,.json,.csv,.html,.htm"
+              accept=".txt,.md,.json,.csv,.html,.htm,.zip,.png,.jpg,.jpeg,.webp,.gif,.pdf,.wav,.mp3,.m4a,.aac,.ogg,.webm,.mp4,.mov,.vtt,.srt"
               onChange={handleFileSelection}
             />
             <UploadCloud size={28} />
             <strong>{files.length > 0 ? `${files.length} file${files.length === 1 ? "" : "s"} selected` : "Drop chat exports"}</strong>
-            <span>.txt · .json · .csv · .html · .md</span>
+            <span>.txt · .json · .csv · .html · .md · voice · image · sticker · PDF · ZIP</span>
             <button className="secondary-action" type="button" onClick={() => fileInputRef.current?.click()}>
               Choose files
             </button>
@@ -452,6 +586,15 @@ function App() {
                   <FileText size={16} />
                   <span>{file.name}</span>
                   <small>{formatSize(file.size)}</small>
+                  {isVoiceLike(file) && (
+                    <button
+                      type="button"
+                      aria-label={`Transcribe ${file.name}`}
+                      onClick={() => void transcribeVoiceNote(file)}
+                    >
+                      <Mic size={15} />
+                    </button>
+                  )}
                   <button
                     type="button"
                     aria-label={`Remove ${file.name}`}
@@ -531,8 +674,23 @@ function App() {
                   <span><strong>{preview.sourceCount ?? 0}</strong> sources</span>
                   <span><strong>{preview.duplicateCount ?? 0}</strong> duplicates</span>
                   <span><strong>{preview.messages.length}</strong> messages</span>
+                  <span><strong>{preview.assetCount ?? 0}</strong> assets</span>
+                  <span><strong>{preview.transcriptCount ?? 0}</strong> transcripts</span>
+                  <span><strong>{preview.reactionCount ?? 0}</strong> reactions</span>
                 </div>
                 {preview.summary && <p className="summary-line">{preview.summary}</p>}
+                {(preview.attachmentKinds?.length ?? 0) > 0 && (
+                  <div className="media-chip-row">
+                    {preview.attachmentKinds?.map((kind) => <span key={kind}>{kind}</span>)}
+                  </div>
+                )}
+                {(preview.diagnostics?.length ?? 0) > 0 && (
+                  <div className="diagnostic-list">
+                    {preview.diagnostics?.slice(0, 4).map((item) => (
+                      <span key={`${item.code}-${item.message}`}>{item.severity}: {item.message}</span>
+                    ))}
+                  </div>
+                )}
                 <div className="dm-thread">
                   {preview.messages.length > 0 ? preview.messages.map((message, index) => (
                     <article key={`${message.speaker}-${message.text}-${index}`} className={index % 2 === 0 ? "bubble incoming" : "bubble outgoing"}>
@@ -618,7 +776,30 @@ function App() {
           <div className="reply-controls">
             <label>
               TA latest
-              <input value={latest} onChange={(event) => setLatest(event.target.value)} />
+              <span className="latest-input-row">
+                <input value={latest} onChange={(event) => setLatest(event.target.value)} />
+                <button
+                  className="icon-button light"
+                  type="button"
+                  title="Transcribe the first staged voice note"
+                  disabled={busyAction !== null || !files.some(isVoiceLike)}
+                  onClick={() => {
+                    const file = files.find(isVoiceLike);
+                    if (file) void transcribeVoiceNote(file);
+                  }}
+                >
+                  <Mic size={16} />
+                </button>
+                <button
+                  className="icon-button light"
+                  type="button"
+                  title="Create a voice preview"
+                  disabled={busyAction !== null || latest.trim().length === 0}
+                  onClick={() => void handleTtsPreview()}
+                >
+                  <Volume2 size={16} />
+                </button>
+              </span>
             </label>
             <label>
               Style
@@ -676,6 +857,22 @@ function App() {
             {busyAction === "export" ? <Loader2 className="spin" size={17} /> : <FileArchive size={17} />}
             <span>Export ZIP</span>
           </button>
+        </section>
+
+        <section className="surface-card topic-card">
+          <div className="section-head">
+            <div>
+              <p>Voice</p>
+              <h2>Persona Voice</h2>
+            </div>
+            <Volume2 size={20} />
+          </div>
+          <div className="voice-dna">
+            <span><b>ASR</b>{asrProvider?.label ?? "stub-asr"}</span>
+            <span><b>TTS</b>{ttsProvider?.label ?? "stub-tts"}</span>
+            <span><b>DNA</b>pace · pause · catchphrases</span>
+            <span><b>Stickers</b>sticker intents travel with exports</span>
+          </div>
         </section>
 
         <section className="surface-card topic-card">

@@ -92,6 +92,28 @@ K.skill 正式分成四条线。别混着用，按你的目的选就行。
 | **Character World / 角色与世界观** | 你想做动漫角色、电影人物、虚拟人物、世界观 | 角色身份、世界规则、聊天人格 |
 | **Life Mentor / 人生陪跑模型** | 你想把公开资料、文章、笔记变成思考陪跑 | 表达习惯、判断模型、可追问思路 |
 
+## Voice Studio：聊天、语音、图片、表情放在一个入口
+
+K.skill 现在不只吃文字。你可以把 **voice note**、录音、语音消息、screenshot、image、图片、sticker、emoji、PDF、视频字幕和混合 ZIP 一起丢进来。  
+它会先做 **multimodal import**：文字进聊天流，语音走 **ASR** 生成 transcript，image / screenshot / PDF / video transcript 生成可检查的 media evidence，表情包整理成 **sticker intents**。后面不管你做 Crush Coach、Relationship Memory、Character World 还是 Life Mentor，都会继续引用这些证据。
+
+CLI：
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-zh.wav --provider stub-asr --language zh --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-zh.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "周末去看展，语气轻一点。" --provider stub-tts --out tmp/voice-preview.wav
+npm run cli -- voice-profile local-packs/voice-crush
+```
+
+GUI：
+
+1. `DM intake` 里可以选 `Files / Paste / Record / Media`。
+2. 上传聊天记录、语音、截图、sticker、PDF、视频字幕或 ZIP。
+3. `Record` 可以录一段 voice note，转写后自动填进 Reply Lab。
+4. `Parse preview` 会显示 message、asset、transcript、reaction 和 attachment kind。
+5. 右侧 `Persona Voice` 会展示 voice DNA、TTS preview 和 sticker intents，导出 ZIP 时一起带走。
+
 一句话理解：
 
 - **Crush Coach**：帮你回消息。
@@ -377,11 +399,17 @@ http://127.0.0.1:5999
 GET  /api/health
 GET  /api/packs
 POST /api/imports
+GET  /api/voice/providers
+POST /api/voice/asr
+POST /api/voice/tts
 POST /api/packs/:id/pastes
 POST /api/packs/:id/pursuit
+POST /api/packs/:id/replies
 GET  /api/reports/:reportId/download
 POST /api/packs/:id/exports
 GET  /api/exports/:exportId/download
+GET  /api/packs/:id/assets
+GET  /api/packs/:id/assets/:assetId/download
 GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```

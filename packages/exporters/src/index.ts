@@ -13,6 +13,7 @@ export type ExportOptions = {
   target: ExportTarget;
   outDir: string;
   zip?: boolean | string;
+  includeAssets?: "all" | "metadata" | "none";
 };
 
 export type ExportResult = {
@@ -71,6 +72,7 @@ export type ExportVerification = {
 export type ExportZipOptions = {
   target: ExportTarget;
   outFile?: string;
+  includeAssets?: "all" | "metadata" | "none";
 };
 
 export type ExportZipResult = {
@@ -184,6 +186,65 @@ function evidencePayload(pack: PersonaPack): unknown {
   };
 }
 
+function mediaManifest(pack: PersonaPack, includeAssets: "all" | "metadata" | "none" = "all"): unknown {
+  return {
+    schemaVersion: "1.0",
+    includeAssets,
+    assets: includeAssets === "none" ? [] : pack.assets.map((asset) => ({
+      id: asset.id,
+      kind: asset.kind,
+      filename: asset.filename,
+      mimeType: asset.mimeType,
+      byteLength: asset.byteLength,
+      sha256: asset.sha256,
+      storageKey: includeAssets === "all" ? asset.storageKey : undefined,
+      metadata: asset.metadata
+    })),
+    transcriptAssets: pack.assets.filter((asset) => asset.kind === "audio" || asset.kind === "transcript").map((asset) => asset.id)
+  };
+}
+
+function asrTranscripts(pack: PersonaPack): unknown {
+  return {
+    packId: pack.id,
+    transcripts: pack.assets
+      .filter((asset) => asset.kind === "audio" || asset.kind === "transcript")
+      .map((asset) => ({
+        assetId: asset.id,
+        filename: asset.filename,
+        provider: asset.metadata.provider,
+        confidence: asset.metadata.confidence,
+        text: asset.metadata.transcript ?? ""
+      }))
+  };
+}
+
+function visualStyleMarkdown(pack: PersonaPack): string {
+  const visualAssets = pack.assets.filter((asset) => asset.kind === "image" || asset.kind === "sticker" || asset.kind === "emoji_pack");
+  return `# Visual Style
+
+## Persona
+${pack.name}
+
+## Visual Assets
+${visualAssets.map((asset) => `- ${asset.kind}: ${asset.filename} (${asset.mimeType})`).join("\n") || "- No visual assets imported yet."}
+
+## Use
+Use imported images, screenshots, stickers, and emoji packs as style references and evidence summaries for this persona pack.
+`;
+}
+
+function commonMediaFiles(pack: PersonaPack, prefix = "", includeAssets: "all" | "metadata" | "none" = "all"): ExportFile[] {
+  const base = prefix ? `${prefix.replace(/\/+$/, "")}/` : "";
+  return [
+    jsonFile(`${base}voice-profile.json`, pack.voiceProfile),
+    jsonFile(`${base}asr-transcripts.json`, asrTranscripts(pack)),
+    textFile(`${base}visual-style.md`, visualStyleMarkdown(pack)),
+    jsonFile(`${base}sticker-intents.json`, { stickerIntents: pack.stickerIntents }),
+    jsonFile(`${base}media-manifest.json`, mediaManifest(pack, includeAssets))
+  ];
+}
+
 function commonReferenceFiles(pack: PersonaPack, prefix = "references"): ExportFile[] {
   return [
     textFile(`${prefix}/persona.md`, renderPersonaMarkdown(pack)),
@@ -201,6 +262,7 @@ function buildSkillExport(pack: PersonaPack, client: "Codex" | "Claude Code", pr
     files: [
       textFile(`${base}SKILL.md`, skillMarkdown(pack, client)),
       ...commonReferenceFiles(pack, `${base}references`),
+      ...commonMediaFiles(pack, `${base}references`),
       jsonFile(`${base}persona-pack.json`, pack)
     ]
   };
@@ -223,6 +285,7 @@ Always consult the knowledge files before making specific memory claims. Refuse 
       textFile("knowledge/persona.md", renderPersonaMarkdown(pack)),
       textFile("knowledge/memory.md", memoryMarkdown(pack)),
       textFile("knowledge/boundaries.md", boundariesMarkdown(pack)),
+      ...commonMediaFiles(pack, "knowledge"),
       jsonFile("knowledge/evidence.json", evidencePayload(pack)),
       jsonFile("gpt-config.json", {
         name: pack.name,
@@ -232,7 +295,7 @@ Always consult the knowledge files before making specific memory claims. Refuse 
           "Explain what evidence supports this persona.",
           "Check whether this request crosses a boundary."
         ],
-        knowledge_files: ["knowledge/persona.md", "knowledge/memory.md", "knowledge/boundaries.md", "knowledge/evidence.json"]
+        knowledge_files: ["knowledge/persona.md", "knowledge/memory.md", "knowledge/boundaries.md", "knowledge/visual-style.md", "knowledge/media-manifest.json", "knowledge/evidence.json"]
       }),
       jsonFile("persona-pack.json", pack)
     ]
@@ -261,6 +324,7 @@ function buildDeepSeek(pack: PersonaPack): ExportBundle {
           { role: "user", content: "{{user_message}}" }
         ]
       }),
+      ...commonMediaFiles(pack),
       jsonFile("persona-pack.json", pack)
     ]
   };
@@ -296,7 +360,8 @@ function buildSillyTavern(pack: PersonaPack): ExportBundle {
           schemaVersion: pack.schemaVersion,
           packId: pack.id,
           evidenceCount: pack.distillation.evidence.length,
-          boundaryCount: pack.safety.forbiddenUse.length
+          boundaryCount: pack.safety.forbiddenUse.length,
+          assets: pack.assets.map((asset) => ({ id: asset.id, kind: asset.kind, filename: asset.filename, sha256: asset.sha256 }))
         }
       },
       character_book: characterBook
@@ -304,7 +369,7 @@ function buildSillyTavern(pack: PersonaPack): ExportBundle {
   };
   return {
     instructions: "Import character-card-v2.json into SillyTavern and import lorebook.json when using memory triggers.",
-    files: [jsonFile("character-card-v2.json", character), jsonFile("lorebook.json", characterBook), jsonFile("persona-pack.json", pack)]
+    files: [jsonFile("character-card-v2.json", character), jsonFile("lorebook.json", characterBook), ...commonMediaFiles(pack), jsonFile("persona-pack.json", pack)]
   };
 }
 
@@ -321,6 +386,7 @@ function buildHermes(pack: PersonaPack): ExportBundle {
         memoryFiles: ["persona-pack.json", `skills/${slugify(pack.name)}/references/memory.md`]
       }),
       ...skill.files,
+      ...commonMediaFiles(pack),
       jsonFile("persona-pack.json", pack)
     ]
   };
@@ -345,10 +411,13 @@ function buildLobe(pack: PersonaPack): ExportBundle {
         knowledge: {
           persona: renderPersonaMarkdown(pack),
           memory: memoryMarkdown(pack),
+          visualStyle: visualStyleMarkdown(pack),
+          mediaManifest: mediaManifest(pack),
           evidence: evidencePayload(pack)
         }
       }),
       textFile("system-prompt.md", stack.rendered),
+      ...commonMediaFiles(pack),
       jsonFile("persona-pack.json", pack)
     ]
   };
@@ -368,11 +437,14 @@ function buildOpenWebUi(pack: PersonaPack): ExportBundle {
           { name: "persona.md", content: renderPersonaMarkdown(pack) },
           { name: "memory.md", content: memoryMarkdown(pack) },
           { name: "boundaries.md", content: boundariesMarkdown(pack) },
+          { name: "visual-style.md", content: visualStyleMarkdown(pack) },
+          { name: "media-manifest.json", content: JSON.stringify(mediaManifest(pack), null, 2) },
           { name: "evidence.json", content: JSON.stringify(evidencePayload(pack), null, 2) }
         ]
       }),
       textFile("system-prompt.md", stack.rendered),
       textFile("modelfile.txt", `SYSTEM """\n${stack.rendered}\n"""\n\nPARAMETER temperature 0.7\n`),
+      ...commonMediaFiles(pack),
       jsonFile("persona-pack.json", pack)
     ]
   };
@@ -390,16 +462,17 @@ function buildExportBundle(pack: PersonaPack, target: ExportTarget): ExportBundl
 }
 
 function targetRequiredFiles(target: ExportTarget, files: ExportFile[]): string[] {
-  if (target === "codex" || target === "claude") return ["SKILL.md", "references/persona.md", "references/memory.md", "references/boundaries.md", "references/prompt-stack.md", "references/evidence.json", "persona-pack.json"];
-  if (target === "chatgpt") return ["instructions.md", "knowledge/persona.md", "knowledge/memory.md", "knowledge/boundaries.md", "knowledge/evidence.json", "gpt-config.json", "persona-pack.json"];
-  if (target === "deepseek") return ["system-prompt.json", "messages.example.json", "api-request.json", "persona-pack.json"];
-  if (target === "sillytavern") return ["character-card-v2.json", "lorebook.json", "persona-pack.json"];
+  const mediaRoot = ["voice-profile.json", "asr-transcripts.json", "visual-style.md", "sticker-intents.json", "media-manifest.json"];
+  if (target === "codex" || target === "claude") return ["SKILL.md", "references/persona.md", "references/memory.md", "references/boundaries.md", "references/prompt-stack.md", "references/evidence.json", "references/voice-profile.json", "references/asr-transcripts.json", "references/visual-style.md", "references/sticker-intents.json", "references/media-manifest.json", "persona-pack.json"];
+  if (target === "chatgpt") return ["instructions.md", "knowledge/persona.md", "knowledge/memory.md", "knowledge/boundaries.md", "knowledge/evidence.json", "knowledge/voice-profile.json", "knowledge/asr-transcripts.json", "knowledge/visual-style.md", "knowledge/sticker-intents.json", "knowledge/media-manifest.json", "gpt-config.json", "persona-pack.json"];
+  if (target === "deepseek") return ["system-prompt.json", "messages.example.json", "api-request.json", ...mediaRoot, "persona-pack.json"];
+  if (target === "sillytavern") return ["character-card-v2.json", "lorebook.json", ...mediaRoot, "persona-pack.json"];
   if (target === "hermes") {
     const skillPath = files.find((file) => file.path.endsWith("/SKILL.md"))?.path ?? "skills/<pack>/SKILL.md";
-    return ["SOUL.md", "config/persona.json", skillPath, "persona-pack.json"];
+    return ["SOUL.md", "config/persona.json", skillPath, ...mediaRoot, "persona-pack.json"];
   }
-  if (target === "lobe") return ["lobe-agent.json", "system-prompt.md", "persona-pack.json"];
-  return ["openwebui-agent.json", "system-prompt.md", "modelfile.txt", "persona-pack.json"];
+  if (target === "lobe") return ["lobe-agent.json", "system-prompt.md", ...mediaRoot, "persona-pack.json"];
+  return ["openwebui-agent.json", "system-prompt.md", "modelfile.txt", ...mediaRoot, "persona-pack.json"];
 }
 
 function schemaChecks(target: ExportTarget, files: ExportFile[]): ExportManifest["schemaChecks"] {
@@ -465,16 +538,19 @@ function manifestFor(pack: PersonaPack, target: ExportTarget, bundle: ExportBund
   return manifest;
 }
 
-function bundleWithManifest(pack: PersonaPack, target: ExportTarget): ExportBundle {
+function bundleWithManifest(pack: PersonaPack, target: ExportTarget, includeAssets: "all" | "metadata" | "none" = "all"): ExportBundle {
   const bundle = buildExportBundle(pack, target);
-  const manifest = manifestFor(pack, target, bundle);
+  const files = bundle.files.map((file) => file.path.endsWith("media-manifest.json")
+    ? jsonFile(file.path, mediaManifest(pack, includeAssets))
+    : file);
+  const manifest = manifestFor(pack, target, { ...bundle, files });
   const failed = manifest.schemaChecks.filter((check) => !check.ok);
   if (failed.length > 0) {
     throw new Error(`Export bundle failed validation: ${failed.map((check) => `${check.name}${check.message ? ` (${check.message})` : ""}`).join("; ")}`);
   }
   return {
     instructions: bundle.instructions,
-    files: [...bundle.files, jsonFile("manifest.json", manifest)]
+    files: [jsonFile("manifest.json", manifest), ...files]
   };
 }
 
@@ -493,8 +569,8 @@ function writeZip(path: string, files: ExportFile[]): void {
   writeFileSync(path, zipBytes(files));
 }
 
-export function exportPersonaPackZip(pack: PersonaPack, options: Pick<ExportZipOptions, "target">): ExportZipResult {
-  const bundle = bundleWithManifest(pack, options.target);
+export function exportPersonaPackZip(pack: PersonaPack, options: Pick<ExportZipOptions, "target" | "includeAssets">): ExportZipResult {
+  const bundle = bundleWithManifest(pack, options.target, options.includeAssets ?? "all");
   const manifestFile = bundle.files.find((file) => file.path === "manifest.json");
   if (!manifestFile) throw new Error("Export bundle did not produce manifest.json");
   const manifest = ExportManifestSchema.parse(JSON.parse(manifestFile.content));
@@ -508,14 +584,14 @@ export function exportPersonaPackZip(pack: PersonaPack, options: Pick<ExportZipO
 }
 
 export function exportPersonaPackZipToFile(pack: PersonaPack, options: ExportZipOptions & { outFile: string }): ExportZipFileResult {
-  const result = exportPersonaPackZip(pack, { target: options.target });
+  const result = exportPersonaPackZip(pack, { target: options.target, includeAssets: options.includeAssets ?? "all" });
   mkdirSync(dirname(options.outFile), { recursive: true });
   writeFileSync(options.outFile, result.zip);
   return { ...result, outFile: options.outFile };
 }
 
 export function exportPersonaPack(pack: PersonaPack, options: ExportOptions): ExportResult {
-  const bundle = bundleWithManifest(pack, options.target);
+  const bundle = bundleWithManifest(pack, options.target, options.includeAssets ?? "all");
   mkdirSync(options.outDir, { recursive: true });
   const files = bundle.files.map((file) => {
     const path = join(options.outDir, file.path);

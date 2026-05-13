@@ -8,15 +8,18 @@ import {
   MemoryPatchRequestSchema,
   PasteSourceRequestSchema,
   PursuitRequestSchema,
+  TtsRequestSchema,
   fail,
   ok
 } from "../../contracts/src/index.js";
 import { createPersonaPack, inspectPromptStack, renderPersonaMarkdown, type PackLanguage, type PersonaType } from "../../core/src/index.js";
 import { distillPersonaPack } from "../../distiller/src/index.js";
 import { exportPersonaPackZip } from "../../exporters/src/index.js";
+import { classifyMediaFile, parseMediaFile, type MediaInputFile, type ParsedAsset } from "../../media/src/index.js";
 import { parseSourceFromText } from "../../pack-io/src/index.js";
 import { analyzePursuit, assessSendDecision, generateReplyLab, generateTopicPlan, renderPursuitReport } from "../../pursuit/src/index.js";
 import { defaultVaultPath, openVault, type VaultStore } from "../../vault/src/index.js";
+import { synthesizeSpeech, transcribeAudio, voicePreviewManifest, voiceProviders } from "../../voice/src/index.js";
 
 export type KskillAppOptions = {
   vault?: VaultStore;
@@ -35,6 +38,11 @@ type ImportResponse = {
     language: PackLanguage;
     duplicate: boolean;
     messages: Array<{ speaker: string; text: string; timestamp?: string }>;
+    assetCount?: number;
+    transcriptCount?: number;
+    reactionCount?: number;
+    attachmentKinds?: string[];
+    diagnostics?: Array<{ code: string; message: string; severity: string }>;
   }>;
   preview?: {
     sourceCount: number;
@@ -42,6 +50,11 @@ type ImportResponse = {
     sourceName?: string;
     summary?: string;
     messages: Array<{ speaker: string; text: string; timestamp?: string }>;
+    assetCount?: number;
+    transcriptCount?: number;
+    reactionCount?: number;
+    attachmentKinds?: string[];
+    diagnostics?: Array<{ code: string; message: string; severity: string }>;
   };
 };
 
@@ -51,6 +64,13 @@ function contentTypeFor(path: string): string {
   if (extension === ".js") return "text/javascript; charset=utf-8";
   if (extension === ".css") return "text/css; charset=utf-8";
   if (extension === ".svg") return "image/svg+xml";
+  if (extension === ".png") return "image/png";
+  if (extension === ".jpg" || extension === ".jpeg") return "image/jpeg";
+  if (extension === ".gif") return "image/gif";
+  if (extension === ".webp") return "image/webp";
+  if (extension === ".wav") return "audio/wav";
+  if (extension === ".mp3") return "audio/mpeg";
+  if (extension === ".m4a") return "audio/mp4";
   if (extension === ".json") return "application/json; charset=utf-8";
   return "application/octet-stream";
 }
@@ -84,7 +104,7 @@ function serializeReport(report: ReturnType<typeof analyzePursuit>) {
   };
 }
 
-function sourcePreview(name: string, source: ReturnType<typeof parseSourceFromText>, duplicate: boolean): ImportResponse["previews"][number] {
+function sourcePreview(name: string, source: ReturnType<typeof parseSourceFromText>, duplicate: boolean, extras: Partial<ImportResponse["previews"][number]> = {}): ImportResponse["previews"][number] {
   const speakers = [...new Set(source.messages.map((message) => message.speaker))].slice(0, 12);
   return {
     name,
@@ -96,8 +116,21 @@ function sourcePreview(name: string, source: ReturnType<typeof parseSourceFromTe
       speaker: message.speaker,
       text: message.text,
       ...(message.timestamp ? { timestamp: message.timestamp } : {})
-    }))
+    })),
+    ...extras
   };
+}
+
+async function toMediaInput(file: File): Promise<MediaInputFile> {
+  return {
+    name: file.name,
+    bytes: new Uint8Array(await file.arrayBuffer()),
+    ...(file.type ? { mimeType: file.type } : {})
+  };
+}
+
+function remapAssets(assets: ParsedAsset[], sourceId: string): ParsedAsset[] {
+  return assets.map((item) => ({ ...item, asset: { ...item.asset, sourceId } }));
 }
 
 export function createKskillApp(options: KskillAppOptions = {}) {
@@ -113,6 +146,15 @@ export function createKskillApp(options: KskillAppOptions = {}) {
   app.get("/api/health", (c) => c.json(ok({ status: "ok", service: "kskill", vault: vault.dbPath })));
   app.get("/api/vault", (c) => c.json(ok({ path: vault.dbPath, packs: vault.listPacks().length })));
   app.get("/api/packs", (c) => c.json(ok({ packs: vault.listPacks() })));
+  app.get("/api/voice/providers", (c) => c.json(ok({
+    providers: voiceProviders.map((provider) => ({
+      ...provider,
+      kind: provider.capabilities.some((capability) => capability.startsWith("asr")) ? "asr" : "tts",
+      mode: provider.id.startsWith("stub") ? "stub" : provider.runtime === "browser" ? "browser" : provider.local ? "local" : "remote",
+      languages: ["zh", "en", "ja", "ko", "es"],
+      configured: !provider.requiresSecret
+    }))
+  })));
 
   app.post("/api/packs", async (c) => {
     const input = await readJson(c.req.raw, CreatePackRequestSchema);
@@ -143,14 +185,28 @@ export function createKskillApp(options: KskillAppOptions = {}) {
     const previews: ImportResponse["previews"] = [];
 
     for (const file of files) {
-      const text = await file.text();
-      const source = parseSourceFromText(text, file.name, { consentConfirmed, private: true });
-      const result = vault.addSource(pack.id, source);
-      duplicateCount += result.inserted ? 0 : 1;
-      previews.push(sourcePreview(file.name, source, !result.inserted));
-      if (result.inserted) {
-        const current = vault.getPack(pack.id) ?? pack;
-        vault.upsertPack(distillPersonaPack(current, { ...source, source: { ...source.source, id: result.sourceId } }));
+      const mediaInput = await toMediaInput(file);
+      const classified = classifyMediaFile(mediaInput);
+      const parsed = classified.textLike
+        ? { sources: [parseSourceFromText(await file.text(), file.name, { consentConfirmed, private: true })], assets: [], diagnostics: [], asrResults: [] }
+        : await parseMediaFile(mediaInput, { consentConfirmed, private: true, asr: { providerId: "stub-asr", language } });
+
+      for (const source of parsed.sources) {
+        const result = vault.addSource(pack.id, { ...source, source: { ...source.source, consentConfirmed, private: true } });
+        duplicateCount += result.inserted ? 0 : 1;
+        const sourceAssets = remapAssets(parsed.assets.filter((asset) => asset.asset.sourceId === source.source.id || parsed.sources.length === 1), result.sourceId);
+        if (sourceAssets.length) vault.addAssets(pack.id, sourceAssets);
+        previews.push(sourcePreview(file.name, source, !result.inserted, {
+          assetCount: sourceAssets.length,
+          transcriptCount: source.messages.reduce((sum, message) => sum + (message.transcripts?.length ?? 0), 0),
+          reactionCount: source.messages.reduce((sum, message) => sum + (message.reactions?.length ?? 0), 0),
+          attachmentKinds: [...new Set(source.messages.flatMap((message) => message.attachments?.map((attachment) => attachment.kind) ?? []))],
+          diagnostics: parsed.diagnostics
+        }));
+        if (result.inserted) {
+          const current = vault.getPack(pack.id) ?? pack;
+          vault.upsertPack(distillPersonaPack(current, { ...source, source: { ...source.source, id: result.sourceId } }));
+        }
       }
     }
 
@@ -165,9 +221,44 @@ export function createKskillApp(options: KskillAppOptions = {}) {
         duplicateCount,
         summary: previews.map((item) => `${item.name}: ${item.messageCount} messages`).join("; "),
         messages: previews.flatMap((item) => item.messages).slice(0, 8),
+        assetCount: previews.reduce((sum, item) => sum + (item.assetCount ?? 0), 0),
+        transcriptCount: previews.reduce((sum, item) => sum + (item.transcriptCount ?? 0), 0),
+        reactionCount: previews.reduce((sum, item) => sum + (item.reactionCount ?? 0), 0),
+        attachmentKinds: [...new Set(previews.flatMap((item) => item.attachmentKinds ?? []))],
+        diagnostics: previews.flatMap((item) => item.diagnostics ?? []),
         ...(previews[0]?.name ? { sourceName: previews[0].name } : {})
       }
     }));
+  });
+
+  app.post("/api/voice/asr", async (c) => {
+    const body = await c.req.parseBody({ all: true });
+    const file = normalizeFiles(body.file ?? body.files)[0];
+    if (!file) return c.json(fail("missing_audio", "Audio file is required"), 400);
+    const media = await toMediaInput(file);
+    const result = await transcribeAudio({ bytes: media.bytes, filename: media.name, mimeType: media.mimeType ?? "application/octet-stream" }, {
+      providerId: String(body.providerId ?? "stub-asr") as never,
+      language: String(body.language ?? "zh")
+    });
+    return c.json(ok({ result }));
+  });
+
+  app.post("/api/voice/tts", async (c) => {
+    const input = await readJson(c.req.raw, TtsRequestSchema);
+    const audio = await synthesizeSpeech(input.text, {
+      providerId: input.providerId as never,
+      ...(input.voice ? { voice: input.voice } : {}),
+      ...(input.language ? { language: input.language } : {}),
+      format: input.format
+    });
+    c.header("x-kskill-tts-manifest", JSON.stringify(voicePreviewManifest(audio, input.language ?? "auto")));
+    return new Response(Buffer.from(audio.bytes), {
+      headers: {
+        "content-type": audio.mimeType,
+        "x-kskill-voice-id": audio.voiceId,
+        "x-kskill-sha256": audio.sha256
+      }
+    });
   });
 
   app.post("/api/packs/:id/pastes", async (c) => {
@@ -235,6 +326,24 @@ export function createKskillApp(options: KskillAppOptions = {}) {
     }));
   });
 
+  app.post("/api/packs/:id/replies", async (c) => {
+    const packId = c.req.param("id");
+    const pack = vault.getPack(packId);
+    if (!pack) return c.json(fail("not_found", "Pack not found"), 404);
+    const input = await readJson(c.req.raw, PursuitRequestSchema);
+    const report = analyzePursuit(vault.getMessages(packId), {
+      userName: input.me,
+      targetName: input.ta,
+      goal: input.goal,
+      language: pack.language,
+      latestMessage: input.latest,
+      draftMessage: input.draft,
+      maxTurns: input.maxTurns
+    });
+    const replies = generateReplyLab(report, input.latest, input.style);
+    return c.json(ok({ report: serializeReport(report), replies }));
+  });
+
   app.get("/api/packs/:id/reports", (c) => c.json(ok({ reports: vault.listReports(c.req.param("id")) })));
 
   app.get("/api/reports/:reportId/download", (c) => {
@@ -250,9 +359,24 @@ export function createKskillApp(options: KskillAppOptions = {}) {
     const pack = vault.getPack(packId);
     if (!pack) return c.json(fail("not_found", "Pack not found"), 404);
     const input = await readJson(c.req.raw, ExportRequestSchema);
-    const bundle = exportPersonaPackZip(pack, { target: input.target });
+    const bundle = exportPersonaPackZip(pack, { target: input.target, includeAssets: input.includeAssets });
     const stored = vault.addExport(packId, input.target, bundle.zip, bundle.manifest, bundle.instructions);
     return c.json(ok({ exportId: stored.id, target: input.target, manifest: bundle.manifest, instructions: bundle.instructions }));
+  });
+
+  app.get("/api/packs/:id/assets", (c) => c.json(ok({ assets: vault.listAssets(c.req.param("id")) })));
+
+  app.get("/api/packs/:id/assets/:assetId/download", (c) => {
+    const stored = vault.getAsset(c.req.param("assetId"));
+    if (!stored) return c.json(fail("not_found", "Asset not found"), 404);
+    const bytes = vault.readAssetBytes(stored.asset.id);
+    if (!bytes) return c.json(fail("not_found", "Asset bytes not found"), 404);
+    return new Response(Buffer.from(bytes), {
+      headers: {
+        "content-type": stored.asset.mimeType,
+        "content-disposition": `attachment; filename="${stored.asset.filename}"`
+      }
+    });
   });
 
   app.get("/api/exports/:exportId/download", (c) => {

@@ -75,6 +75,28 @@ Pick the lane that matches what you are trying to do:
 - **Character World** is for anime OCs, fictional roles, Movie Character packs, lorebooks, and roleplay cards.
 - **Life Mentor** turns public material and personal notes into a thinking model.
 
+## Voice Studio
+
+K.skill now handles more than text. One intake can accept a **voice note**, recorded audio, screenshots, image files, sticker files, emoji notes, PDFs, video transcript sidecars, and mixed ZIP bundles.  
+The pipeline runs **multimodal import** first: text becomes chat turns, audio goes through **ASR** into transcript evidence, image / screenshot / PDF / video transcript material becomes media evidence, and stickers become **sticker intents**. Crush Coach, Relationship Memory, Character World, and Life Mentor can all use that same evidence trail.
+
+CLI:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-en.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "Keep it light and natural." --provider stub-tts --out tmp/voice-preview.wav
+npm run cli -- voice-profile local-packs/voice-crush
+```
+
+GUI:
+
+1. In `DM intake`, choose `Files / Paste / Record / Media`.
+2. Upload a chat log, voice note, screenshot, sticker, PDF, video transcript, or ZIP bundle.
+3. Use `Record` to capture a short voice note and fill Reply Lab after ASR.
+4. `Parse preview` shows messages, assets, transcripts, reactions, and attachment kinds.
+5. `Persona Voice` keeps voice DNA, TTS preview, visual style, and sticker intents inside the export.
+
 ## Crush Coach
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
@@ -313,11 +335,17 @@ Local API:
 GET  /api/health
 GET  /api/packs
 POST /api/imports
+GET  /api/voice/providers
+POST /api/voice/asr
+POST /api/voice/tts
 POST /api/packs/:id/pastes
 POST /api/packs/:id/pursuit
+POST /api/packs/:id/replies
 GET  /api/reports/:reportId/download
 POST /api/packs/:id/exports
 GET  /api/exports/:exportId/download
+GET  /api/packs/:id/assets
+GET  /api/packs/:id/assets/:assetId/download
 GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```

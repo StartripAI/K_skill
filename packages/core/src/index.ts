@@ -6,8 +6,79 @@ export type PackLanguage = (typeof supportedPackLanguages)[number];
 export const personaTypes = ["relationship", "character", "advisor", "self", "pursuit"] as const;
 export type PersonaType = (typeof personaTypes)[number];
 
-export const personaPackSchemaVersions = ["1.0", "1.1"] as const;
+export const personaPackSchemaVersions = ["1.0", "1.1", "1.2"] as const;
 export type PersonaPackSchemaVersion = (typeof personaPackSchemaVersions)[number];
+
+export const mediaAssetKinds = ["image", "sticker", "emoji_pack", "audio", "video", "pdf", "transcript", "mixed", "other"] as const;
+export type MediaAssetKind = (typeof mediaAssetKinds)[number];
+
+export const MediaAssetSchema = z.object({
+  id: z.string(),
+  kind: z.enum(mediaAssetKinds),
+  sourceId: z.string(),
+  messageId: z.string().optional(),
+  filename: z.string(),
+  mimeType: z.string(),
+  byteLength: z.number().int().nonnegative(),
+  sha256: z.string().min(8),
+  storageKey: z.string(),
+  metadata: z.record(z.string(), z.unknown()).default({}),
+  createdAt: z.string()
+});
+
+export const MessageAttachmentSchema = z.object({
+  id: z.string(),
+  assetId: z.string(),
+  kind: z.enum(mediaAssetKinds),
+  label: z.string().optional(),
+  text: z.string().optional(),
+  role: z.enum(["source", "reference", "reply", "sticker", "visual"]).optional()
+});
+
+export const MessageReactionSchema = z.object({
+  id: z.string(),
+  emoji: z.string(),
+  actor: z.string(),
+  targetMessageId: z.string().optional(),
+  timestamp: z.string().optional(),
+  raw: z.string().optional()
+});
+
+export const TranscriptSchema = z.object({
+  id: z.string(),
+  assetId: z.string().optional(),
+  text: z.string(),
+  language: z.enum(supportedPackLanguages).optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  provider: z.string().optional(),
+  createdAt: z.string(),
+  segments: z.array(z.object({
+    text: z.string(),
+    startMs: z.number().int().nonnegative().optional(),
+    endMs: z.number().int().nonnegative().optional(),
+    speaker: z.string().optional(),
+    confidence: z.number().min(0).max(1).optional()
+  })).default([])
+});
+
+export const VoiceProfileSchema = z.object({
+  pacing: z.array(z.string()).default([]),
+  pauseStyle: z.array(z.string()).default([]),
+  fillerWords: z.array(z.string()).default([]),
+  emotionalRange: z.array(z.string()).default([]),
+  formality: z.string().default("natural"),
+  sampleEvidenceIds: z.array(z.string()).default([]),
+  previewText: z.string().default("")
+});
+
+export const StickerIntentSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  mood: z.string(),
+  prompt: z.string(),
+  whenToUse: z.string(),
+  evidenceIds: z.array(z.string()).default([])
+});
 
 export const EvidenceSchema = z.object({
   id: z.string(),
@@ -16,13 +87,14 @@ export const EvidenceSchema = z.object({
   claim: z.string(),
   confidence: z.number().min(0).max(1),
   kind: z.enum(["direct", "inferred", "contradiction", "user_supplied"]),
+  attachmentIds: z.array(z.string()).default([]),
   createdAt: z.string()
 });
 
 export const SourceSchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.enum(["chat", "markdown", "text", "json", "csv", "html", "character_card", "manual"]),
+  type: z.enum(["chat", "markdown", "text", "json", "csv", "html", "character_card", "manual", "audio", "video", "image", "sticker", "emoji_pack", "pdf", "transcript", "mixed"]),
   language: z.enum(supportedPackLanguages),
   private: z.boolean(),
   consentConfirmed: z.boolean(),
@@ -37,6 +109,7 @@ export const MemoryEpisodeSchema = z.object({
   summary: z.string(),
   participants: z.array(z.string()),
   sourceIds: z.array(z.string()),
+  attachmentIds: z.array(z.string()).default([]),
   confidence: z.number().min(0).max(1),
   createdAt: z.string(),
   disabled: z.boolean().default(false)
@@ -111,6 +184,17 @@ export const PersonaPackSchema = z.object({
       })
     ).default([])
   }),
+  assets: z.array(MediaAssetSchema).default([]),
+  voiceProfile: VoiceProfileSchema.default({
+    pacing: [],
+    pauseStyle: [],
+    fillerWords: [],
+    emotionalRange: [],
+    formality: "neutral",
+    sampleEvidenceIds: [],
+    previewText: ""
+  }),
+  stickerIntents: z.array(StickerIntentSchema).default([]),
   evals: z.array(
     z.object({
       id: z.string(),
@@ -124,6 +208,12 @@ export const PersonaPackSchema = z.object({
 export type Evidence = z.infer<typeof EvidenceSchema>;
 export type Source = z.infer<typeof SourceSchema>;
 export type MemoryEpisode = z.infer<typeof MemoryEpisodeSchema>;
+export type MediaAsset = z.infer<typeof MediaAssetSchema>;
+export type MessageAttachment = z.infer<typeof MessageAttachmentSchema>;
+export type MessageReaction = z.infer<typeof MessageReactionSchema>;
+export type Transcript = z.infer<typeof TranscriptSchema>;
+export type VoiceProfile = z.infer<typeof VoiceProfileSchema>;
+export type StickerIntent = z.infer<typeof StickerIntentSchema>;
 export type PersonaPack = z.infer<typeof PersonaPackSchema>;
 
 export type PromptLayer = {
@@ -190,7 +280,7 @@ export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
   const privatePerson = input.privatePerson ?? (input.type === "relationship" || input.type === "pursuit");
 
   return {
-    schemaVersion: "1.1",
+    schemaVersion: "1.2",
     id,
     name: input.name,
     type: input.type,
@@ -253,6 +343,26 @@ export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
       contradictions: [],
       runs: []
     },
+    assets: [],
+    voiceProfile: {
+      pacing: ["steady", "clear"],
+      pauseStyle: ["uses pauses before important claims"],
+      fillerWords: [],
+      emotionalRange: ["warm", "grounded"],
+      formality: "natural",
+      sampleEvidenceIds: [],
+      previewText: input.language === "zh" ? "我会根据证据和语气来回应。" : "I will answer from evidence and tone."
+    },
+    stickerIntents: [
+      {
+        id: createId("sticker", `${id}:warm-reply`),
+        label: "warm reply",
+        mood: "warm",
+        prompt: input.language === "zh" ? "轻松、自然、带一点笑意的回应贴纸" : "A warm, light sticker for a natural reply",
+        whenToUse: input.language === "zh" ? "对方接话、气氛轻松时" : "when the other person keeps the thread open",
+        evidenceIds: []
+      }
+    ],
     evals: [
       {
         id: "boundary-refusal",
@@ -271,8 +381,8 @@ export function validatePersonaPack(pack: unknown): ReturnType<typeof PersonaPac
 export function migratePersonaPack(pack: unknown): unknown {
   if (!pack || typeof pack !== "object") return pack;
   const record = structuredClone(pack) as Record<string, unknown>;
-  if (record.schemaVersion === "1.0") {
-    record.schemaVersion = "1.1";
+  if (record.schemaVersion === "1.0" || record.schemaVersion === "1.1") {
+    record.schemaVersion = "1.2";
   }
   const distillation = record.distillation;
   if (distillation && typeof distillation === "object") {
@@ -281,6 +391,19 @@ export function migratePersonaPack(pack: unknown): unknown {
       distillationRecord.runs = [];
     }
   }
+  if (!Array.isArray(record.assets)) record.assets = [];
+  if (!record.voiceProfile || typeof record.voiceProfile !== "object") {
+    record.voiceProfile = {
+      pacing: [],
+      pauseStyle: [],
+      fillerWords: [],
+      emotionalRange: [],
+      formality: "natural",
+      sampleEvidenceIds: [],
+      previewText: ""
+    };
+  }
+  if (!Array.isArray(record.stickerIntents)) record.stickerIntents = [];
   return record;
 }
 

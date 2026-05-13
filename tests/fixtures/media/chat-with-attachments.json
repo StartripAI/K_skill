@@ -1,0 +1,14 @@
+[
+  {
+    "speaker": "我",
+    "text": "刚刚那张图很像你说的地方",
+    "timestamp": "2026-05-12T10:00:00Z",
+    "attachments": [{"kind": "image", "filename": "cafe.png"}]
+  },
+  {
+    "speaker": "TA",
+    "text": "哈哈对，我还发了一个表情",
+    "timestamp": "2026-05-12T10:01:00Z",
+    "reactions": [{"emoji": "✨", "from": "TA"}]
+  }
+]

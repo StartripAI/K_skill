@@ -75,6 +75,28 @@ Slightly forward: Low-pressure idea: if you feel like going one day, call me. I 
 - **Character World**는 anime OC, fictional roles, Movie Character, lorebooks, roleplay cards에 씁니다.
 - **Life Mentor**는 공개 자료와 개인 메모를 사고 모델로 바꿉니다.
 
+## Voice Studio
+
+K.skill은 이제 텍스트만 다루지 않습니다. 하나의 intake에서 **voice note**, 녹음, screenshot, image 파일, sticker, emoji 메모, PDF, video transcript, mixed ZIP을 받을 수 있습니다.  
+먼저 **multimodal import**를 실행합니다. 텍스트는 chat turns가 되고, 음성은 **ASR**로 transcript evidence가 되며, image / screenshot / PDF / video transcript는 media evidence가 되고, sticker는 **sticker intents**로 정리됩니다. Crush Coach, Relationship Memory, Character World, Life Mentor가 같은 evidence trail을 이어서 씁니다.
+
+CLI:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-en.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "Keep it light and natural." --provider stub-tts --out tmp/voice-preview.wav
+npm run cli -- voice-profile local-packs/voice-crush
+```
+
+GUI:
+
+1. `DM intake`에서 `Files / Paste / Record / Media`를 선택합니다.
+2. chat log, voice note, screenshot, sticker, PDF, video transcript, ZIP을 업로드합니다.
+3. `Record`로 짧은 voice note를 녹음하고 ASR 후 Reply Lab에 넣습니다.
+4. `Parse preview`는 message, asset, transcript, reaction, attachment kind를 보여줍니다.
+5. `Persona Voice`는 voice DNA, TTS preview, visual style, sticker intents를 export에 같이 넣습니다.
+
 ## Crush Coach
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
@@ -309,11 +331,17 @@ Local API:
 GET  /api/health
 GET  /api/packs
 POST /api/imports
+GET  /api/voice/providers
+POST /api/voice/asr
+POST /api/voice/tts
 POST /api/packs/:id/pastes
 POST /api/packs/:id/pursuit
+POST /api/packs/:id/replies
 GET  /api/reports/:reportId/download
 POST /api/packs/:id/exports
 GET  /api/exports/:exportId/download
+GET  /api/packs/:id/assets
+GET  /api/packs/:id/assets/:assetId/download
 GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```

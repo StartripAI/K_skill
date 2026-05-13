@@ -75,6 +75,28 @@ Slightly forward: Low-pressure idea: if you feel like going one day, call me. I 
 - **Character World** は二次元 OC、虚構角色、Movie Character、lorebook、roleplay cards に使います。
 - **Life Mentor** は公開資料と自分のメモを思考モデルにします。
 
+## Voice Studio
+
+K.skill は文字だけではありません。ひとつの intake で **voice note**、録音、スクリーンショット、image、sticker、emoji メモ、PDF、video transcript、mixed ZIP を扱えます。  
+先に **multimodal import** を行い、文字は chat turns、音声は **ASR** で transcript evidence、image / screenshot / PDF / video transcript は media evidence、sticker は **sticker intents** になります。その同じ evidence を Crush Coach、Relationship Memory、Character World、Life Mentor が使います。
+
+CLI:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-en.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "Keep it light and natural." --provider stub-tts --out tmp/voice-preview.wav
+npm run cli -- voice-profile local-packs/voice-crush
+```
+
+GUI:
+
+1. `DM intake` で `Files / Paste / Record / Media` を選ぶ。
+2. chat log、voice note、screenshot、sticker、PDF、video transcript、ZIP を入れる。
+3. `Record` で短い voice note を録り、ASR 後に Reply Lab へ入れる。
+4. `Parse preview` は message、asset、transcript、reaction、attachment kind を表示。
+5. `Persona Voice` は voice DNA、TTS preview、visual style、sticker intents を export に含めます。
+
 ## Crush Coach
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
@@ -309,11 +331,17 @@ Local API:
 GET  /api/health
 GET  /api/packs
 POST /api/imports
+GET  /api/voice/providers
+POST /api/voice/asr
+POST /api/voice/tts
 POST /api/packs/:id/pastes
 POST /api/packs/:id/pursuit
+POST /api/packs/:id/replies
 GET  /api/reports/:reportId/download
 POST /api/packs/:id/exports
 GET  /api/exports/:exportId/download
+GET  /api/packs/:id/assets
+GET  /api/packs/:id/assets/:assetId/download
 GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```

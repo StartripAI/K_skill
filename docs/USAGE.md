@@ -27,6 +27,13 @@ GUI flow:
 6. Run Crush Coach lab when using pursuit analysis.
 7. Download reports and export zip bundles.
 
+The same intake also handles multimodal material:
+
+- `Files`: chat exports, Markdown, JSON, CSV, HTML, PDF, images, stickers, voice notes, video transcript sidecars, ZIP bundles.
+- `Paste`: quick chat logs and source notes.
+- `Record`: short voice note capture, ASR transcript, and Reply Lab fill.
+- `Media`: asset preview, transcript count, reaction count, visual evidence, sticker intents, and Persona Voice.
+
 ## CLI Recipes
 
 Crush Coach:
@@ -36,6 +43,15 @@ npm run cli -- pursue examples/crush-chat-zh.txt --me 我 --ta TA --goal ask_out
 npm run cli -- reply examples/crush-chat-zh.txt --latest "周末可能去 你也喜欢这种吗？" --me 我 --ta TA --style natural
 npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
 npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go together this weekend?" --latest "Maybe, I might go this weekend."
+```
+
+Voice Studio:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-zh.wav --provider stub-asr --language zh --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-zh.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "周末去看展，语气轻一点。" --provider stub-tts --out tmp/voice-preview.wav
+npm run cli -- voice-profile local-packs/voice-crush
 ```
 
 Relationship Memory:
@@ -104,6 +120,9 @@ GET  /api/vault
 GET  /api/packs
 POST /api/packs
 POST /api/imports
+GET  /api/voice/providers
+POST /api/voice/asr
+POST /api/voice/tts
 POST /api/packs/:id/pastes
 GET  /api/packs/:id/sources
 GET  /api/packs/:id/prompt-stack
@@ -112,6 +131,8 @@ GET  /api/packs/:id/reports
 GET  /api/reports/:reportId/download
 POST /api/packs/:id/exports
 GET  /api/exports/:exportId/download
+GET  /api/packs/:id/assets
+GET  /api/packs/:id/assets/:assetId/download
 GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```
@@ -136,9 +157,11 @@ npm run lint
 npm test
 npm run build
 npm run check:exports
+npm run check:media-fixtures
 npm run check:readme
 npm run test:e2e
 npm run smoke
+npm run smoke:cli-api
 npm run score:release
 npm run verify
 ```

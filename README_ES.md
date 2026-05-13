@@ -75,6 +75,28 @@ Elige el carril según lo que quieres conseguir:
 - **Character World** es para anime OCs, roles ficticios, Movie Character, lorebooks y roleplay cards.
 - **Life Mentor** convierte material público y notas propias en un modelo de pensamiento.
 
+## Voice Studio
+
+K.skill ya no trabaja solo con texto. En el mismo intake puedes subir **voice note**, grabación, screenshot, image, sticker, notas de emoji, PDF, video transcript y mixed ZIP.  
+Primero hace **multimodal import**: el texto pasa a chat turns, el audio pasa por **ASR** y queda como transcript evidence, image / screenshot / PDF / video transcript se guarda como media evidence, y los stickers se ordenan como **sticker intents**. Crush Coach, Relationship Memory, Character World y Life Mentor usan ese mismo hilo de evidence.
+
+CLI:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-en.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "Keep it light and natural." --provider stub-tts --out tmp/voice-preview.wav
+npm run cli -- voice-profile local-packs/voice-crush
+```
+
+GUI:
+
+1. En `DM intake`, elige `Files / Paste / Record / Media`.
+2. Sube chat log, voice note, screenshot, sticker, PDF, video transcript o ZIP.
+3. Usa `Record` para grabar una voice note corta y mandarla a Reply Lab después de ASR.
+4. `Parse preview` muestra messages, assets, transcripts, reactions y attachment kinds.
+5. `Persona Voice` guarda voice DNA, TTS preview, visual style y sticker intents dentro del export.
+
 ## Crush Coach
 
 ![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
@@ -309,11 +331,17 @@ Local API:
 GET  /api/health
 GET  /api/packs
 POST /api/imports
+GET  /api/voice/providers
+POST /api/voice/asr
+POST /api/voice/tts
 POST /api/packs/:id/pastes
 POST /api/packs/:id/pursuit
+POST /api/packs/:id/replies
 GET  /api/reports/:reportId/download
 POST /api/packs/:id/exports
 GET  /api/exports/:exportId/download
+GET  /api/packs/:id/assets
+GET  /api/packs/:id/assets/:assetId/download
 GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```

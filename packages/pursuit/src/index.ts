@@ -222,6 +222,7 @@ function evidenceFromMessage(sourceId: string, message: ChatMessage, claim: stri
     claim,
     confidence,
     kind: "direct",
+    attachmentIds: message.attachments?.map((attachment) => attachment.assetId) ?? [],
     createdAt: nowIso()
   };
 }

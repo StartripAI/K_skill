@@ -81,6 +81,15 @@ const categories = {
         artifacts: ["packages/exporters/src/index.ts", "package.json"],
         check: (repo) => includes(repo, "packages/exporters/src/index.ts", ["SKILL.md", "references/persona.md", "Claude Code"]) &&
           (json(repo, "package.json").keywords ?? []).includes("agent-skills")
+      },
+      {
+        id: "voice-multimodal-pack",
+        label: "Fuses voice notes, media assets, transcripts, and sticker intents into persona packs",
+        points: 20,
+        artifacts: ["packages/voice/src/index.ts", "packages/media/src/index.ts", "README.md"],
+        check: (repo) => includes(repo, "packages/voice/src/index.ts", ["transcribeAudio", "synthesizeSpeech", "voicePreviewManifest"]) &&
+          includes(repo, "packages/media/src/index.ts", ["parseMediaFile", "parseMediaBundle", "createMediaAsset"]) &&
+          includes(repo, "README.md", ["Voice Studio", "ASR", "TTS", "multimodal"])
       }
     ]
   },
@@ -158,10 +167,23 @@ const categories = {
         artifacts: ["package.json", "scripts/smoke.mjs", "scripts/check-readme.mjs", "scripts/score-release.mjs"],
         check: (repo) => {
           const scripts = json(repo, "package.json").scripts ?? {};
-          return ["verify", "smoke", "test:e2e", "check:readme", "check:exports", "score:release"].every((name) => Boolean(scripts[name])) &&
+          return ["verify", "smoke", "smoke:cli-api", "test:e2e", "check:readme", "check:exports", "check:media-fixtures", "score:release"].every((name) => Boolean(scripts[name])) &&
             includes(repo, "scripts/smoke.mjs", ["Smoke check passed", "refusal-chat-en.txt"]) &&
             includes(repo, "scripts/check-readme.mjs", ["README check passed", "export targets"]);
         }
+      },
+      {
+        id: "voice-media-tests",
+        label: "Tests cover ASR, TTS, multimodal import, vault assets, and media exports",
+        points: 20,
+        artifacts: ["tests/asr.test.ts", "tests/tts.test.ts", "tests/multimodal-importers.test.ts", "tests/vault-assets.test.ts", "tests/export-media.test.ts"],
+        check: (repo) => [
+          "tests/asr.test.ts",
+          "tests/tts.test.ts",
+          "tests/multimodal-importers.test.ts",
+          "tests/vault-assets.test.ts",
+          "tests/export-media.test.ts"
+        ].every((path) => existsSync(resolve(repo.root, path)))
       }
     ]
   },
@@ -215,6 +237,14 @@ const categories = {
         points: 2,
         artifacts: ["package.json"],
         check: (repo) => (json(repo, "package.json").scripts?.verify ?? "").includes("npm pack --dry-run")
+      },
+      {
+        id: "voice-offline-gate",
+        label: "Voice and media checks run offline in verify",
+        points: 2,
+        artifacts: ["package.json", "scripts/smoke-cli-api.mjs"],
+        check: (repo) => (json(repo, "package.json").scripts?.verify ?? "").includes("check:media-fixtures") &&
+          includes(repo, "scripts/smoke-cli-api.mjs", ["stub-asr", "stub-tts"])
       }
     ]
   },
@@ -269,6 +299,14 @@ const categories = {
         points: 2,
         artifacts: ["scripts/score-release.mjs"],
         check: (repo) => includes(repo, "scripts/score-release.mjs", ["openSourceUniqueness: 120", "industrialProduct: 120", "excellence: 10", "endgame: 10"])
+      },
+      {
+        id: "multimodal-endgame",
+        label: "Endgame workflow handles text, voice, images, stickers, PDFs, and transcripts through one workbench",
+        points: 2,
+        artifacts: ["apps/web/src/main.tsx", "packages/exporters/src/index.ts"],
+        check: (repo) => includes(repo, "apps/web/src/main.tsx", ["Record voice note", "Persona Voice", "sticker intents"]) &&
+          includes(repo, "packages/exporters/src/index.ts", ["media-manifest.json", "voice-profile.json", "visual-style.md"])
       }
     ]
   }

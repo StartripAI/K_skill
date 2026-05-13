@@ -37,7 +37,21 @@ export const PursuitRequestSchema = z.object({
 });
 
 export const ExportRequestSchema = z.object({
-  target: z.enum(exportTargets)
+  target: z.enum(exportTargets),
+  includeAssets: z.enum(["all", "metadata", "none"]).default("all")
+});
+
+export const VoiceProviderRequestSchema = z.object({
+  providerId: z.string().optional(),
+  language: z.string().optional()
+});
+
+export const TtsRequestSchema = z.object({
+  text: z.string().min(1),
+  providerId: z.string().optional(),
+  voice: z.string().optional(),
+  language: z.string().optional(),
+  format: z.enum(["mp3", "wav", "opus", "pcm"]).default("wav")
 });
 
 export const MemoryPatchRequestSchema = z.object({

@@ -320,6 +320,14 @@ button {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.icon-button.light {
+  width: 42px;
+  height: 42px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
 .pack-list {
   display: grid;
   gap: 8px;
@@ -442,6 +450,67 @@ button {
   backdrop-filter: blur(18px);
 }
 
+.intake-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.intake-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  color: #41434b;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.intake-tabs button.active {
+  color: #fffaf0;
+  background: #15161b;
+}
+
+.voice-record-panel,
+.media-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.voice-record-panel p,
+.media-note span {
+  color: #4c4d55;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.record-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 9px 12px;
+  color: #fffaf0;
+  font-weight: 900;
+  border-radius: 8px;
+  background: #15161b;
+}
+
+.record-button.recording {
+  background: #9b2748;
+}
+
 .dropzone {
   display: grid;
   place-items: center;
@@ -505,7 +574,7 @@ button {
 
 .file-list li {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 8px;
   padding: 9px 10px;
@@ -624,6 +693,32 @@ button {
 .summary-line {
   margin: 10px 0;
   color: #4c4d55;
+}
+
+.media-chip-row,
+.diagnostic-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0;
+}
+
+.media-chip-row span,
+.diagnostic-list span {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 6px 8px;
+  color: #26302d;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid rgba(52, 120, 246, 0.22);
+  border-radius: 8px;
+  background: rgba(52, 120, 246, 0.09);
+}
+
+.diagnostic-list span {
+  border-color: rgba(228, 161, 27, 0.25);
+  background: rgba(228, 161, 27, 0.11);
 }
 
 .dm-thread {
@@ -786,6 +881,12 @@ button {
   margin-top: 0;
 }
 
+.latest-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
 .reply-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -880,6 +981,27 @@ button {
   border: 1px solid rgba(24, 167, 127, 0.25);
   border-radius: 8px;
   background: rgba(24, 167, 127, 0.1);
+}
+
+.voice-dna {
+  display: grid;
+  gap: 8px;
+}
+
+.voice-dna span {
+  display: grid;
+  gap: 3px;
+  min-height: 52px;
+  padding: 9px;
+  color: #4c4d55;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.voice-dna b {
+  color: var(--ink);
+  font-size: 12px;
 }
 
 .safety-pill {

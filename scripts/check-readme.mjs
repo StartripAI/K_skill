@@ -109,7 +109,7 @@ for (const image of requiredImages) {
 }
 
 const requiredTargets = ["codex", "claude", "chatgpt", "deepseek", "sillytavern", "hermes", "lobe", "openwebui"];
-const requiredScripts = ["build", "dev", "cli", "lint", "test", "check:readme", "check:exports", "test:e2e", "smoke", "score:release", "verify"];
+const requiredScripts = ["build", "dev", "cli", "lint", "test", "check:readme", "check:exports", "check:media-fixtures", "test:e2e", "smoke", "smoke:cli-api", "score:release", "verify"];
 const packageScripts = packageJson.scripts ?? {};
 
 for (const scriptName of requiredScripts) {
@@ -126,6 +126,16 @@ const semanticNeedles = [
   "Character World",
   "Movie Character",
   "Life Mentor",
+  "Voice Studio",
+  "ASR",
+  "TTS",
+  "multimodal",
+  "voice note",
+  "sticker intents",
+  "image",
+  "screenshot",
+  "PDF",
+  "video transcript",
   "Reply Lab",
   "Prompt Stack",
   "evidence",

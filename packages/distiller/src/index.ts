@@ -134,6 +134,7 @@ function extractEvidence(source: ParsedSource): Evidence[] {
       claim: "This message carries voice, relationship, or emotional signal.",
       confidence: 0.72,
       kind: "direct",
+      attachmentIds: message.attachments?.map((attachment) => attachment.assetId) ?? [],
       createdAt: nowIso()
     }));
 }
@@ -150,6 +151,7 @@ function extractEpisodes(source: ParsedSource): MemoryEpisode[] {
     summary: message.text,
     participants: speakers,
     sourceIds: [source.source.id],
+    attachmentIds: message.attachments?.map((attachment) => attachment.assetId) ?? [],
     confidence: 0.68,
     createdAt: nowIso(),
     disabled: false
@@ -397,6 +399,7 @@ function mergeDraftIntoPack(pack: PersonaPack, source: ParsedSource, draft: Dist
     claim: item.claim,
     confidence: item.confidence,
     kind: item.kind,
+    attachmentIds: [],
     createdAt: timestamp
   }));
   const evidenceIds = evidence.map((item) => item.id);
@@ -406,6 +409,7 @@ function mergeDraftIntoPack(pack: PersonaPack, source: ParsedSource, draft: Dist
     summary: item.summary,
     participants: item.participants.length > 0 ? item.participants : speakers,
     sourceIds: item.sourceIds.length > 0 ? item.sourceIds : [source.source.id],
+    attachmentIds: [],
     confidence: item.confidence,
     createdAt: item.createdAt ?? timestamp,
     disabled: item.disabled

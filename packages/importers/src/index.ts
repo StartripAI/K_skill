@@ -1,5 +1,15 @@
 import { parse as parseCsvRecords } from "csv-parse/sync";
-import { createId, nowIso, stableHash, type PackLanguage, type Source } from "../../core/src/index.js";
+import {
+  createId,
+  nowIso,
+  stableHash,
+  type MediaAsset,
+  type MessageAttachment,
+  type MessageReaction,
+  type PackLanguage,
+  type Source,
+  type Transcript
+} from "../../core/src/index.js";
 
 export type ChatMessage = {
   id: string;
@@ -7,12 +17,16 @@ export type ChatMessage = {
   text: string;
   raw: string;
   timestamp?: string;
+  attachments?: MessageAttachment[];
+  reactions?: MessageReaction[];
+  transcripts?: Transcript[];
 };
 
 export type ParsedSource = {
   source: Source;
   messages: ChatMessage[];
   text: string;
+  assets?: MediaAsset[];
 };
 
 export type ParseChatOptions = {

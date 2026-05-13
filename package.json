@@ -41,6 +41,14 @@
       "types": "./dist/packages/vault/src/index.d.ts",
       "import": "./dist/packages/vault/src/index.js"
     },
+    "./voice": {
+      "types": "./dist/packages/voice/src/index.d.ts",
+      "import": "./dist/packages/voice/src/index.js"
+    },
+    "./media": {
+      "types": "./dist/packages/media/src/index.d.ts",
+      "import": "./dist/packages/media/src/index.js"
+    },
     "./pack-io": {
       "types": "./dist/packages/pack-io/src/index.d.ts",
       "import": "./dist/packages/pack-io/src/index.js"
@@ -73,10 +81,12 @@
     "test:watch": "vitest",
     "check:readme": "node scripts/check-readme.mjs",
     "check:exports": "node scripts/check-exports.mjs",
+    "check:media-fixtures": "node scripts/check-media-fixtures.mjs",
     "test:e2e": "playwright test",
     "smoke": "node scripts/smoke.mjs",
+    "smoke:cli-api": "node scripts/smoke-cli-api.mjs",
     "score:release": "node scripts/score-release.mjs",
-    "verify": "npm run lint && npm test && npm run build && npm run check:exports && npm run check:readme && npm run test:e2e && npm run smoke && npm run score:release && node scripts/clean-release-artifacts.mjs && npm pack --dry-run"
+    "verify": "npm run lint && npm test && npm run build && npm run check:exports && npm run check:media-fixtures && npm run check:readme && npm run test:e2e && npm run smoke && npm run smoke:cli-api && npm run score:release && node scripts/clean-release-artifacts.mjs && npm pack --dry-run"
   },
   "keywords": [
     "agent-skills",

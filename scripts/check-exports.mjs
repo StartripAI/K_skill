@@ -64,22 +64,30 @@ for (const target of targets) {
 
 expectFile(join(outRoot, "exports", "codex", "SKILL.md"));
 expectFile(join(outRoot, "exports", "codex", "references", "persona.md"));
+expectFile(join(outRoot, "exports", "codex", "references", "media-manifest.json"));
+expectFile(join(outRoot, "exports", "codex", "references", "voice-profile.json"));
 expectFile(join(outRoot, "exports", "claude", "SKILL.md"));
 expectFile(join(outRoot, "exports", "chatgpt", "instructions.md"));
 expectFile(join(outRoot, "exports", "chatgpt", "knowledge", "boundaries.md"));
+expectFile(join(outRoot, "exports", "chatgpt", "knowledge", "sticker-intents.json"));
 JSON.parse(expectFile(join(outRoot, "exports", "deepseek", "system-prompt.json")));
+expectFile(join(outRoot, "exports", "deepseek", "media-manifest.json"));
 
 const characterCard = JSON.parse(expectFile(join(outRoot, "exports", "sillytavern", "character-card-v2.json")));
 assert(characterCard.spec === "chara_card_v2", "SillyTavern export is not a v2 character card");
+expectFile(join(outRoot, "exports", "sillytavern", "visual-style.md"));
 
 expectFile(join(outRoot, "exports", "hermes", "SOUL.md"));
 expectFile(join(outRoot, "exports", "hermes", "skills", "release-life-mentor", "SKILL.md"));
+expectFile(join(outRoot, "exports", "hermes", "asr-transcripts.json"));
 
 const lobe = JSON.parse(expectFile(join(outRoot, "exports", "lobe", "lobe-agent.json")));
 assert(lobe.author === "K.skill", "Lobe export is missing K.skill author metadata");
+expectFile(join(outRoot, "exports", "lobe", "media-manifest.json"));
 
 const openWebUi = JSON.parse(expectFile(join(outRoot, "exports", "openwebui", "openwebui-agent.json")));
 assert(openWebUi.name === "Release Life Mentor", "Open WebUI export has the wrong agent name");
+expectFile(join(outRoot, "exports", "openwebui", "voice-profile.json"));
 
 console.log(\`Export check passed: \${targets.length} targets generated and validated.\`);
 `,

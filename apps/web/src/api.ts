@@ -31,12 +31,23 @@ export type ParsePreviewMessage = {
   timestamp?: string;
 };
 
+export type ParseDiagnostic = {
+  code: string;
+  message: string;
+  severity: string;
+};
+
 export type ParsePreview = {
   sourceCount?: number;
   duplicateCount?: number;
   sourceName?: string;
   summary?: string;
   messages: ParsePreviewMessage[];
+  assetCount?: number;
+  transcriptCount?: number;
+  reactionCount?: number;
+  attachmentKinds?: string[];
+  diagnostics?: ParseDiagnostic[];
 };
 
 export type EvidenceItem = {
@@ -174,6 +185,36 @@ export type ExportResult = {
   target?: ExportTarget;
 };
 
+export type VoiceProviderInfo = {
+  id: string;
+  kind: "asr" | "tts";
+  label: string;
+  mode: "stub" | "local" | "browser" | "remote";
+  languages: string[];
+  requiresNetwork: boolean;
+  configured: boolean;
+};
+
+export type AsrSegment = {
+  id: string;
+  startMs: number;
+  endMs: number;
+  text: string;
+  confidence: number;
+  speaker?: string;
+};
+
+export type AsrResult = {
+  providerId: string;
+  language: string;
+  text: string;
+  confidence: number;
+  durationMs: number;
+  segments: AsrSegment[];
+  diagnostics: ParseDiagnostic[];
+  sourceHash: string;
+};
+
 type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -194,6 +235,18 @@ function booleanValue(value: unknown): boolean | undefined {
 
 function stringList(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function normalizeDiagnostic(value: unknown): ParseDiagnostic | undefined {
+  if (!isRecord(value)) return undefined;
+  const code = stringValue(value.code) ?? "diagnostic";
+  const message = stringValue(value.message) ?? "";
+  const severity = stringValue(value.severity) ?? "info";
+  return { code, message, severity };
+}
+
+function normalizeDiagnostics(value: unknown): ParseDiagnostic[] {
+  return Array.isArray(value) ? value.map(normalizeDiagnostic).filter((item): item is ParseDiagnostic => item !== undefined) : [];
 }
 
 function enumValue<T extends readonly string[]>(value: unknown, values: T, fallback: T[number]): T[number] {
@@ -236,8 +289,8 @@ async function requestJson(fetcher: Fetcher, input: RequestInfo | URL, init?: Re
   return readJson(await fetcher(input, init));
 }
 
-async function requestBlob(fetcher: Fetcher, input: RequestInfo | URL): Promise<Blob> {
-  const response = await fetcher(input);
+async function requestBlob(fetcher: Fetcher, input: RequestInfo | URL, init?: RequestInit): Promise<Blob> {
+  const response = await fetcher(input, init);
   if (!response.ok) {
     throw new Error((await response.text()) || `Download failed with ${response.status}`);
   }
@@ -305,8 +358,22 @@ function normalizePreview(value: unknown): ParsePreview | undefined {
   const sourceName = stringValue(nested.sourceName) ?? (source ? stringValue(source.name) : undefined);
   const sourceCount = numberValue(value.sourceCount) ?? numberValue(nested.sourceCount);
   const duplicateCount = numberValue(value.duplicateCount) ?? numberValue(nested.duplicateCount);
+  const assetCount = numberValue(value.assetCount) ?? numberValue(nested.assetCount);
+  const transcriptCount = numberValue(value.transcriptCount) ?? numberValue(nested.transcriptCount);
+  const reactionCount = numberValue(value.reactionCount) ?? numberValue(nested.reactionCount);
+  const attachmentKinds = stringList(nested.attachmentKinds ?? value.attachmentKinds);
+  const diagnostics = normalizeDiagnostics(nested.diagnostics ?? value.diagnostics);
 
-  if (messages.length === 0 && summary === undefined && sourceName === undefined && sourceCount === undefined && duplicateCount === undefined) {
+  if (
+    messages.length === 0 &&
+    summary === undefined &&
+    sourceName === undefined &&
+    sourceCount === undefined &&
+    duplicateCount === undefined &&
+    assetCount === undefined &&
+    transcriptCount === undefined &&
+    reactionCount === undefined
+  ) {
     return undefined;
   }
 
@@ -315,6 +382,11 @@ function normalizePreview(value: unknown): ParsePreview | undefined {
   if (duplicateCount !== undefined) preview.duplicateCount = duplicateCount;
   if (sourceName !== undefined) preview.sourceName = sourceName;
   if (summary !== undefined) preview.summary = summary;
+  if (assetCount !== undefined) preview.assetCount = assetCount;
+  if (transcriptCount !== undefined) preview.transcriptCount = transcriptCount;
+  if (reactionCount !== undefined) preview.reactionCount = reactionCount;
+  if (attachmentKinds.length > 0) preview.attachmentKinds = attachmentKinds;
+  if (diagnostics.length > 0) preview.diagnostics = diagnostics;
   return preview;
 }
 
@@ -518,6 +590,56 @@ function normalizeExportResult(value: unknown): ExportResult {
   return result;
 }
 
+function normalizeVoiceProvider(value: unknown): VoiceProviderInfo | undefined {
+  if (!isRecord(value)) return undefined;
+  const id = stringValue(value.id);
+  const kind = stringValue(value.kind);
+  if (!id || (kind !== "asr" && kind !== "tts")) return undefined;
+  return {
+    id,
+    kind,
+    label: stringValue(value.label) ?? id,
+    mode: enumValue(value.mode, ["stub", "local", "browser", "remote"] as const, "stub"),
+    languages: stringList(value.languages),
+    requiresNetwork: booleanValue(value.requiresNetwork) ?? false,
+    configured: booleanValue(value.configured) ?? false
+  };
+}
+
+function normalizeAsrSegment(value: unknown): AsrSegment | undefined {
+  if (!isRecord(value)) return undefined;
+  const text = stringValue(value.text);
+  if (!text) return undefined;
+  const segment: AsrSegment = {
+    id: stringValue(value.id) ?? "seg",
+    startMs: numberValue(value.startMs) ?? 0,
+    endMs: numberValue(value.endMs) ?? 0,
+    text,
+    confidence: numberValue(value.confidence) ?? 0
+  };
+  const speaker = stringValue(value.speaker);
+  if (speaker !== undefined) segment.speaker = speaker;
+  return segment;
+}
+
+function normalizeAsrResult(value: unknown): AsrResult {
+  const record = isRecord(value) ? value : {};
+  const resultRecord = isRecord(record.result) ? record.result : record;
+  const segments = Array.isArray(resultRecord.segments)
+    ? resultRecord.segments.map(normalizeAsrSegment).filter((item): item is AsrSegment => item !== undefined)
+    : [];
+  return {
+    providerId: stringValue(resultRecord.providerId) ?? "stub-asr",
+    language: stringValue(resultRecord.language) ?? "auto",
+    text: stringValue(resultRecord.text) ?? segments.map((segment) => segment.text).join("\n"),
+    confidence: numberValue(resultRecord.confidence) ?? 0,
+    durationMs: numberValue(resultRecord.durationMs) ?? 0,
+    segments,
+    diagnostics: normalizeDiagnostics(resultRecord.diagnostics),
+    sourceHash: stringValue(resultRecord.sourceHash) ?? ""
+  };
+}
+
 export function createApiClient(fetcher: Fetcher = (input, init) => fetch(input, init)) {
   return {
     async listPacks(): Promise<PackSummary[]> {
@@ -571,6 +693,28 @@ export function createApiClient(fetcher: Fetcher = (input, init) => fetch(input,
 
     async createExport(packId: string, target: ExportTarget): Promise<ExportResult> {
       return normalizeExportResult(await requestJson(fetcher, `/api/packs/${packId}/exports`, jsonInit({ target })));
+    },
+
+    async listVoiceProviders(): Promise<VoiceProviderInfo[]> {
+      const data = await requestJson(fetcher, "/api/voice/providers");
+      const rawProviders = isRecord(data) && Array.isArray(data.providers) ? data.providers : Array.isArray(data) ? data : [];
+      return rawProviders.map(normalizeVoiceProvider).filter((provider): provider is VoiceProviderInfo => provider !== undefined);
+    },
+
+    async transcribeAudio(input: { file: File; providerId?: string; language?: string }): Promise<AsrResult> {
+      const form = new FormData();
+      form.set("file", input.file);
+      if (input.providerId) form.set("providerId", input.providerId);
+      if (input.language) form.set("language", input.language);
+      return normalizeAsrResult(await requestJson(fetcher, "/api/voice/asr", { method: "POST", body: form }));
+    },
+
+    async synthesizeSpeech(input: { text: string; providerId?: string; voice?: string; language?: string }): Promise<Blob> {
+      return requestBlob(fetcher, "/api/voice/tts", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input)
+      });
     },
 
     async downloadReport(reportId: string): Promise<Blob> {
