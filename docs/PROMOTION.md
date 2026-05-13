@@ -26,23 +26,23 @@ The README is available in five languages: Chinese, English, Japanese, Korean, a
 
 ## English X Copy
 
-K.skill turns voices, chats, photos, stickers, and shared memories into persona packs you can reopen and keep talking with.
+K.skill turns voices, chats, photos, stickers, and shared memories into persona packs you can reopen, export, and keep talking with.
 
 ## 中文 X 文案
 
-K.skill 把声音、聊天、照片、表情和共同经历，收成能再次打开、还能继续聊下去的人格包。
+K.skill 把声音、聊天、照片、表情和共同经历，收成能再次打开的人格包；从 TA 的语音到梦里的人、原创角色和 Life Mentor，你能回看证据、听见语气、继续聊天，也能把这份关系或角色带到常用格式，让共同记忆有来处、有温度、有下一句。
 
 ## 日本語 X Copy
 
-K.skill は声、チャット、写真、スタンプ、共有した記憶を、あとで開いてまた話せる persona pack にします。
+K.skill は声、チャット、写真、スタンプ、共有した記憶を persona pack にして、あとで開き直せる形にします。TA の声、夢の中の人、OC、Life Mentor まで、根拠を見て、声の気配を残したまま会話を続け、関係やキャラクターを持ち出せます。
 
 ## 한국어 X Copy
 
-K.skill은 목소리, 채팅, 사진, 스티커, 함께한 기억을 다시 열고 이어 말할 수 있는 persona pack으로 묶습니다.
+K.skill은 목소리, 채팅, 사진, 스티커, 함께한 기억을 다시 열 수 있는 persona pack으로 묶습니다. TA의 음성, 꿈에 나온 사람, OC, Life Mentor까지 근거를 보며 목소리의 온도 그대로 대화를 이어갈 수 있습니다.
 
 ## Español X Copy
 
-K.skill convierte voces, chats, fotos, stickers y recuerdos compartidos en persona packs que puedes volver a abrir y seguir hablando.
+K.skill convierte voces, chats, fotos, stickers y recuerdos en persona packs para reabrirlos, revisar pruebas y seguir hablando.
 
 ## 中文小红书文案
 

@@ -272,7 +272,7 @@ const xCopyHeadings = [
 ];
 for (const heading of xCopyHeadings) {
   const xCopy = sectionAfterHeading(promotion, heading);
-  assert(xCopy.length > 0 && xCopy.length < 140, `${promotionFile} ${heading} must be under 140 characters`);
+  assert(xCopy.length >= 120 && xCopy.length < 140, `${promotionFile} ${heading} must be 120-139 characters`);
 }
 const xhsCjkCount = [...xhsCopy].filter((char) => /[\u3400-\u9fff]/u.test(char)).length;
 assert(xhsCjkCount >= 350 && xhsCjkCount <= 750, `${promotionFile} Xiaohongshu copy should be about 500 Chinese characters`);
