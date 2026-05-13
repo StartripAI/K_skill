@@ -25,15 +25,22 @@ try {
   const transcriptOut = join(tmp, "transcript.json");
   const packDir = join(tmp, "voice-pack");
   const audioOut = join(tmp, "preview.wav");
+  const cloneOut = join(tmp, "memory-voice.wav");
 
   execFileSync(tsx, [cli, "init", "Voice Smoke", "--type", "pursuit", "--language", "zh", "--out", packDir], { cwd: root, stdio: "pipe" });
   execFileSync(tsx, [cli, "transcribe", voice, "--provider", "stub-asr", "--language", "zh", "--out", transcriptOut], { cwd: root, stdio: "pipe" });
   execFileSync(tsx, [cli, "speak", packDir, "--text", "周末去看展，轻松一点。", "--provider", "stub-tts", "--out", audioOut], { cwd: root, stdio: "pipe" });
+  execFileSync(tsx, [cli, "speak", packDir, "--text", "我还记得你说这句话的语气。", "--provider", "local-voice-clone", "--reference-audio", voice, "--out", cloneOut], {
+    cwd: root,
+    stdio: "pipe",
+    env: { ...process.env, KSKILL_LOCAL_TTS_COMMAND: `node ${resolve(root, "examples/local-voice-engine.mjs")}` }
+  });
   execFileSync(tsx, [cli, "voice-profile", packDir], { cwd: root, stdio: "pipe" });
 
   const transcript = JSON.parse(readFileSync(transcriptOut, "utf8"));
   assert(transcript.providerId === "stub-asr", "CLI transcribe did not use stub-asr");
   assert(readFileSync(audioOut, "utf8").includes("KSKILL_STUB_WAV"), "CLI speak did not write deterministic audio bytes");
+  assert(readFileSync(cloneOut, "utf8").includes("KSKILL_LOCAL_VOICE_ENGINE"), "CLI speak did not invoke the local voice clone adapter");
   assert(existsSync(`${audioOut}.manifest.json`), "CLI speak did not write a TTS manifest");
 
   const runner = join(tmp, "api-runner.mjs");
@@ -77,7 +84,7 @@ vault.close();
   );
   execFileSync(tsx, [runner], { cwd: root, stdio: "pipe" });
 
-  console.log("CLI/API smoke passed: transcribe, speak, voice-profile, ASR import, TTS endpoint.");
+  console.log("CLI/API smoke passed: transcribe, speak, local voice clone adapter, voice-profile, ASR import, TTS endpoint.");
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }

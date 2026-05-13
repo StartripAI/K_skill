@@ -87,9 +87,9 @@ const categories = {
         label: "Fuses voice notes, media assets, transcripts, and sticker intents into persona packs",
         points: 20,
         artifacts: ["packages/voice/src/index.ts", "packages/media/src/index.ts", "README.md"],
-        check: (repo) => includes(repo, "packages/voice/src/index.ts", ["transcribeAudio", "synthesizeSpeech", "voicePreviewManifest"]) &&
+        check: (repo) => includes(repo, "packages/voice/src/index.ts", ["transcribeAudio", "synthesizeSpeech", "voicePreviewManifest", "local-voice-clone"]) &&
           includes(repo, "packages/media/src/index.ts", ["parseMediaFile", "parseMediaBundle", "createMediaAsset"]) &&
-          includes(repo, "README.md", ["Voice Studio", "ASR", "TTS", "multimodal"])
+          includes(repo, "README.md", ["Voice Memory", "Voice Studio", "ASR", "TTS", "multimodal"])
       }
     ]
   },

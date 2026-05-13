@@ -170,14 +170,20 @@ program
   .description("Generate a deterministic TTS preview for a persona pack or text")
   .argument("<pack>", "pack directory")
   .requiredOption("--text <text>", "text to synthesize")
-  .option("--provider <provider>", "stub-tts | local-piper | openai-compatible-tts", "stub-tts")
+  .option("--provider <provider>", "stub-tts | local-piper | local-command-tts | local-voice-clone | openai-compatible-tts", "stub-tts")
   .option("--voice <voice>", "voice id")
+  .option("--reference-audio <file>", "reference audio path for local voice clone engines")
+  .option("--voice-profile <file>", "voice profile path for local voice clone engines")
+  .option("--timeout-ms <ms>", "local voice engine timeout in milliseconds")
   .option("-o, --out <file>", "output audio path", "preview.wav")
-  .action(async (packDir: string, options: { text: string; provider: VoiceProviderId; voice?: string; out: string }) => {
+  .action(async (packDir: string, options: { text: string; provider: VoiceProviderId; voice?: string; referenceAudio?: string; voiceProfile?: string; timeoutMs?: string; out: string }) => {
     const pack = loadPack(resolve(packDir));
     const audio = await synthesizeSpeech(options.text, {
       providerId: options.provider,
       ...(options.voice ? { voice: options.voice } : {}),
+      ...(options.referenceAudio ? { referenceAudioPath: resolve(options.referenceAudio) } : {}),
+      ...(options.voiceProfile ? { voiceProfilePath: resolve(options.voiceProfile) } : {}),
+      ...(options.timeoutMs ? { timeoutMs: Number(options.timeoutMs) } : {}),
       language: pack.language,
       format: "wav"
     });

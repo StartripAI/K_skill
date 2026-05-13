@@ -2,10 +2,10 @@
 
 # K.skill
 
-![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
-**把聊天记录、角色设定、关系记忆和公开资料，整理成能直接使用的 AI 人格系统。**  
-**Local persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**把语音、聊天记录、角色设定、关系记忆和公开资料，整理成能听、能聊、能导出的 AI 人格系统。**  
+**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
 
 **中文** · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
 
@@ -14,10 +14,51 @@
 先说人话：K.skill 是一个本地人格工作台。  
 你把资料丢进去，它帮你整理、分析、做成 persona pack，然后导出到 Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI。
 
-你可以拿它做 6 类特别直观的事：
+## 最大卖点：声音记忆 / Voice Memory
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+
+文字很有用，但声音更直接。  
+一句语音里的停顿、笑声、口头禅、语速和情绪，往往比一整页文字更像“那个人”。
+
+K.skill 的 Voice Memory 不是单独玩具功能，而是整个人格系统的入口：
+
+| 你想做什么 | 你放进去什么 | K.skill 给你什么 |
+|---|---|---|
+| 想念某人 | 语音消息、聊天记录、照片、共同记忆 | voice DNA、聊天记忆、语气节奏、可以继续对话的 pack |
+| 梦中角色 | 一段描述、角色图、台词音频、世界观 | 有声音感的原创角色，不只是文字设定 |
+| 怀念与纪念 | 旧聊天、语音、截图、时间线 | 能慢慢翻、能听、能复盘的关系记忆 |
+| Crush Coach Voice | TA 发来的语音、最近聊天 | ASR 转写、语气判断、热度信号、3 条可发回复 |
+| 虚拟人物 / 电影人物 | 角色图、台词、音色参考、场景卡 | voice profile、visual style、sticker intents、导出包 |
+
+真实可跑的地方：
+
+```bash
+# 1. 语音转文字：默认 stub 离线可跑，换 provider 后接真实 ASR
+npm run cli -- transcribe tests/fixtures/media/voice-note-zh.wav --provider stub-asr --language zh --out tmp/transcript.json
+
+# 2. 把语音作为 persona evidence 导入
+npm run cli -- import tests/fixtures/media/voice-note-zh.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+
+# 3. 生成可听的 voice preview：默认 stub 可跑；配置本地 voice engine 后输出真实音频
+npm run cli -- speak local-packs/voice-crush --text "周末去看展，语气轻一点。" --provider stub-tts --out tmp/voice-preview.wav
+
+# 4. 接本地语音克隆 / 合成引擎
+KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
+  npm run cli -- speak local-packs/voice-crush \
+  --text "我还记得你说这句话的语气。" \
+  --provider local-voice-clone \
+  --reference-audio tests/fixtures/media/voice-note-zh.wav \
+  --out tmp/memory-voice.wav
+```
+
+`local-voice-clone` 的约定很简单：K.skill 会把 `text`、`voice`、`language`、`referenceAudioPath`、`voiceProfilePath` 和 `outFile` 通过 stdin JSON 传给你的本地语音引擎；引擎把音频写到 `outFile`，K.skill 再把它放回 GUI、CLI 和导出包。
+
+你可以拿它做 7 类特别直观的事：
 
 | 场景 | 你丢进去 | K.skill 给你什么 |
 |---|---|---|
+| 声音记忆 | 语音、聊天、照片、截图 | voice DNA、ASR transcript、语音回信、可导出人格包 |
 | 我要追TA | 你和 TA 的聊天记录 | 判断聊天窗口、怎么回、什么时候收一收、3 条能直接发的回复 |
 | 前任 / 恋人 / 关系记忆 | 聊天记录、共同经历、补充记忆 | 一份能复盘、能延续氛围的关系记忆 |
 | 动漫角色 | 原创角色设定、二次元 OC、世界观 | 美女帅哥角色、说话方式、lorebook、聊天入口 |
@@ -29,6 +70,8 @@
 README 里写到的命令、例子、导出目标，都有真实文件和测试，不是摆设。
 
 ## 先看 6 个场景
+
+![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
 
 第一张图现在就是 K.skill 的真正定位：不是单一聊天框，而是 6 个场景入口。
 

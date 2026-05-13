@@ -52,7 +52,29 @@ npm run cli -- transcribe tests/fixtures/media/voice-note-zh.wav --provider stub
 npm run cli -- import tests/fixtures/media/voice-note-zh.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
 npm run cli -- speak local-packs/voice-crush --text "周末去看展，语气轻一点。" --provider stub-tts --out tmp/voice-preview.wav
 npm run cli -- voice-profile local-packs/voice-crush
+
+KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
+  npm run cli -- speak local-packs/voice-crush \
+  --text "我还记得你说这句话的语气。" \
+  --provider local-voice-clone \
+  --reference-audio tests/fixtures/media/voice-note-zh.wav \
+  --out tmp/memory-voice.wav
 ```
+
+The local voice engine command receives JSON on stdin:
+
+```json
+{
+  "text": "text to speak",
+  "voice": "voice id",
+  "language": "zh",
+  "referenceAudioPath": "/absolute/reference.wav",
+  "voiceProfilePath": "/absolute/profile.json",
+  "outFile": "/tmp/kskill-voice/preview.wav"
+}
+```
+
+Write audio to `outFile` and optionally print `{"voiceId":"...", "durationMs":1234, "mimeType":"audio/wav"}` to stdout.
 
 Relationship Memory:
 

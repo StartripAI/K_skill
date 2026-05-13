@@ -85,7 +85,8 @@ const requiredLocalFiles = [
   "examples/relationship-memory-chat.txt",
   "examples/character-world.md",
   "examples/movie-character.md",
-  "examples/life-mentor-source.md"
+  "examples/life-mentor-source.md",
+  "examples/local-voice-engine.mjs"
 ];
 
 for (const path of requiredLocalFiles) {
@@ -94,6 +95,7 @@ for (const path of requiredLocalFiles) {
 
 const requiredImages = [
   "assets/readme/hero-six-scenes.png",
+  "assets/readme/voice-memory-studio.png",
   "assets/readme/crush-coach-reply-lab.png",
   "assets/readme/relationship-memory-chat.png",
   "assets/readme/anime-character-world.png",
@@ -126,6 +128,7 @@ const semanticNeedles = [
   "Character World",
   "Movie Character",
   "Life Mentor",
+  "Voice Memory",
   "Voice Studio",
   "ASR",
   "TTS",

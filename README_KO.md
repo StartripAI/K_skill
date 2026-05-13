@@ -2,10 +2,10 @@
 
 # K.skill
 
-![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
-**채팅, 캐릭터, 관계 기억, Life Mentor를 바로 쓸 수 있는 AI persona pack으로 만드는 로컬 인격 워크벤치.**  
-**Local persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**음성, 채팅, 캐릭터, 관계 기억, Life Mentor를 쓸 수 있는 AI persona pack으로 만드는 로컬 인격 워크벤치.**  
+**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · **한국어** · [Español](README_ES.md)
 
@@ -14,6 +14,39 @@
 K.skill은 local-first 인격 워크벤치입니다. 채팅 로그, 관계 자료, 2D OC, Movie Character, Virtual Persona, 세계관, 공개 글, 개인 원칙을 검사 가능하고 테스트 가능하며 내보낼 수 있는 persona pack으로 바꿉니다. GUI에서는 업로드, 파싱, 리포트, Reply Lab, 다운로드를 처리하고, CLI에서는 같은 pack을 Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, Open WebUI로 compile / export합니다.
 
 여기에 적힌 기능은 실제 명령, 예제 입력, 생성 파일, 릴리스 검사를 갖습니다.
+
+## Main Hook: Voice Memory
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+
+텍스트도 중요하지만, 목소리는 더 빠르게 닿습니다. 잠깐의 쉼, 웃음, 말버릇, 속도, 감정 온도는 긴 메모보다 더 “그 사람 같다”는 느낌을 줍니다.
+
+K.skill은 voice를 persona source로 다룹니다.
+
+| Moment | 넣는 자료 | K.skill 결과 |
+|---|---|---|
+| 누군가가 그리울 때 | voice note, chats, photos, shared memories | voice DNA, relationship memory, chat rhythm, usable persona pack |
+| 꿈속의 캐릭터 | description, character image, line audio, world notes | 목소리 감각이 있는 original character |
+| 기억과 추억 | old chats, voice clips, screenshots, timeline | 읽고, 듣고, export할 수 있는 memory pack |
+| Crush Coach Voice | TA voice note + recent chat | ASR transcript, tone read, warmth signals, 3 reply drafts |
+| Virtual / Movie Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, export bundle |
+
+실제로 도는 명령:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-en.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "Keep it light and natural." --provider stub-tts --out tmp/voice-preview.wav
+
+KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
+  npm run cli -- speak local-packs/voice-crush \
+  --text "I still remember how you said that." \
+  --provider local-voice-clone \
+  --reference-audio tests/fixtures/media/voice-note-en.wav \
+  --out tmp/memory-voice.wav
+```
+
+`local-voice-clone`은 `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath`, `outFile`을 stdin JSON으로 로컬 voice engine에 전달합니다. engine이 `outFile`에 음성을 쓰고, K.skill이 GUI, CLI, export로 가져옵니다.
 
 ## 먼저 6개 장면
 

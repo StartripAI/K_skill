@@ -152,7 +152,9 @@ export function createKskillApp(options: KskillAppOptions = {}) {
       kind: provider.capabilities.some((capability) => capability.startsWith("asr")) ? "asr" : "tts",
       mode: provider.id.startsWith("stub") ? "stub" : provider.runtime === "browser" ? "browser" : provider.local ? "local" : "remote",
       languages: ["zh", "en", "ja", "ko", "es"],
-      configured: !provider.requiresSecret
+      configured: provider.id === "local-command-tts" || provider.id === "local-voice-clone"
+        ? Boolean(process.env.KSKILL_LOCAL_TTS_COMMAND ?? process.env.KS_LOCAL_TTS_COMMAND)
+        : !provider.requiresSecret
     }))
   })));
 
@@ -249,6 +251,9 @@ export function createKskillApp(options: KskillAppOptions = {}) {
       providerId: input.providerId as never,
       ...(input.voice ? { voice: input.voice } : {}),
       ...(input.language ? { language: input.language } : {}),
+      ...(input.referenceAudioPath ? { referenceAudioPath: input.referenceAudioPath } : {}),
+      ...(input.voiceProfilePath ? { voiceProfilePath: input.voiceProfilePath } : {}),
+      ...(input.timeoutMs ? { timeoutMs: input.timeoutMs } : {}),
       format: input.format
     });
     c.header("x-kskill-tts-manifest", JSON.stringify(voicePreviewManifest(audio, input.language ?? "auto")));

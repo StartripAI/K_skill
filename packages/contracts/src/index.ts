@@ -51,7 +51,10 @@ export const TtsRequestSchema = z.object({
   providerId: z.string().optional(),
   voice: z.string().optional(),
   language: z.string().optional(),
-  format: z.enum(["mp3", "wav", "opus", "pcm"]).default("wav")
+  format: z.enum(["mp3", "wav", "opus", "pcm"]).default("wav"),
+  referenceAudioPath: z.string().optional(),
+  voiceProfilePath: z.string().optional(),
+  timeoutMs: z.number().int().positive().max(600000).optional()
 });
 
 export const MemoryPatchRequestSchema = z.object({

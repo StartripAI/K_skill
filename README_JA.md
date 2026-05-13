@@ -2,10 +2,10 @@
 
 # K.skill
 
-![K.skill six social persona scenes](assets/readme/hero-six-scenes.png)
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
-**チャット、キャラクター、関係記憶、Life Mentor をそのまま使える AI persona pack にするローカル人格ワークベンチ。**  
-**Local persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**音声、チャット、キャラクター、関係記憶、Life Mentor を使える AI persona pack にするローカル人格ワークベンチ。**  
+**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · **日本語** · [한국어](README_KO.md) · [Español](README_ES.md)
 
@@ -14,6 +14,39 @@
 K.skill は local-first の人格ワークベンチです。チャットログ、関係資料、二次元 OC、Movie Character、Virtual Persona、世界観、公開文章、個人原則を、検査できる、テストできる、書き出せる persona pack に変換します。GUI ではアップロード、解析、レポート、Reply Lab、ダウンロードまで行えます。CLI では同じ pack を Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI に compile / export できます。
 
 ここに書かれている機能は、実際のコマンド、実例ファイル、生成物、release gate を持ちます。
+
+## Main Hook: Voice Memory
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+
+文字も大事ですが、声はもっと速く届きます。間、笑い方、口癖、速度、感情の温度は、長いメモよりも「その人らしさ」を運びます。
+
+K.skill は voice を persona source として扱います。
+
+| Moment | 入れるもの | K.skill が作るもの |
+|---|---|---|
+| 誰かを思い出す | voice note、チャット、写真、共有記憶 | voice DNA、関係 memory、会話 rhythm、使える persona pack |
+| 夢の中のキャラクター | 描写、character image、台詞音声、世界観 | 声の感触を持つ原创 character |
+| 記念と回想 | 古いチャット、音声、screenshot、timeline | 読めて、聞けて、export できる memory pack |
+| Crush Coach Voice | TA の voice note と最近のチャット | ASR transcript、tone read、warmth signals、3 つの返信 |
+| Virtual / Movie Character | character art、dialogue、voice reference、scene cards | voice profile、visual style、sticker intents、export bundle |
+
+動くコマンド:
+
+```bash
+npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
+npm run cli -- import tests/fixtures/media/voice-note-en.wav --type pursuit --media --provider stub-asr --pack local-packs/voice-crush
+npm run cli -- speak local-packs/voice-crush --text "Keep it light and natural." --provider stub-tts --out tmp/voice-preview.wav
+
+KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
+  npm run cli -- speak local-packs/voice-crush \
+  --text "I still remember how you said that." \
+  --provider local-voice-clone \
+  --reference-audio tests/fixtures/media/voice-note-en.wav \
+  --out tmp/memory-voice.wav
+```
+
+`local-voice-clone` は `text`、`voice`、`language`、`referenceAudioPath`、`voiceProfilePath`、`outFile` を stdin JSON でローカル voice engine に渡します。engine が `outFile` に音声を書き、K.skill が GUI、CLI、export に戻します。
 
 ## まず 6 つのシーンを見る
 

@@ -1,7 +1,7 @@
 {
   "name": "kskill",
   "version": "0.1.0",
-  "description": "本地人格工作台 / Local persona workbench for chats, characters, relationship memory, Crush Coach, and Life Mentor packs.",
+  "description": "本地语音人格工作台 / Local voice + persona workbench for chats, characters, relationship memory, Crush Coach, and Life Mentor packs.",
   "type": "module",
   "main": "./dist/packages/core/src/index.js",
   "types": "./dist/packages/core/src/index.d.ts",

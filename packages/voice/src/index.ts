@@ -1,4 +1,8 @@
 import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawn } from "node:child_process";
 import { TextDecoder, TextEncoder } from "node:util";
 import { createId, type PackLanguage, stableHash } from "../../core/src/index.js";
 
@@ -10,6 +14,8 @@ export type VoiceProviderId =
   | "browser-speechsynthesis"
   | "local-whisper"
   | "local-piper"
+  | "local-command-tts"
+  | "local-voice-clone"
   | "openai-compatible-asr"
   | "openai-compatible-tts";
 
@@ -67,6 +73,9 @@ export type TtsOptions = {
   format?: "mp3" | "wav" | "opus" | "pcm";
   speed?: number;
   instructions?: string;
+  referenceAudioPath?: string;
+  voiceProfilePath?: string;
+  timeoutMs?: number;
 };
 
 export type TtsAudio = {
@@ -109,6 +118,8 @@ export const voiceProviders: VoiceProviderInfo[] = [
   { id: "browser-speechsynthesis", label: "Browser SpeechSynthesis", runtime: "browser", capabilities: ["tts-speak"], local: false, requiresNetwork: false, requiresSecret: false, privacyLabel: "browser-dependent" },
   { id: "local-whisper", label: "Local Whisper-compatible ASR", runtime: "server", capabilities: ["asr-file"], local: true, requiresNetwork: false, requiresSecret: false, privacyLabel: "local" },
   { id: "local-piper", label: "Local Piper-compatible TTS", runtime: "server", capabilities: ["tts-audio"], local: true, requiresNetwork: false, requiresSecret: false, privacyLabel: "local" },
+  { id: "local-command-tts", label: "Local command TTS", runtime: "server", capabilities: ["tts-audio"], local: true, requiresNetwork: false, requiresSecret: false, privacyLabel: "local" },
+  { id: "local-voice-clone", label: "Local voice clone engine", runtime: "server", capabilities: ["tts-audio"], local: true, requiresNetwork: false, requiresSecret: false, privacyLabel: "local" },
   { id: "openai-compatible-asr", label: "OpenAI-compatible ASR", runtime: "server", capabilities: ["asr-file"], local: false, requiresNetwork: true, requiresSecret: true, privacyLabel: "cloud" },
   { id: "openai-compatible-tts", label: "OpenAI-compatible TTS", runtime: "server", capabilities: ["tts-audio"], local: false, requiresNetwork: true, requiresSecret: true, privacyLabel: "cloud" }
 ];
@@ -192,17 +203,126 @@ export async function transcribeAudio(audio: AudioInput, options: AsrOptions = {
 
 function fakeWavBytes(text: string, options: TtsOptions): Uint8Array {
   const voice = options.voice ?? "kskill-default";
-  const payload = encoder.encode(`KSKILL_STUB_WAV\nvoice=${voice}\nlanguage=${options.language ?? "auto"}\ntext=${text}\n`);
+  const payload = encoder.encode(`KSKILL_STUB_WAV\nprovider=${options.providerId ?? "stub-tts"}\nvoice=${voice}\nlanguage=${options.language ?? "auto"}\nreference=${options.referenceAudioPath ?? ""}\ntext=${text}\n`);
   return payload;
+}
+
+function mimeForFormat(format: TtsOptions["format"]): string {
+  if (format === "mp3") return "audio/mpeg";
+  if (format === "opus") return "audio/ogg";
+  if (format === "pcm") return "audio/L16";
+  return "audio/wav";
+}
+
+function splitCommand(commandLine: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let quote: "\"" | "'" | undefined;
+  for (const char of commandLine) {
+    if ((char === "\"" || char === "'") && quote === undefined) {
+      quote = char;
+      continue;
+    }
+    if (char === quote) {
+      quote = undefined;
+      continue;
+    }
+    if (/\s/.test(char) && quote === undefined) {
+      if (current) parts.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  if (current) parts.push(current);
+  return parts;
+}
+
+function localTtsCommand(): string | undefined {
+  return process.env.KSKILL_LOCAL_TTS_COMMAND ?? process.env.KS_LOCAL_TTS_COMMAND;
+}
+
+async function runLocalTtsCommand(text: string, options: TtsOptions, providerId: VoiceProviderId): Promise<TtsAudio | undefined> {
+  const commandLine = localTtsCommand();
+  if (!commandLine) return undefined;
+  const [command, ...args] = splitCommand(commandLine);
+  if (!command) return undefined;
+
+  const tmp = mkdtempSync(join(tmpdir(), "kskill-voice-"));
+  const format = options.format ?? "wav";
+  const outFile = join(tmp, `preview.${format}`);
+  const payload = {
+    text,
+    providerId,
+    voice: options.voice ?? "kskill-local",
+    language: options.language ?? "auto",
+    format,
+    speed: options.speed ?? 1,
+    instructions: options.instructions ?? "",
+    referenceAudioPath: options.referenceAudioPath ?? "",
+    voiceProfilePath: options.voiceProfilePath ?? "",
+    outFile
+  };
+
+  try {
+    const result = await new Promise<{ stdout: string; stderr: string }>((resolvePromise, reject) => {
+      const child = spawn(command, args, { stdio: ["pipe", "pipe", "pipe"] });
+      const timeout = setTimeout(() => {
+        child.kill("SIGKILL");
+        reject(new Error(`Local voice command timed out after ${options.timeoutMs ?? 120000}ms`));
+      }, options.timeoutMs ?? 120000);
+      const stdout: Buffer[] = [];
+      const stderr: Buffer[] = [];
+      child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
+      child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
+      child.on("error", (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+      child.on("close", (code) => {
+        clearTimeout(timeout);
+        const out = Buffer.concat(stdout).toString("utf8");
+        const err = Buffer.concat(stderr).toString("utf8");
+        if (code !== 0) {
+          reject(new Error(`Local voice command exited with ${code}${err ? `: ${err}` : ""}`));
+          return;
+        }
+        resolvePromise({ stdout: out, stderr: err });
+      });
+      child.stdin.end(JSON.stringify(payload));
+    });
+
+    const bytes = new Uint8Array(readFileSync(outFile));
+    let metadata: { voiceId?: string; durationMs?: number; mimeType?: string } = {};
+    try {
+      metadata = JSON.parse(result.stdout) as typeof metadata;
+    } catch {
+      metadata = {};
+    }
+    return {
+      providerId,
+      bytes,
+      mimeType: metadata.mimeType ?? mimeForFormat(format),
+      durationMs: metadata.durationMs ?? Math.max(900, Math.ceil(text.length / 12) * 1000),
+      sha256: sha256(bytes),
+      voiceId: metadata.voiceId ?? options.voice ?? `local-${stableHash(`${providerId}:${options.language ?? "auto"}:${options.referenceAudioPath ?? ""}`).slice(0, 8)}`
+    };
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
 }
 
 export async function synthesizeSpeech(text: string, options: TtsOptions = {}): Promise<TtsAudio> {
   const providerId = options.providerId ?? "stub-tts";
+  if (providerId === "local-command-tts" || providerId === "local-voice-clone") {
+    const local = await runLocalTtsCommand(text, options, providerId);
+    if (local) return local;
+  }
   const bytes = fakeWavBytes(text, options);
   return {
     providerId,
     bytes,
-    mimeType: options.format === "mp3" ? "audio/mpeg" : "audio/wav",
+    mimeType: mimeForFormat(options.format),
     durationMs: Math.max(900, Math.ceil(text.length / 12) * 1000),
     sha256: sha256(bytes),
     voiceId: options.voice ?? `kskill-${stableHash(`${providerId}:${options.language ?? "auto"}`).slice(0, 8)}`
@@ -220,4 +340,3 @@ export function voicePreviewManifest(audio: TtsAudio, language: string, sourcePa
     ...(sourcePackId ? { sourcePackId } : {})
   };
 }
-

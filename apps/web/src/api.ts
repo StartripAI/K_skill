@@ -709,7 +709,7 @@ export function createApiClient(fetcher: Fetcher = (input, init) => fetch(input,
       return normalizeAsrResult(await requestJson(fetcher, "/api/voice/asr", { method: "POST", body: form }));
     },
 
-    async synthesizeSpeech(input: { text: string; providerId?: string; voice?: string; language?: string }): Promise<Blob> {
+    async synthesizeSpeech(input: { text: string; providerId?: string; voice?: string; language?: string; referenceAudioPath?: string; voiceProfilePath?: string; timeoutMs?: number }): Promise<Blob> {
       return requestBlob(fetcher, "/api/voice/tts", {
         method: "POST",
         headers: { "content-type": "application/json" },
