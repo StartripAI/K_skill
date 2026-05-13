@@ -258,10 +258,22 @@ assert(zh.includes("体面收住"), "README.md must describe cooldown handling i
 const promotion = read(promotionFile);
 assertNoExternalProjectNamesOutsideCode(promotionFile, promotion);
 const hnCopy = sectionAfterHeading(promotion, "## English HN Copy");
-const xCopy = sectionAfterHeading(promotion, "## English X Copy");
 const xhsCopy = sectionAfterHeading(promotion, "## 中文小红书文案");
 assert(hnCopy.includes("Show HN:"), `${promotionFile} must include Show HN copy`);
-assert(xCopy.length > 0 && xCopy.length < 140, `${promotionFile} X copy must be under 140 characters`);
+for (const language of ["Chinese", "English", "Japanese", "Korean", "Spanish"]) {
+  assert(hnCopy.includes(language), `${promotionFile} HN copy must mention ${language} README support`);
+}
+const xCopyHeadings = [
+  "## English X Copy",
+  "## 中文 X 文案",
+  "## 日本語 X Copy",
+  "## 한국어 X Copy",
+  "## Español X Copy"
+];
+for (const heading of xCopyHeadings) {
+  const xCopy = sectionAfterHeading(promotion, heading);
+  assert(xCopy.length > 0 && xCopy.length < 140, `${promotionFile} ${heading} must be under 140 characters`);
+}
 const xhsCjkCount = [...xhsCopy].filter((char) => /[\u3400-\u9fff]/u.test(char)).length;
 assert(xhsCjkCount >= 350 && xhsCjkCount <= 750, `${promotionFile} Xiaohongshu copy should be about 500 Chinese characters`);
 

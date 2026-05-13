@@ -431,7 +431,7 @@ npm run check:exports
 
 ## Privacy And Feel
 
-K.skill is local-first. Private chats stay outside the repository. El contenido se queda en tu máquina salvo que configures explícitamente un provider externo.
+Private chats stay outside the repository. El contenido se queda en tu máquina salvo que configures explícitamente un provider externo.
 
 K.skill sirve para:
 

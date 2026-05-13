@@ -13,7 +13,7 @@
 
 Some people, relationships, and characters cannot be captured by a short prompt. A voice note has pauses. A chat has private jokes. A photo or sticker can carry the mood better than a paragraph. Shared history often lives across screenshots, notes, PDFs, transcripts, and half-remembered moments.
 
-K.skill gathers that material into a local persona pack you can reopen. The pack keeps evidence, voice, relationship rhythm, character rules, and the Prompt Stack together, so you are not left with a flat summary. You can see what it remembers, hear the trace of the voice, and keep talking from there.
+K.skill gathers that material into a persona pack you can reopen. The pack keeps evidence, voice, relationship rhythm, character rules, and the Prompt Stack together, so you are not left with a flat summary. You can see what it remembers, hear the trace of the voice, and keep talking from there.
 
 ## Voice Memory: Put The Voice Into The Persona
 
@@ -436,7 +436,7 @@ npm run check:exports
 
 ## Privacy And Feel
 
-K.skill is local-first. Private chats stay outside the repository. Content leaves your machine only when you explicitly configure an external model provider. You can run the full sample flow with stub ASR / stub TTS before connecting your own voice or model service.
+Private chats stay outside the repository. Content leaves your machine only when you explicitly configure an external model provider. You can run the full sample flow with stub ASR / stub TTS before connecting your own voice or model service.
 
 The feel is closer to keeping a relationship, character, or thinking archive open over time than asking a one-off question. You open it when you want to:
 
