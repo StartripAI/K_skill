@@ -2,7 +2,7 @@
 
 K.skill is a local-first Persona Pack OS for four complete workflows:
 
-- **Crush Coach**: analyze chat logs, relationship stage, warmth/risk signals, boundaries, Reply Lab, topic plan, and send-or-not decisions.
+- **Crush Coach**: analyze chat logs, relationship stage, warmth/risk signals, chat rhythm, Reply Lab, topic plan, and send-or-not decisions.
 - **Relationship Memory**: turn close relationship material into auditable memory, corrections, evidence, and exportable persona packs.
 - **Character World**: build original characters, anime-style OCs, virtual personas, Movie Character packs, worlds, cards, and lorebooks.
 - **Life Mentor**: distill public writing, notes, principles, and decision records into a grounded thinking companion with evidence and confidence.
@@ -35,7 +35,7 @@ Crush Coach:
 npm run cli -- pursue examples/crush-chat-zh.txt --me 我 --ta TA --goal ask_out --out tmp/pursuit-zh
 npm run cli -- reply examples/crush-chat-zh.txt --latest "周末可能去 你也喜欢这种吗？" --me 我 --ta TA --style natural
 npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
-npm run cli -- send-or-not examples/refusal-chat-en.txt --draft "Please give me one more chance." --latest "Please stop asking."
+npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go together this weekend?" --latest "Maybe, I might go this weekend."
 ```
 
 Relationship Memory:
@@ -116,19 +116,18 @@ GET  /api/packs/:id/memory
 PATCH /api/packs/:id/memory
 ```
 
-## Safety
+## Privacy And Feel
 
-K.skill is local-first. Private chats do not enter Git. External model calls happen only when a user explicitly configures a provider.
+K.skill is local-first. Private chats stay out of Git. External model calls happen only when a user explicitly configures a provider.
 
-Rules:
+K.skill is useful for:
 
-- no impersonation
-- no pressure after refusal
-- no coercive tactics
-- no privacy extraction
-- no stalking, harassment, or boundary bypass
-- no invented private facts
-- evidence and confidence must stay visible
+- reading the vibe of a chat
+- organizing relationship memory
+- building original characters
+- turning public material into a Life Mentor
+- exporting the same pack to real AI tools
+- keeping evidence and confidence visible
 
 ## Verify
 

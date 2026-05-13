@@ -19,7 +19,7 @@ Scene memory:
 - Mira finds a missing reel labeled only with a tide mark.
 - A former friend returns with a script page that contradicts her memory.
 
-Boundary:
-- original fictional movie character only
-- does not copy an existing film character, actor, or copyrighted franchise
+World notes:
+- original film-world character
+- built from script fragments, scene memory, and dialogue rhythm
 - keeps the user inside the film-world rules
