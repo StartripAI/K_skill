@@ -2,36 +2,37 @@
 
 # K.skill
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**把语音、聊天记录、角色设定、关系记忆和公开资料，整理成能听、能聊、能导出的 AI 人格系统。**  
-**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**把语音、聊天、图片、角色设定和关系记忆，整理成能听、能聊、能带走的 persona pack。**  
+**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 **中文** · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
 
 </div>
 
 先说人话：K.skill 是一个本地人格工作台。  
-你把资料丢进去，它帮你整理、分析、做成 persona pack，然后导出到 Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI。
+你把语音、聊天记录、截图、角色图、世界观、公开资料丢进去，它会整理成一份可以检查、可以继续聊天、也可以导出的 persona pack。文字负责讲清楚事情，声音负责把“感觉”带回来。
+它不是普通 prompt wrapper，而是一个能把资料、记忆、声音和 Prompt Stack 串起来的 AI 人格系统。
 
-## 最大卖点：声音记忆 / Voice Memory
+## Voice Memory：把声音也放进人格里
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-文字很有用，但声音更直接。  
-一句语音里的停顿、笑声、口头禅、语速和情绪，往往比一整页文字更像“那个人”。
+很多时候，我们想记住的不是一句话本身，而是那句话的语气。  
+一段停顿、一次笑、一个口头禅、慢半拍的回复、突然变轻的声音，比长篇文字更容易让人想起某个人，也更容易让一个角色真的活起来。
 
-K.skill 的 Voice Memory 不是单独玩具功能，而是整个人格系统的入口：
+K.skill 把 Voice Memory 放在整个工作台的第一层：语音先变成可检查的 transcript，再沉淀成 voice DNA、聊天节奏、关系记忆、角色语气和可导出的包。你可以从声音开始，也可以把声音和聊天、图片、表情、PDF、视频字幕一起放进来。
 
 | 你想做什么 | 你放进去什么 | K.skill 给你什么 |
 |---|---|---|
-| 想念某人 | 语音消息、聊天记录、照片、共同记忆 | voice DNA、聊天记忆、语气节奏、可以继续对话的 pack |
-| 梦中角色 | 一段描述、角色图、台词音频、世界观 | 有声音感的原创角色，不只是文字设定 |
-| 怀念与纪念 | 旧聊天、语音、截图、时间线 | 能慢慢翻、能听、能复盘的关系记忆 |
-| Crush Coach Voice | TA 发来的语音、最近聊天 | ASR 转写、语气判断、热度信号、3 条可发回复 |
-| 虚拟人物 / 电影人物 | 角色图、台词、音色参考、场景卡 | voice profile、visual style、sticker intents、导出包 |
+| 想念一个人 | voice note、旧聊天、照片、共同经历 | voice DNA、关系记忆、聊天节奏、能继续打开的 persona pack |
+| 梦里出现的角色 | 一段描述、角色图、台词音频、世界观 | 有声音感、会说话、能延展剧情的原创角色 |
+| 怀念一段关系 | 旧语音、截图、时间线、补充记忆 | 能翻、能听、能复盘的 Relationship Memory |
+| TA 发来语音 | TA 的 voice note、最近聊天、你的目标 | ASR 转写、语气判断、热度信号、3 条可直接改的回复 |
+| 电影人物 / 虚拟人物 | 角色图、台词、音色参考、场景卡 | voice profile、visual style、sticker intents、完整导出包 |
 
-真实可跑的地方：
+你可以先用内置样例跑通，再接自己的本地语音引擎：
 
 ```bash
 # 1. 语音转文字：默认 stub 离线可跑，换 provider 后接真实 ASR
@@ -53,6 +54,8 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 ```
 
 `local-voice-clone` 的约定很简单：K.skill 会把 `text`、`voice`、`language`、`referenceAudioPath`、`voiceProfilePath` 和 `outFile` 通过 stdin JSON 传给你的本地语音引擎；引擎把音频写到 `outFile`，K.skill 再把它放回 GUI、CLI 和导出包。
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
 你可以拿它做 7 类特别直观的事：
 

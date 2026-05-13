@@ -2,36 +2,37 @@
 
 # K.skill
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**음성, 채팅, 캐릭터, 관계 기억, Life Mentor를 쓸 수 있는 AI persona pack으로 만드는 로컬 인격 워크벤치.**  
-**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**음성, 채팅, 이미지, 캐릭터 설정, 관계 기억을 듣고 말하고 내보낼 수 있는 persona pack으로 만드는 로컬 워크벤치.**  
+**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · **한국어** · [Español](README_ES.md)
 
 </div>
 
-K.skill은 local-first 인격 워크벤치입니다. 채팅 로그, 관계 자료, 2D OC, Movie Character, Virtual Persona, 세계관, 공개 글, 개인 원칙을 검사 가능하고 테스트 가능하며 내보낼 수 있는 persona pack으로 바꿉니다. GUI에서는 업로드, 파싱, 리포트, Reply Lab, 다운로드를 처리하고, CLI에서는 같은 pack을 Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, Open WebUI로 compile / export합니다.
+K.skill은 local-first 인격 워크벤치입니다. voice note, 채팅 로그, 스크린샷, 캐릭터 이미지, 세계관, 공개 글, 개인 원칙을 검사할 수 있고, 계속 대화할 수 있고, 내보낼 수 있는 persona pack으로 바꿉니다. 텍스트는 일을 정리하고, 목소리는 그때의 느낌을 다시 가져옵니다.
 
 여기에 적힌 기능은 실제 명령, 예제 입력, 생성 파일, 릴리스 검사를 갖습니다.
 
-## Main Hook: Voice Memory
+## Voice Memory: 목소리까지 persona에 넣기
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-텍스트도 중요하지만, 목소리는 더 빠르게 닿습니다. 잠깐의 쉼, 웃음, 말버릇, 속도, 감정 온도는 긴 메모보다 더 “그 사람 같다”는 느낌을 줍니다.
+우리가 기억하는 건 문장만이 아닐 때가 많습니다.  
+잠깐 멈추는 방식, 웃음, 말버릇, 답장의 속도, 목소리의 온도. 이런 작은 것들이 긴 메모보다 더 “그 사람 같다”는 느낌을 줍니다. 캐릭터도 마찬가지입니다. 목소리의 결이 있으면 대화가 훨씬 빨리 살아납니다.
 
-K.skill은 voice를 persona source로 다룹니다.
+K.skill은 Voice Memory를 워크벤치의 첫 입구로 둡니다. 음성은 먼저 확인 가능한 transcript가 되고, 그다음 voice DNA, chat rhythm, relationship memory, character tone, export 가능한 pack으로 정리됩니다. voice note 하나로 시작해도 되고, 채팅, 이미지, sticker, PDF, video transcript와 함께 넣어도 됩니다.
 
 | Moment | 넣는 자료 | K.skill 결과 |
 |---|---|---|
-| 누군가가 그리울 때 | voice note, chats, photos, shared memories | voice DNA, relationship memory, chat rhythm, usable persona pack |
-| 꿈속의 캐릭터 | description, character image, line audio, world notes | 목소리 감각이 있는 original character |
-| 기억과 추억 | old chats, voice clips, screenshots, timeline | 읽고, 듣고, export할 수 있는 memory pack |
-| Crush Coach Voice | TA voice note + recent chat | ASR transcript, tone read, warmth signals, 3 reply drafts |
-| Virtual / Movie Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, export bundle |
+| 누군가가 그리울 때 | voice note, 오래된 채팅, 사진, 함께한 순간 | voice DNA, relationship memory, chat rhythm, 다시 열 수 있는 persona pack |
+| 꿈속의 캐릭터 | description, character image, line audio, world notes | 목소리 감각이 있고 이야기를 이어갈 수 있는 original character |
+| 관계를 돌아볼 때 | old voice clips, screenshots, timeline, memory notes | 읽고, 듣고, 다시 보고, export할 수 있는 Relationship Memory |
+| TA가 voice note를 보냈을 때 | TA voice note, 최근 채팅, 내 목표 | ASR transcript, tone read, warmth signals, 고쳐 쓸 수 있는 3 reply drafts |
+| Movie / Virtual Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
 
-실제로 도는 명령:
+먼저 내장 샘플로 돌리고, 그다음 자신의 local voice engine에 연결할 수 있습니다.
 
 ```bash
 npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
@@ -47,6 +48,8 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 ```
 
 `local-voice-clone`은 `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath`, `outFile`을 stdin JSON으로 로컬 voice engine에 전달합니다. engine이 `outFile`에 음성을 쓰고, K.skill이 GUI, CLI, export로 가져옵니다.
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
 ## 먼저 6개 장면
 

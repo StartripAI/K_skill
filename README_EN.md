@@ -2,36 +2,37 @@
 
 # K.skill
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**  
-**本地语音人格工作台：把语音、聊天记录、角色设定、关系记忆和公开资料整理成能听、能聊、能导出的 AI persona pack。**
+**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**  
+**把语音、聊天、图片、角色设定和关系记忆，整理成能听、能聊、能带走的 persona pack。**
 
 [中文](README.md) · **English** · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
 
 </div>
 
-K.skill is a local persona workbench you can actually run. Drop in chat logs, relationship material, anime OCs, Movie Character notes, virtual personas, worldbuilding, public writing, or personal principles. K.skill turns them into persona packs you can inspect, test, and export to Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat, and Open WebUI.
+K.skill is a local persona workbench you can actually run. Drop in voice notes, chat logs, screenshots, character art, world notes, public writing, or personal principles. K.skill turns them into persona packs you can inspect, keep chatting with, and export. Text explains what happened; voice brings back the feeling.
 
 Everything shown here has a real command, real sample input, real output, and a release check.
 
-## Main Hook: Voice Memory
+## Voice Memory: Put The Voice Into The Persona
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-Text is useful. Voice hits faster. A pause, laugh, catchphrase, pace, and emotional temperature can carry more of a person than a page of notes.
+What stays with us is often not only the sentence, but how it sounded.  
+A pause, a laugh, a catchphrase, the speed of a reply, or a softer tone can carry more presence than a page of notes. For characters, the same thing matters: the voice is what makes the role feel alive.
 
-K.skill treats voice as a first-class persona source:
+K.skill puts Voice Memory at the front of the workbench. Audio becomes inspectable transcript first, then turns into voice DNA, chat rhythm, relationship memory, character tone, and exportable persona files. You can start from a single voice note, or mix voice with chats, images, stickers, PDFs, and video transcripts.
 
 | Moment | What you add | What K.skill builds |
 |---|---|---|
-| Missing someone | voice notes, chats, photos, shared memories | voice DNA, relationship memory, chat rhythm, a usable persona pack |
-| Dream character | a description, character image, line audio, world notes | an original character with a voice feel |
-| Remembering and memorial notes | old chats, voice clips, screenshots, timeline | a memory pack you can revisit, read, hear, and export |
-| Crush Coach Voice | TA voice note plus recent chat | ASR transcript, tone read, warmth signals, 3 reply drafts |
-| Virtual / Movie Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, export bundle |
+| Missing someone | voice notes, old chats, photos, shared moments | voice DNA, relationship memory, chat rhythm, a persona pack you can reopen |
+| Dream character | a description, character image, line audio, world notes | an original character with a voice feel and room to grow |
+| Remembering a relationship | old voice clips, screenshots, timeline, memory notes | Relationship Memory you can read, hear, revisit, and export |
+| TA sends a voice note | TA voice note, recent chat, your goal | ASR transcript, tone read, warmth signals, 3 reply drafts you can edit |
+| Movie / Virtual Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
 
-Working commands:
+Start with the built-in samples, then connect your own local voice engine:
 
 ```bash
 npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
@@ -47,6 +48,8 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 ```
 
 `local-voice-clone` passes `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath`, and `outFile` to your local voice engine through stdin JSON. The engine writes audio to `outFile`; K.skill brings it back into GUI, CLI, and exports.
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
 ## Six Scenes First
 

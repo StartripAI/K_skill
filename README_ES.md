@@ -2,36 +2,37 @@
 
 # K.skill
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**Workbench local para convertir voz, chats, personajes, memoria de relación y Life Mentor en AI persona packs listos para usar.**  
-**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**Workbench local para convertir voz, chats, imágenes, personajes y memoria de relación en persona packs que puedes escuchar, conversar y exportar.**  
+**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · **Español**
 
 </div>
 
-K.skill es un workbench local de personas que se puede usar de verdad. Convierte chats, material de relación, personajes anime originales, Movie Character, Virtual Persona, mundos narrativos, textos públicos y principios personales en persona packs inspeccionables, testeables y exportables. La GUI cubre subida, parseo, reportes, Reply Lab y descargas. La CLI compila el mismo pack para Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat y Open WebUI.
+K.skill es un workbench local de personas que se puede usar de verdad. Puedes poner voice notes, chats, screenshots, arte de personajes, mundos narrativos, textos públicos o principios personales, y convertirlos en persona packs que se pueden revisar, seguir conversando y exportar. El texto ordena lo que pasó; la voz devuelve la sensación.
 
 Cada capacidad escrita aquí tiene comando real, ejemplo real, salida real y puerta de verificación.
 
-## Main Hook: Voice Memory
+## Voice Memory: poner la voz dentro de la persona
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-El texto sirve, pero la voz llega más rápido. Una pausa, una risa, una muletilla, el ritmo y la temperatura emocional pueden parecerse más a una persona que una página de notas.
+Muchas veces no recordamos solo la frase, sino cómo sonaba.  
+Una pausa, una risa, una muletilla, la velocidad de una respuesta o un tono más suave pueden traer más presencia que una página de notas. Con personajes pasa igual: cuando hay sensación de voz, la conversación arranca con más vida.
 
-K.skill trata la voz como una fuente principal de persona.
+K.skill pone Voice Memory al inicio del workbench. El audio primero se convierte en transcript revisable; después se organiza como voice DNA, ritmo de chat, memoria de relación, tono de personaje y archivos exportables. Puedes empezar con una sola voice note, o mezclar voz con chats, imágenes, stickers, PDFs y video transcripts.
 
 | Moment | Qué agregas | Qué construye K.skill |
 |---|---|---|
-| Extrañar a alguien | voice notes, chats, photos, shared memories | voice DNA, relationship memory, chat rhythm, usable persona pack |
-| Personaje de un sueño | descripción, character image, line audio, world notes | personaje original con sensación de voz |
-| Recuerdo y memoria | old chats, voice clips, screenshots, timeline | memory pack que puedes leer, escuchar y exportar |
-| Crush Coach Voice | TA voice note + recent chat | ASR transcript, tone read, warmth signals, 3 reply drafts |
-| Virtual / Movie Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, export bundle |
+| Extrañar a alguien | voice notes, chats antiguos, fotos, momentos compartidos | voice DNA, relationship memory, chat rhythm, persona pack que puedes volver a abrir |
+| Personaje de un sueño | descripción, character image, line audio, world notes | personaje original con sensación de voz y espacio para crecer |
+| Recordar una relación | old voice clips, screenshots, timeline, memory notes | Relationship Memory que puedes leer, escuchar, revisar y exportar |
+| TA manda una voice note | TA voice note, chat reciente, tu objetivo | ASR transcript, tone read, warmth signals, 3 borradores editables |
+| Movie / Virtual Character | character art, dialogue, voice reference, scene cards | voice profile, visual style, sticker intents, full export bundle |
 
-Comandos que corren:
+Empieza con los samples incluidos y luego conecta tu propio local voice engine:
 
 ```bash
 npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
@@ -47,6 +48,8 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 ```
 
 `local-voice-clone` envía `text`, `voice`, `language`, `referenceAudioPath`, `voiceProfilePath` y `outFile` a tu motor local de voz por stdin JSON. El motor escribe audio en `outFile`; K.skill lo trae de vuelta a GUI, CLI y exports.
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
 ## Primero, 6 escenas
 

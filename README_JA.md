@@ -2,36 +2,37 @@
 
 # K.skill
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**音声、チャット、キャラクター、関係記憶、Life Mentor を使える AI persona pack にするローカル人格ワークベンチ。**  
-**Local voice + persona workbench for chats, characters, relationship memory, and Life Mentor packs.**
+**音声、チャット、画像、キャラクター設定、関係記憶を、聞けて話せて持ち出せる persona pack にするローカルワークベンチ。**  
+**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · **日本語** · [한국어](README_KO.md) · [Español](README_ES.md)
 
 </div>
 
-K.skill は local-first の人格ワークベンチです。チャットログ、関係資料、二次元 OC、Movie Character、Virtual Persona、世界観、公開文章、個人原則を、検査できる、テストできる、書き出せる persona pack に変換します。GUI ではアップロード、解析、レポート、Reply Lab、ダウンロードまで行えます。CLI では同じ pack を Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI に compile / export できます。
+K.skill は local-first の人格ワークベンチです。voice note、チャットログ、スクリーンショット、キャラクター画像、世界観、公開文章、個人原則を、検査できて、会話を続けられて、書き出せる persona pack に変換します。文字は出来事を整理し、声はその場の感じを戻します。
 
 ここに書かれている機能は、実際のコマンド、実例ファイル、生成物、release gate を持ちます。
 
-## Main Hook: Voice Memory
+## Voice Memory：声を人格の中に入れる
 
-![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
+![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-文字も大事ですが、声はもっと速く届きます。間、笑い方、口癖、速度、感情の温度は、長いメモよりも「その人らしさ」を運びます。
+覚えているのは、言葉そのものだけではないことがあります。  
+少し空いた間、笑い方、口癖、返事の速度、声の温度。そういう細かいものが、長いメモよりも「その人らしさ」を運びます。キャラクターでも同じで、声の感触があるだけで会話の立ち上がり方が変わります。
 
-K.skill は voice を persona source として扱います。
+K.skill は Voice Memory をワークベンチの入り口に置きます。音声はまず確認できる transcript になり、そのあと voice DNA、会話 rhythm、関係 memory、キャラクターの口調、export できる pack に整理されます。voice note だけから始めても、チャット、画像、sticker、PDF、video transcript と混ぜても使えます。
 
 | Moment | 入れるもの | K.skill が作るもの |
 |---|---|---|
-| 誰かを思い出す | voice note、チャット、写真、共有記憶 | voice DNA、関係 memory、会話 rhythm、使える persona pack |
-| 夢の中のキャラクター | 描写、character image、台詞音声、世界観 | 声の感触を持つ原创 character |
-| 記念と回想 | 古いチャット、音声、screenshot、timeline | 読めて、聞けて、export できる memory pack |
-| Crush Coach Voice | TA の voice note と最近のチャット | ASR transcript、tone read、warmth signals、3 つの返信 |
-| Virtual / Movie Character | character art、dialogue、voice reference、scene cards | voice profile、visual style、sticker intents、export bundle |
+| 誰かを思い出す | voice note、昔のチャット、写真、共有した出来事 | voice DNA、関係 memory、会話 rhythm、また開ける persona pack |
+| 夢の中のキャラクター | 描写、character image、台詞音声、世界観 | 声の感触があり、会話と物語を広げられる original character |
+| 関係を振り返る | 古い音声、screenshot、timeline、補足メモ | 読めて、聞けて、見返せて、export できる Relationship Memory |
+| TA から voice note が来た | TA の voice note、最近のチャット、自分の目的 | ASR transcript、tone read、warmth signals、編集できる 3 つの返信 |
+| Movie / Virtual Character | character art、dialogue、voice reference、scene cards | voice profile、visual style、sticker intents、complete export bundle |
 
-動くコマンド:
+まずは内蔵サンプルで動かし、そのあと自分のローカル voice engine に接続できます。
 
 ```bash
 npm run cli -- transcribe tests/fixtures/media/voice-note-en.wav --provider stub-asr --language en --out tmp/transcript.json
@@ -47,6 +48,8 @@ KSKILL_LOCAL_TTS_COMMAND="node examples/local-voice-engine.mjs" \
 ```
 
 `local-voice-clone` は `text`、`voice`、`language`、`referenceAudioPath`、`voiceProfilePath`、`outFile` を stdin JSON でローカル voice engine に渡します。engine が `outFile` に音声を書き、K.skill が GUI、CLI、export に戻します。
+
+![K.skill Voice Memory Studio](assets/readme/voice-memory-studio.png)
 
 ## まず 6 つのシーンを見る
 

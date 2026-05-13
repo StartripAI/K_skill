@@ -45,7 +45,7 @@ function assertImage(path) {
     assert(dimensions, `${path} is not a readable PNG`);
     assert(dimensions.width >= 1000, `${path} is too narrow for README use`);
     assert(dimensions.height >= 600, `${path} is too short for README use`);
-    assert(statSync(resolve(root, path)).size <= 3_000_000, `${path} is larger than 3MB`);
+    assert(statSync(resolve(root, path)).size <= 5_000_000, `${path} is larger than 5MB`);
   }
   if (ext === ".svg") {
     const svg = read(path);
@@ -94,7 +94,9 @@ for (const path of requiredLocalFiles) {
 }
 
 const requiredImages = [
+  "assets/readme/hero-voice-memory-cinema.png",
   "assets/readme/hero-six-scenes.png",
+  "assets/readme/voice-memory-flow-cinema.png",
   "assets/readme/voice-memory-studio.png",
   "assets/readme/crush-coach-reply-lab.png",
   "assets/readme/relationship-memory-chat.png",
