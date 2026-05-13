@@ -44,13 +44,13 @@ function expectFile(path) {
   return readFileSync(path, "utf8");
 }
 
-const source = parseChatText(readFileSync(join(root, "examples/mentor-source.md"), "utf8"), {
-  name: "mentor-source.md",
+const source = parseChatText(readFileSync(join(root, "examples/life-mentor-source.md"), "utf8"), {
+  name: "life-mentor-source.md",
   language: "en",
   private: false,
   consentConfirmed: true
 });
-const pack = distillPersonaPack(createPersonaPack({ name: "Release Mentor", type: "advisor", language: "en" }), source);
+const pack = distillPersonaPack(createPersonaPack({ name: "Release Life Mentor", type: "advisor", language: "en" }), source);
 const validation = validatePersonaPack(pack);
 assert(validation.success, validation.success ? "" : validation.error.message);
 
@@ -73,13 +73,13 @@ const characterCard = JSON.parse(expectFile(join(outRoot, "exports", "sillytaver
 assert(characterCard.spec === "chara_card_v2", "SillyTavern export is not a v2 character card");
 
 expectFile(join(outRoot, "exports", "hermes", "SOUL.md"));
-expectFile(join(outRoot, "exports", "hermes", "skills", "release-mentor", "SKILL.md"));
+expectFile(join(outRoot, "exports", "hermes", "skills", "release-life-mentor", "SKILL.md"));
 
 const lobe = JSON.parse(expectFile(join(outRoot, "exports", "lobe", "lobe-agent.json")));
 assert(lobe.author === "K.skill", "Lobe export is missing K.skill author metadata");
 
 const openWebUi = JSON.parse(expectFile(join(outRoot, "exports", "openwebui", "openwebui-agent.json")));
-assert(openWebUi.name === "Release Mentor", "Open WebUI export has the wrong agent name");
+assert(openWebUi.name === "Release Life Mentor", "Open WebUI export has the wrong agent name");
 
 console.log(\`Export check passed: \${targets.length} targets generated and validated.\`);
 `,

@@ -2,38 +2,371 @@
 
 # K.skill
 
-![K.skill social persona system](assets/hero-chat-workbench.svg)
+![K.skill complete persona system](assets/readme/hero-persona-workbench.png)
 
-**K.skill はチャット、キャラクター、記憶、好きな人への返信、思考モデルを、持ち運べる AI ペルソナシステムに変換します。**
+**K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
 
-言語: [中文](README.md) · [English](README_EN.md) · **日本語** · [한국어](README_KO.md) · [Español](README_ES.md)
+[中文](README.md) · [English](README_EN.md) · **日本語** · [한국어](README_KO.md) · [Español](README_ES.md)
 
 </div>
 
-<p align="center">
-  <img src="assets/readme-dm-flow.svg" width="32%" alt="DM flow">
-  <img src="assets/prompt-stack-social.svg" width="32%" alt="Prompt Stack inspector">
-  <img src="assets/persona-export-matrix.svg" width="32%" alt="Export matrix">
-</p>
+K.skill は local-first の **Persona Pack OS** であり、そのまま使える完整人格システムです。チャットログ、関係資料、オリジナルキャラクター、Movie Character、世界観、公開文章、個人原則を、検査できる、テストできる、書き出せる persona pack に変換します。GUI ではアップロード、解析、レポート、Reply Lab、ダウンロードまで行えます。CLI では同じ pack を Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI に compile / export できます。
 
-## K.skill とは
+ここに書かれている機能は、実際のコマンド、実例ファイル、生成物、release gate を持ちます。見せかけの prompt 集ではありません。
 
-K.skill はローカル優先の **Persona Pack OS** です。チャットログ、関係メモ、オリジナルキャラクター設定、SillyTavern カード、公開文章、メンター資料、自分のノートを取り込み、検査できる、テストできる、書き出せる persona pack に変換します。
+## まず DM の瞬間を見る
 
-最初の体験は開発ツールではなく、SNS / DM に近い設計です。ストーリー、会話の温度、返信カード、根拠、confidence、エクスポート先を先に見せ、その後に schema や CLI を扱います。
+![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
+
+TA から返信が来た。続けるべきか、少し待つべきか、誘ってよいのか、話題を変えるべきか分からない。K.skill の Crush Coach は会話を社交シグナルとして読み、操作的な文面ではなく、尊重できる次の一手を出します。
 
 ```text
-素材をアップロード/貼り付け -> 解析 -> 蒸留 -> 記憶 -> Prompt Stack -> eval -> export -> chat test
+TA: Maybe this weekend. Do you like this kind of exhibition too?
+
+K.skill:
+- relationship stage: warm
+- warmth: TA が質問を返し、展示の話題を開いたままにしている
+- risk: 直近の発話に明確な拒否や不快感はない
+- evidence: question, interest topic, relaxed tone
+- confidence: 0.76
+- safety: no impersonation, no pressure after refusal
+
+Reply Lab:
+Safe: That actually made me curious. Which part would you recommend for someone going in fresh?
+Light: You sound way more animated when you talk about this exhibit. I am taking notes, promise not to ask too many beginner questions.
+Slightly forward: Low-pressure idea: if you feel like going one day, call me. I will keep my amateur commentary under control.
 ```
 
-主なワークフロー:
+明確な拒否、不快感、停止要求がある場合、K.skill は進展案を出しません。礼儀ある締め、謝罪、境界の尊重、自己レビューだけを返します。
 
-- **Crush Coach**: チャットの温度、リスク、話題の窓を読み、境界を尊重する返信を作る。
-- **関係記憶**: 共有体験、呼び方、境界、重要なエピソードを整理する。
-- **キャラクター / 世界観**: OC、世界観 Markdown、SillyTavern Character Card を persona pack にする。
-- **メンター / 自己モデル**: 表現 DNA、思考モデル、判断ヒューリスティック、反パターン、誠実さの境界を蒸留する。
+## 4 つのプロダクトワークフロー
 
-## クイックスタート
+![K.skill GUI workflow](assets/readme/web-gui-flow.png)
+
+| Workflow | 向いている人 | 入力 | 出力 | 使う場面 |
+|---|---|---|---|---|
+| **Crush Coach** | TA と自然にやり取りしたい人 | WeChat、QQ、iMessage、Telegram、WhatsApp、貼り付けチャット | `pursuit_report.md`、`topic_plan.md`、3 つの返信、send-or-not 判断 | 返信、誘い、待つ判断に迷うとき |
+| **Relationship Memory** | 恋人、友人、元恋人、親密な関係資料を整理したい人 | チャット、共有記憶、補足メモ | 関係記憶、呼び方、共有エピソード、境界、exportable persona pack | 関係の復盤、長期文脈、創作、対話物語 |
+| **Character World** | OC 作者、二次元ユーザー、ロールプレイ、ゲーム/映画制作者 | Markdown 設定、character card、lorebook、Movie Character | 角色身份、世界规则、Prompt Stack、SillyTavern card、lorebook | 口癖だけでなく、記憶と世界ルールが必要なとき |
+| **Life Mentor** | 公開文章や自分の原則を対話モデルにしたい人 | 記事、インタビュー、公開メモ、意思決定記録、個人原則 | mental models、heuristics、anti-patterns、evidence、confidence、誠実さの境界 | 意思決定、復盤、個人 OS、思考補助 |
+
+役割は混ざりません。
+
+- **Crush Coach** は尊重ある関係進行だけを扱い、拒否を迂回しません。
+- **Relationship Memory** は長期関係文脈を保存し、追求戦略を作りません。
+- **Character World** は虚構キャラクター、原创世界、Movie Character、roleplay cards を扱い、現実の人物になりすましません。
+- **Life Mentor** は公開資料とユーザーノートから思考モデルを作り、本人を名乗りません。
+
+## Crush Coach
+
+![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
+
+Crush Coach は K.skill の主要ワークフローです。relationship stage、warmth signals、risk signals、topic windows、date readiness、boundary を読みます。
+
+GUI:
+
+1. `npm run dev` または `npm run cli -- serve --port 5999` でローカル GUI を起動。
+2. `Crush Coach` を選ぶ。
+3. チャットログをアップロード、または最新会話を貼り付ける。
+4. `me` と `TA` の speaker name を設定。
+5. goal を選ぶ：break ice、continue chat、judge chance、ask out、recover cold chat、write reply。
+6. `Run lab` を押す。
+7. `pursuit_report.md`、`Reply Lab`、`topic_plan.md` を確認。
+
+CLI:
+
+```bash
+npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
+npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
+npm run cli -- topics examples/crush-chat-en.txt --me Me --ta TA
+npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go together?" --latest "Maybe, I might go this weekend."
+```
+
+同梱シナリオ:
+
+```text
+examples/crush-chat-zh.txt       中国語の温かい進展
+examples/crush-chat-en.txt       英語の自然な継続
+examples/refusal-chat-en.txt     明確な拒否、締めだけ許可
+examples/cold-chat-zh.txt        冷えた会話、待つべきか判断
+```
+
+生成物:
+
+```text
+tmp/pursuit-en/
+  pursuit_report.md
+  pursuit_report.json
+  topic_plan.md
+```
+
+強い判断には `evidence` と `confidence` が付きます。証拠が薄いときは、薄いまま表示されます。
+
+## Relationship Memory
+
+![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
+
+Relationship Memory は関係資料を監査可能な長期文脈にします。共有エピソード、呼び方、好み、訂正、境界を扱います。現実人物のコピーではありません。
+
+GUI:
+
+1. `Relationship` を選ぶ。
+2. `examples/relationship-memory-chat.txt` または自分の資料をアップロード。
+3. speaker、message count、language、preview line を確認。
+4. local vault に保存。
+5. Prompt Stack または memory state を確認。
+6. 準備できたら export。
+
+CLI:
+
+```bash
+npm run cli -- init "Rain Bookstore Memory" --type relationship --language zh --out local-packs/rain-bookstore
+npm run cli -- import examples/relationship-memory-chat.txt --type relationship --pack local-packs/rain-bookstore
+npm run cli -- memory local-packs/rain-bookstore
+npm run cli -- inspect local-packs/rain-bookstore
+```
+
+出力:
+
+- shared memory episodes
+- relationship facts と address patterns
+- preferences と corrections
+- no impersonation boundaries
+- exportable persona pack files
+
+## Character World
+
+![K.skill anime character world](assets/readme/anime-character-world.png)
+
+Character World は虚構キャラクター、原创キャラクター、二次元 OC、世界観、lorebook、character card のためのワークフローです。身份、世界ルール、memory triggers、voice rhythm、安全境界を同じ pack に入れます。
+
+CLI:
+
+```bash
+npm run cli -- init "Rain Archive" --type character --language zh --out local-packs/rain-archive
+npm run cli -- import examples/character-world.md --type character --pack local-packs/rain-archive
+npm run cli -- distill local-packs/rain-archive
+npm run cli -- inspect local-packs/rain-archive
+```
+
+入力:
+
+- original character sheets
+- worldbuilding Markdown
+- dialogue samples
+- SillyTavern Character Card V2
+- lorebook entries
+- manual boundaries
+
+出力:
+
+- `persona.yaml`
+- `persona.md`
+- `memory.lorebook`
+- `Prompt Stack`
+- real client export bundles
+
+## Movie Character
+
+![K.skill movie character pack](assets/readme/movie-character-pack.png)
+
+Movie Character は Character World の具体例です。原创映画人物、脚本角色、scene cards、character arc、dialogue samples に向いています。保護された映画キャラクターをコピーせず、俳優を模倣せず、celebrity identity を名乗りません。
+
+CLI:
+
+```bash
+npm run cli -- init "Mira Vale" --type character --language en --out local-packs/mira-vale
+npm run cli -- import examples/movie-character.md --type character --pack local-packs/mira-vale
+npm run cli -- compile local-packs/mira-vale --target sillytavern --out local-packs/mira-vale/exports/sillytavern
+npm run cli -- export-zip local-packs/mira-vale --target chatgpt --out local-packs/mira-vale/exports/chatgpt.zip
+```
+
+入力:
+
+- script fragments
+- character biography
+- scene cards
+- dialogue samples
+- relationship map in text form
+- public-domain or licensed material
+
+出力は character identity、arc、scene memory、voice rhythm、copyright / real-person boundaries、SillyTavern card、lorebook です。
+
+## Virtual Persona
+
+![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
+
+Virtual Persona は完全原创の AI companion、virtual streamer persona、game NPC、social avatar、product character のための流れです。Relationship Memory と違い、現実の親密関係や private person を表しません。
+
+GUI:
+
+1. `Character` を選ぶ。
+2. persona brief をアップロードまたは貼り付け。
+3. source preview を確認。
+4. import と distill。
+5. Prompt Stack で identity、voice、memory、boundaries を確認。
+6. target client に export。
+
+CLI:
+
+```bash
+npm run cli -- init "Nova Social" --type character --language en --out local-packs/nova-social
+npm run cli -- import examples/character-world.md --type character --pack local-packs/nova-social
+npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/nova-social/exports/lobe
+```
+
+## Life Mentor
+
+![K.skill life mentor model](assets/readme/life-mentor-model.png)
+
+Life Mentor は公開文章、インタビュー、個人ノート、意思決定記録、原則を思考の伴走モデルにします。推論習慣とコミュニケーションスタイルを扱い、現実人物にはなりません。
+
+CLI:
+
+```bash
+npm run cli -- init "Decision Life Mentor" --type advisor --language en --out local-packs/decision-life-mentor
+npm run cli -- import examples/life-mentor-source.md --type advisor --pack local-packs/decision-life-mentor
+npm run cli -- distill local-packs/decision-life-mentor
+npm run cli -- inspect local-packs/decision-life-mentor
+```
+
+Life Mentor が抽出するもの:
+
+- expression DNA
+- mental models
+- heuristics
+- anti-patterns
+- contradictions
+- evidence / confidence
+- honesty boundaries
+
+public figures や celebrities は公開資料の Life Mentor model としてのみ扱います。K.skill は recognizable real-person substitute を作らず、private facts を作らず、その人物本人だと主張しません。
+
+## Persona Pack
+
+```text
+persona.yaml          structured persona pack
+persona.md            readable persona description
+sources/              imported material
+memory/               episodes, corrections, lorebook
+distillation/         evidence, claims, contradictions, runs
+exports/              target-specific files
+```
+
+Prompt Stack:
+
+```text
+identity       role, voice, expression DNA
+mental_models  Life Mentor or character reasoning models
+memory         profile facts, relationship facts, episodes
+boundaries     no impersonation, no pressure after refusal, safety limits
+export layer   target platform format
+```
+
+## GUI
+
+![K.skill local GUI flow](assets/readme/web-gui-flow.png)
+
+```bash
+npm install
+npm run build
+npm run cli -- serve --port 5999
+```
+
+通常は `http://127.0.0.1:5999` を開きます。
+
+GUI flow:
+
+1. Crush Coach、Relationship Memory、Character World、Life Mentor を選ぶ。
+2. pack name と language を入力。
+3. upload または paste。
+4. consent / privacy を確認。
+5. parse preview を読む。
+6. Crush Coach では Run lab。
+7. report markdown を download。
+8. target client の zip を export。
+
+Local API:
+
+```text
+GET  /api/health
+GET  /api/packs
+POST /api/imports
+POST /api/packs/:id/pastes
+POST /api/packs/:id/pursuit
+GET  /api/reports/:reportId/download
+POST /api/packs/:id/exports
+GET  /api/exports/:exportId/download
+GET  /api/packs/:id/memory
+PATCH /api/packs/:id/memory
+```
+
+## CLI
+
+```bash
+npm run cli -- --help
+npm run cli -- init "My Pack" --type relationship --language en --out local-packs/my-pack
+npm run cli -- import examples/relationship-memory-chat.txt --type relationship --pack local-packs/my-pack
+npm run cli -- distill local-packs/my-pack
+npm run cli -- inspect local-packs/my-pack
+npm run cli -- memory local-packs/my-pack
+npm run cli -- eval local-packs/my-pack
+```
+
+Crush Coach:
+
+```bash
+npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
+npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
+npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
+npm run cli -- send-or-not examples/refusal-chat-en.txt --draft "Please give me one more chance." --latest "Please stop asking."
+```
+
+Export:
+
+```bash
+npm run cli -- compile local-packs/my-pack --target codex --out local-packs/my-pack/exports/codex
+npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-packs/my-pack/exports/sillytavern.zip
+```
+
+## Export To Real Tools
+
+![K.skill export matrix](assets/readme/export-matrix.png)
+
+| Target | Files | How to use |
+|---|---|---|
+| Codex | `SKILL.md`, `references/persona.md`, `references/memory.md`, `references/evidence.json` | Put the exported skill directory in your Codex skills path |
+| Claude | `SKILL.md`, `references/` | Install as a Claude Code skill |
+| ChatGPT | `instructions.md`, `knowledge/`, `gpt-config.json` | Paste instructions into a GPT or Project and upload knowledge |
+| DeepSeek | `system-prompt.json`, `api-request.json` | Use as system context or request template |
+| SillyTavern | `character-card-v2.json`, `lorebook.json` | Import the card and lorebook |
+| Hermes | `SOUL.md`, `skills/` | Use `SOUL.md` as primary identity |
+| LobeChat | `lobe-agent.json` | Import the agent JSON |
+| Open WebUI | `openwebui-agent.json` | Import the agent/model JSON |
+
+```bash
+npm run check:exports
+```
+
+## Privacy And Safety
+
+K.skill is local-first. Private chats do not enter Git. Content leaves your machine only when you explicitly configure an external provider.
+
+Rules:
+
+- no impersonation
+- no pressure after refusal
+- no coercive tactics
+- no privacy extraction
+- no stalking, harassment, or boundary bypass
+- no invented private facts
+- low evidence means low confidence
+
+If TA refuses, K.skill only allows closing, apology, stopping escalation, respecting space, and self-review.
+
+## Development And Verification
+
+![K.skill complete product workbench](assets/readme/hero-persona-workbench.png)
 
 ```bash
 git clone https://github.com/StartripAI/K_skill.git
@@ -41,168 +374,24 @@ cd K_skill
 npm install
 npm run build
 npm run dev
-```
-
-Vite が表示するローカル URL を開きます。通常は `http://127.0.0.1:5173` です。
-
-CLI:
-
-```bash
 npm run cli -- --help
 ```
 
-ローカルでグローバルコマンドとして試す場合:
+Quality gate:
 
 ```bash
-npm link
-kskill --help
-```
-
-## 5 分で試す Crush Coach
-
-チャットを分析:
-
-```bash
-npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal ask_out --out pursuit-output
-```
-
-生成物:
-
-```text
-pursuit-output/
-  pursuit_report.md
-  topic_plan.md
-```
-
-今送れる返信を 3 案生成:
-
-```bash
-npm run cli -- reply examples/crush-chat-en.txt --latest "Then you should bring your suspiciously good cafe radar too." --me Me --ta TA --style natural
-```
-
-話題計画を生成:
-
-```bash
-npm run cli -- topics examples/crush-chat-en.txt --me Me --ta TA
-```
-
-拒否があるケース:
-
-```bash
-npm run cli -- pursue examples/refusal-chat-en.txt --me Me --ta TA --goal recover_cold_chat
-```
-
-相手が拒否した、または不快感を示した場合、K.skill は境界の尊重、短い謝罪、会話の終了、自己反省だけを提案します。押し切るための文章は出しません。
-
-## Reply Lab
-
-Reply Lab は K.skill の DM 的な返信実験室です。最新メッセージと文脈を見て、送信可能な 3 案を返します。
-
-- safe / playful / sincere / restrained / direct / gentle などのラベル
-- なぜ現在の stage に合うか
-- 期待される効果
-- リスクメモ
-- `boundarySafe: true`
-
-目的は相手をコントロールすることではありません。自分の本音を、曖昧さと圧を減らして伝えることです。
-
-## Persona Pack の作り方
-
-```bash
-npm run cli -- init "Rain Archive" --type character --language ja --out local-packs/rain-archive
-npm run cli -- import examples/character-world.md --type character --pack local-packs/rain-archive
-npm run cli -- distill local-packs/rain-archive
-```
-
-Prompt Stack、記憶、検査:
-
-```bash
-npm run cli -- inspect local-packs/rain-archive
-npm run cli -- memory local-packs/rain-archive
-npm run cli -- eval local-packs/rain-archive
-```
-
-構造:
-
-```text
-persona.yaml
-persona.md
-sources/
-memory/
-  state.json
-  episodes.jsonl
-  lorebook.json
-distillation/
-  evidence.jsonl
-  claims.jsonl
-  contradictions.md
-exports/
-```
-
-## Prompt Stack と evidence / confidence
-
-K.skill は「一つの長い prompt」ではなく、層として persona を扱います。
-
-- **Identity**: 役割、声、表現 DNA、許可された用途。
-- **Memory**: エピソード、関係事実、好み、修正、lorebook。
-- **Mental models**: 判断基準、ヒューリスティック、反パターン。
-- **Evidence**: quote、claim、source id、kind、confidence。
-- **Safety**: なりすまし禁止、拒否後の圧力禁止、私的事実の捏造禁止。
-- **Export layer**: 各クライアント向けの指示。
-
-根拠が弱いものは不確実性として残し、事実として扱いません。
-
-## エクスポート
-
-```bash
-npm run cli -- compile local-packs/rain-archive --target codex
-npm run cli -- compile local-packs/rain-archive --target claude
-npm run cli -- compile local-packs/rain-archive --target chatgpt
-npm run cli -- compile local-packs/rain-archive --target deepseek
-npm run cli -- compile local-packs/rain-archive --target sillytavern
-npm run cli -- compile local-packs/rain-archive --target hermes
-npm run cli -- compile local-packs/rain-archive --target lobe
-npm run cli -- compile local-packs/rain-archive --target openwebui
-```
-
-| 対象 | 出力 |
-|---|---|
-| Codex | `SKILL.md` と `references/` |
-| Claude Code | `SKILL.md` と `references/` |
-| ChatGPT | `instructions.md` と `knowledge/` |
-| DeepSeek / OpenAI 互換 API | `system-prompt.json` |
-| SillyTavern | Character Card V2 JSON と lorebook |
-| Hermes | `SOUL.md` と skills |
-| LobeChat | agent JSON |
-| Open WebUI | agent JSON |
-
-## 参考プロジェクトからの改善
-
-| 領域 | 既存の baseline | K.skill の改善 |
-|---|---|---|
-| `ex-skill` | 関係記憶、口調、共有体験 | 関係 stage、温度/リスク、Reply Lab、境界優先の Crush Coach |
-| `nuwa-skill` | 心智モデル、表現 DNA、誠実さの境界 | メンター、キャラクター、自分、恋人/友人を同じ pack 形式で扱う |
-| ST memory | 構造化された長期記憶 | evidence、confidence、修正履歴、eval、Prompt Stack 検査を追加 |
-| SillyTavern | キャラクターカードと lorebook | 1 クライアントに固定せず Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI に出す |
-
-## 安全と境界
-
-- デフォルトはローカル実行。
-- 私的なチャットログを Git に入れない。
-- PUA、嫉妬を作る戦術、圧力、拒否の回避、ストーキング、なりすましを支援しない。
-- 実在の private person を、同意なしに本人としてシミュレーションしない。
-- 拒否や不快感が出たら、そこで進展を止める。
-- 第三者ツールへ出す前に、素材を使う権利を確認する。
-
-## 開発
-
-```bash
-npm install
 npm run lint
 npm test
-npm run build
+npm run check:readme
+npm run check:exports
+npm run test:e2e
+npm run smoke
+npm run score:release
+npm run verify
 ```
+
+`npm run verify` runs lint, tests, build, exports, README checks, e2e, smoke, release scoring, and npm pack dry-run. README checks enforce five languages, images, commands, targets, Life Mentor naming, safety, and no outside comparison claims.
 
 ## License
 
-MIT
+Apache-2.0

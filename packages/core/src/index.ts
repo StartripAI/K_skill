@@ -183,7 +183,7 @@ export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
   const typeLabels: Record<PersonaType, string> = {
     relationship: "relationship memory companion",
     character: "character and world persona",
-    advisor: "mind mentor",
+    advisor: "life mentor model",
     self: "self model",
     pursuit: "respectful pursuit coach"
   };

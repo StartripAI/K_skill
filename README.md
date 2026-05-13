@@ -2,129 +2,396 @@
 
 # K.skill
 
-![K.skill 社交人格系统](assets/hero-chat-workbench.svg)
+![K.skill complete persona system](assets/readme/hero-persona-workbench.png)
 
 **K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-1f7a53.svg)](https://nodejs.org)
-[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-Compatible-111111.svg)](https://agentskills.io)
-[![Local First](https://img.shields.io/badge/Local--first-Privacy-0f7e6c.svg)](#隐私和安全边界)
 
 **中文** · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
 
 </div>
 
-<p align="center">
-  <img src="assets/readme-dm-flow.svg" width="32%" alt="K.skill DM flow">
-  <img src="assets/prompt-stack-social.svg" width="32%" alt="K.skill Prompt Stack">
-  <img src="assets/persona-export-matrix.svg" width="32%" alt="K.skill export matrix">
-</p>
+K.skill 是一个本地优先的 **Persona Pack OS**，也是一个可以直接使用的完整人格系统。它把聊天记录、关系资料、原创角色、电影人物、世界观、公开资料和个人原则整理成可检查、可测试、可导出的 persona pack。你可以用 GUI 完成上传、解析、报告、Reply Lab 和导出，也可以用 CLI 把同一套 pack 编译到 Codex、Claude、ChatGPT、DeepSeek、SillyTavern、Hermes、LobeChat、Open WebUI。
 
----
+它不是一个空壳 prompt 模板。README 里写到的每条路径都对应真实命令、真实示例、真实导出文件和本地测试门禁。
 
-## K.skill 是什么
+## 先看一个 DM 场景
 
-K.skill 是一个本地优先的 **Persona Pack OS**。它把聊天记录、角色设定、公开资料、关系记忆和心智模型，整理成可审计、可测试、可导出的 AI 人格包。
+![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
 
-它不是单一前任 skill，不只是 SillyTavern 角色卡，也不只是名人思维蒸馏。K.skill 把这些能力合在一个完整流程里：
+TA 发来一句话，你不确定该继续、暂停、邀约，还是换话题。K.skill 的 Crush Coach 会把聊天记录转成可读的社交信号，而不是给套路话术。
 
 ```text
-上传/粘贴资料 -> 解析 -> 蒸馏 -> 记忆 -> Prompt Stack 检查 -> 测试 -> 导出 -> 聊天验证
+TA: 周末可能去，你也喜欢这种展吗？
+
+K.skill 判断：
+- relationship stage: warm
+- warmth: TA 主动反问，并继续展开展览话题
+- risk: 当前没有明确拒绝或不舒服
+- evidence: 最近消息里有反问、兴趣词、轻松语气
+- confidence: 0.76
+- safety: no impersonation, no pressure after refusal
+
+Reply Lab 输出：
+稳妥版：这个我有点被种草了。你说的那个展听起来挺有画面感，哪一部分最适合新手先看？
+轻松版：感觉你讲这个展的时候明显更有精神哈哈。我先记一笔，下次别嫌我问题多。
+稍微推进版：那我认真提个低压力方案：哪天你刚好想去，可以叫我，我负责不乱发表外行感想。
 ```
 
-产品气质更接近 INS / DM / social-feed：故事圈、私信、聊天气泡、关系温度、回复卡片、证据和置信度先出现，然后才是 CLI、schema、exporter。用户打开项目时应该先看到“这可以用在真实沟通和角色创作里”，再去看底层格式。
+如果聊天记录里 TA 明确拒绝、不舒服或要求停止，K.skill 不会继续生成推进策略，只会给礼貌收尾、道歉、尊重边界和自我复盘。
 
 ## 四个主工作流
 
-### 1. 我要追TA / Crush Coach
+![K.skill GUI workflow](assets/readme/web-gui-flow.png)
 
-上传你和 TA 的聊天记录，K.skill 帮你判断关系阶段、回应热度、风险信号、话题窗口，并生成尊重边界的回复。
+| 工作流 | 适合谁 | 上传什么 | 得到什么 | 什么时候用 |
+|---|---|---|---|---|
+| **Crush Coach / 我要追TA** | 想自然推进聊天的人 | 微信、QQ、iMessage、Telegram、WhatsApp、粘贴记录 | `pursuit_report.md`、`topic_plan.md`、3 条可发送回复、send-or-not 判断 | 不确定怎么回、怎么约、是否该暂停 |
+| **Relationship Memory / 关系记忆** | 想整理恋人、朋友、前任、亲密关系资料的人 | 聊天记录、共同经历、补充记忆 | 关系记忆、称呼习惯、共同事件、边界提醒、可导出 persona pack | 复盘关系、保留长期上下文、写作或互动叙事 |
+| **Character World / 角色与世界观** | 创作者、二次元用户、OC 作者、跑团/剧情用户 | Markdown 设定、角色卡、世界观、lorebook、电影人物设定 | 角色人格、世界规则、Prompt Stack、SillyTavern card、lorebook | 想把角色真正聊起来，而不是只有口癖 |
+| **Life Mentor / 人生陪跑模型** | 想把公开资料、笔记、原则变成可对话模型的人 | 文章、访谈、公开写作、决策笔记、个人原则 | mental models、heuristics、anti-patterns、evidence、confidence、诚实边界 | 做决策、复盘选择、把思维方式带进常用 AI 工具 |
 
-它不是 PUA 脚本，也不是套路库。它做的是社交语境分析：
+四个模块互相区分清楚：
 
-- TA 是主动展开，还是只是在礼貌回应？
-- 当前话题有没有继续聊的窗口？
-- 现在适不适合邀约？
-- 最新一句该怎么接，才自然、具体、不油、不压迫？
-- 哪些话题不要碰？
-- 如果 TA 已经拒绝，怎样体面停止？
+- **Crush Coach** 只处理你和 TA 的关系推进，不做操控，不绕过拒绝。
+- **Relationship Memory** 重点是长期关系记忆，不负责追求建议。
+- **Character World** 处理虚构角色、原创世界、电影人物和角色卡，不冒充现实真人。
+- **Life Mentor** 处理公开资料和个人原则，输出人生陪跑模型，不宣称自己是某个真实人物。
 
-```text
-TA -> 在看！周末可能去，你也喜欢这种吗？
+## Crush Coach / 我要追TA
 
-K.skill 分析 ->
-- Stage: warm
-- Warmth: TA 主动反问、继续展开展览话题
-- Strategy: 可以低压力推进，不要强邀约
+![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
 
-稳妥版 -> 这个我有点被种草了。你说的那个展听起来挺有画面感，哪一部分最适合新手先看？
-轻松版 -> 感觉你讲这个展的时候明显更有精神哈哈。我先记一笔，下次别嫌我问题多。
-推进版 -> 那我认真提个低压力方案：哪天你刚好想去，可以叫我，我负责不乱发表外行感想。
+Crush Coach 是 K.skill 的主卖点。它把聊天记录解析成关系阶段、热度信号、风险信号、话题窗口、邀约时机和边界判断。
 
-边界提醒 -> 如果 TA 回避或拒绝，不追问、不施压，回到普通聊天或停止推进。
+GUI 怎么用：
+
+1. `npm run dev` 或 `npm run cli -- serve --port 5999` 启动本地 GUI。
+2. 左侧选择 `Crush Coach`。
+3. 上传聊天记录，或把最新对话粘贴到输入框。
+4. 设置 `我` 和 `TA` 的名字。
+5. 选择目标：破冰、延续聊天、判断机会、约出来、挽回冷场、写一条现在能发的回复。
+6. 点击 `Run lab`。
+7. 下载 `pursuit_report.md`，查看 `Reply Lab` 和 `topic_plan.md`。
+
+CLI 怎么跑：
+
+```bash
+npm run cli -- pursue examples/crush-chat-zh.txt --me 我 --ta TA --goal ask_out --out tmp/pursuit-zh
+npm run cli -- reply examples/crush-chat-zh.txt --latest "周末可能去 你也喜欢这种吗？" --me 我 --ta TA --style natural
+npm run cli -- topics examples/crush-chat-zh.txt --me 我 --ta TA
+npm run cli -- send-or-not examples/crush-chat-zh.txt --draft "那我们周末一起去吧？" --latest "周末可能去 你也喜欢这种吗？"
 ```
 
-如果聊天记录里 TA 明确拒绝或不舒服，K.skill 只会给尊重边界、道歉、收尾和自我复盘建议。
-
-### 2. 恋人 / 关系记忆
-
-从恋人、朋友、前任、亲密关系资料里提取共同经历、称呼习惯、语气、边界和重要记忆。
-
-适合：
-
-- 把一段关系整理成可回顾的记忆档案。
-- 保留某个人在你记忆里的说话方式，但不冒充真实本人。
-- 复盘亲密关系里的沟通模式、争吵模式、和解方式。
-- 为小说、游戏、互动叙事保存角色之间的长期关系。
+真实场景已经放在 `examples/`：
 
 ```text
-用户 -> 还记得那家雨天去的书店吗？
-
-K.skill -> 我只会基于你导入的记忆回答。
-           记录里出现过：雨天、书店、你把伞落在那里。
-           如果你想继续，我可以把这段整理进 relationship memory。
+examples/crush-chat-zh.txt       中文暧昧推进
+examples/crush-chat-en.txt       英文自然延续
+examples/refusal-chat-en.txt     明确拒绝，只能收尾
+examples/cold-chat-zh.txt        冷场续聊，判断是否该暂停
 ```
 
-### 3. 原创角色 / 世界观
-
-导入原创角色设定、世界观 Markdown、SillyTavern Character Card，把它们编译成可导出的 persona pack。
-
-K.skill 对角色的目标不是套一个口癖，而是同时保留：
-
-- 角色身份和边界。
-- 世界观规则。
-- 说话节奏和常用意象。
-- lorebook 触发信息。
-- 可迁移导出格式。
+生成文件：
 
 ```text
-用户 -> 进入雨档案馆的世界。
-
-角色 -> 这里不用日期找记忆。我们用雨声、湿度、伞骨的折痕。
-       你要查哪一场雨？
+tmp/pursuit-zh/
+  pursuit_report.md
+  pursuit_report.json
+  topic_plan.md
 ```
 
-### 4. 精神导师 / 心智模型 / 自我模型
+报告会包含 `evidence` 和 `confidence`。如果证据不足，它会说证据不足，不会装懂。
 
-从文章、访谈、笔记、决策记录里抽取表达 DNA、心智模型、决策启发式、反模式和诚实边界。
+## Relationship Memory / 关系记忆
 
-这部分继承 Nuwa 的优点，但不止做名人模仿。K.skill 更强调：
+![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
 
-- 用证据支撑心智模型。
-- 区分原文、外部评价、模型推断。
-- 遇到事实问题时承认知识边界。
-- 把导师、自我模型或角色导出到你平时用的 AI 工具。
+Relationship Memory 把关系资料整理成长期记忆，而不是让 AI 复制某个人。它适合复盘一段关系、保存共同经历、提取称呼习惯、整理边界和重要事件。
+
+GUI 怎么用：
+
+1. 左侧选择 `Relationship`。
+2. 上传 `examples/relationship-memory-chat.txt` 或自己的聊天记录。
+3. 在 parse preview 里确认说话人、消息数、语言和异常行。
+4. 点击上传后，K.skill 会把资料写入本地 vault。
+5. 打开 Prompt Stack 或 memory 面板，查看 profile facts、relationship facts、episodes、corrections。
+6. 需要导出时选择目标平台，下载 zip。
+
+CLI 怎么跑：
+
+```bash
+npm run cli -- init "Rain Bookstore Memory" --type relationship --language zh --out local-packs/rain-bookstore
+npm run cli -- import examples/relationship-memory-chat.txt --type relationship --pack local-packs/rain-bookstore
+npm run cli -- memory local-packs/rain-bookstore
+npm run cli -- inspect local-packs/rain-bookstore
+```
+
+Relationship Memory 的输出重点：
+
+- 共同经历：雨天书店、遗落的伞、自然一点的表达偏好。
+- 说话风格：称呼、节奏、细节密度。
+- 边界：不冒充真实本人，不发明私人事实。
+- 可修正：用户可以追加 corrections，避免错误记忆继续扩散。
+
+## Character World / 角色与世界观
+
+![K.skill anime character world](assets/readme/anime-character-world.png)
+
+Character World 负责虚构角色、原创角色、二次元人物、世界观、lorebook 和角色卡。它的目标不是套一个口癖，而是把身份、世界规则、记忆触发、说话节奏和安全边界一起放进 persona pack。
+
+CLI 示例：
+
+```bash
+npm run cli -- init "Rain Archive" --type character --language zh --out local-packs/rain-archive
+npm run cli -- import examples/character-world.md --type character --pack local-packs/rain-archive
+npm run cli -- distill local-packs/rain-archive
+npm run cli -- inspect local-packs/rain-archive
+```
+
+适合输入：
+
+- 原创角色设定。
+- 世界观 Markdown。
+- 角色语音样本。
+- SillyTavern Character Card V2。
+- lorebook。
+- 手动补充的角色边界。
+
+得到输出：
+
+- `persona.yaml`：结构化 persona pack。
+- `persona.md`：可读人格说明。
+- `memory.lorebook`：可触发世界观记忆。
+- `Prompt Stack`：identity、memory、mental models、boundaries。
+- 多平台导出文件。
+
+## Movie Character / 电影人物
+
+![K.skill movie character pack](assets/readme/movie-character-pack.png)
+
+Movie Character 是 Character World 的独立示例。它面向原创电影人物、剧本角色、分镜设定、角色弧线和台词样本。它不复制受版权保护角色，不模仿真人演员，不宣传冒充某个明星。
+
+CLI 示例：
+
+```bash
+npm run cli -- init "Mira Vale" --type character --language en --out local-packs/mira-vale
+npm run cli -- import examples/movie-character.md --type character --pack local-packs/mira-vale
+npm run cli -- compile local-packs/mira-vale --target sillytavern --out local-packs/mira-vale/exports/sillytavern
+npm run cli -- export-zip local-packs/mira-vale --target chatgpt --out local-packs/mira-vale/exports/chatgpt.zip
+```
+
+适合上传：
+
+- 剧本片段。
+- 角色小传。
+- 场景卡。
+- 台词样本。
+- 人物关系图文字版。
+- 公版或授权素材。
+
+得到输出：
+
+- 角色身份和 arc。
+- 关键场景记忆。
+- 台词节奏和视觉意象。
+- 不能越界的版权/真人边界。
+- 可导入 SillyTavern 的角色卡和 lorebook。
+
+## 虚拟人物人格
+
+![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
+
+虚拟人物人格适合创建完全原创的 AI companion、虚拟主播设定、游戏 NPC、社交头像人格或产品角色。它和 Relationship Memory 的区别是：虚拟人物不来自真实亲密关系，不需要承载真实人物身份。
+
+GUI 路径：
+
+1. 选择 `Character`。
+2. 上传角色设定或粘贴 persona brief。
+3. 在 preview 里确认资料来源。
+4. 点击上传并蒸馏。
+5. 用 Prompt Stack 检查 identity、voice、memory 和 boundaries。
+6. 导出到目标客户端。
+
+CLI 路径：
+
+```bash
+npm run cli -- init "Nova Social" --type character --language zh --out local-packs/nova-social
+npm run cli -- import examples/character-world.md --type character --pack local-packs/nova-social
+npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/nova-social/exports/lobe
+```
+
+## Life Mentor / 人生陪跑模型
+
+![K.skill life mentor model](assets/readme/life-mentor-model.png)
+
+Life Mentor 把公开资料、文章、访谈、笔记、决策记录和个人原则整理成人生陪跑模型。它输出的是思维方式和判断习惯，不是现实人物替身。
+
+CLI 示例：
+
+```bash
+npm run cli -- init "Decision Life Mentor" --type advisor --language en --out local-packs/decision-life-mentor
+npm run cli -- import examples/life-mentor-source.md --type advisor --pack local-packs/decision-life-mentor
+npm run cli -- distill local-packs/decision-life-mentor
+npm run cli -- inspect local-packs/decision-life-mentor
+```
+
+Life Mentor 会提取：
+
+- expression DNA：表达节奏、取舍方式、常用结构。
+- mental models：可复用判断模型。
+- heuristics：可以执行的经验规则。
+- anti-patterns：不建议继续的思考习惯。
+- contradictions：资料之间的冲突。
+- evidence / confidence：每个判断的证据和置信度。
+
+公众人物和明星相关资料只能作为公开材料的 Life Mentor 模型处理。K.skill 不生成“我是某某本人”的身份，不生成可识别真人冒充，也不发明私人经历。
+
+## Persona Pack 是什么
+
+K.skill 的核心产物是 persona pack。它把人格、记忆、证据、边界和导出说明放在一起。
 
 ```text
-用户 -> 我有三个产品方向，怎么选？
-
-导师 -> 先把不可逆决策和可逆实验分开。
-       可逆的不要开会争，做一个小实验。
-       不可逆的才值得写清楚判断标准。
+persona.yaml          结构化人格包
+persona.md            可读人格说明
+sources/              用户导入资料
+memory/               episodes, corrections, lorebook
+distillation/         evidence, claims, contradictions, runs
+exports/              目标平台文件
 ```
 
-## 安装
+Prompt Stack 会把 pack 拆成可检查层：
+
+```text
+identity       角色身份、语气、表达 DNA
+mental_models  Life Mentor 或角色的判断模型
+memory         profile facts、relationship facts、episodes
+boundaries     no impersonation、no pressure after refusal、安全限制
+export layer   不同平台需要的格式
+```
+
+## GUI 怎么用
+
+![K.skill local GUI flow](assets/readme/web-gui-flow.png)
+
+本地 GUI 是最适合普通用户的入口。
+
+```bash
+npm install
+npm run build
+npm run cli -- serve --port 5999
+```
+
+打开终端显示的地址，通常是 `http://127.0.0.1:5999`。
+
+常用流程：
+
+1. 选择工作流：Crush Coach、Relationship Memory、Character World、Life Mentor。
+2. 输入 pack name 和语言。
+3. 上传文件或粘贴资料。
+4. 勾选 consent / privacy。
+5. 查看 parse preview：格式、消息数、说话人、语言、样例消息。
+6. 对 Crush Coach 点击 `Run lab`。
+7. 下载 report markdown。
+8. 选择导出目标并下载 zip。
+
+GUI 支持本地 API：
+
+```text
+GET  /api/health
+GET  /api/packs
+POST /api/imports
+POST /api/packs/:id/pastes
+POST /api/packs/:id/pursuit
+GET  /api/reports/:reportId/download
+POST /api/packs/:id/exports
+GET  /api/exports/:exportId/download
+GET  /api/packs/:id/memory
+PATCH /api/packs/:id/memory
+```
+
+## CLI 怎么用
+
+CLI 适合开发者、批处理和版本化工作流。
+
+```bash
+npm run cli -- --help
+npm run cli -- init "My Pack" --type relationship --language zh --out local-packs/my-pack
+npm run cli -- import examples/relationship-memory-chat.txt --type relationship --pack local-packs/my-pack
+npm run cli -- distill local-packs/my-pack
+npm run cli -- inspect local-packs/my-pack
+npm run cli -- memory local-packs/my-pack
+npm run cli -- eval local-packs/my-pack
+```
+
+Crush Coach 命令：
+
+```bash
+npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
+npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
+npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
+npm run cli -- send-or-not examples/refusal-chat-en.txt --draft "Please give me one more chance." --latest "Please stop asking."
+```
+
+导出命令：
+
+```bash
+npm run cli -- compile local-packs/my-pack --target codex --out local-packs/my-pack/exports/codex
+npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-packs/my-pack/exports/sillytavern.zip
+```
+
+## 导出到真实工具
+
+![K.skill export matrix](assets/readme/export-matrix.png)
+
+同一个 persona pack 可以导出到多个真实客户端。
+
+| 目标 | 生成文件 | 使用方式 |
+|---|---|---|
+| Codex | `SKILL.md`、`references/persona.md`、`references/memory.md`、`references/evidence.json` | 把导出的 skill 目录放进 Codex skills 目录，按 `SKILL.md` 激活 |
+| Claude | `SKILL.md`、`references/` | 放进 Claude Code skill 目录，保持 references 同级 |
+| ChatGPT | `instructions.md`、`knowledge/`、`gpt-config.json` | 创建 GPT 或 Project，把 instructions 粘贴进去，上传 knowledge 文件 |
+| DeepSeek | `system-prompt.json`、`api-request.json` | 用作 chat completion 的 system messages 或 API 请求模板 |
+| SillyTavern | `character-card-v2.json`、`lorebook.json` | 在角色卡导入界面导入 card，再导入 lorebook |
+| Hermes | `SOUL.md`、`skills/` | 以 `SOUL.md` 作为主身份文件，把 skills 目录一起放入 |
+| LobeChat | `lobe-agent.json` | 在 agent 导入入口导入 JSON |
+| Open WebUI | `openwebui-agent.json` | 在 workspace/model/agent 配置入口导入 JSON |
+
+检查所有导出目标：
+
+```bash
+npm run check:exports
+```
+
+## 隐私和安全边界
+
+K.skill 默认 local-first。本项目默认本地运行，私人聊天记录不会进入 Git。只有你显式配置外部模型 provider 时，资料才会发给对应服务。
+
+安全原则：
+
+- no impersonation：不宣称自己是真实本人。
+- no pressure after refusal：明确拒绝后不提供推进策略。
+- 不做 PUA，不制造焦虑，不提供冷暴力策略。
+- 不诱导泄露隐私。
+- 不追踪、不骚扰、不绕过边界。
+- 不发明私人事实。
+- 对证据不足的结论标注低 confidence。
+
+如果 TA 明确拒绝：
+
+```text
+K.skill 只允许：
+- 礼貌收尾
+- 道歉
+- 停止推进
+- 尊重空间
+- 自我复盘
+```
+
+## 开发与验证
+
+![K.skill complete product workbench](assets/readme/hero-persona-workbench.png)
+
+安装：
 
 ```bash
 git clone https://github.com/StartripAI/K_skill.git
@@ -133,258 +400,28 @@ npm install
 npm run build
 ```
 
-本地 Web GUI：
+开发：
 
 ```bash
 npm run dev
-```
-
-打开终端显示的本地地址，通常是 `http://127.0.0.1:5173`。
-
-CLI：
-
-```bash
 npm run cli -- --help
 ```
 
-全局本地试用：
+质量门禁：
 
 ```bash
-npm link
-kskill --help
-```
-
-## 5 分钟上手：我要追TA
-
-分析聊天：
-
-```bash
-npm run cli -- pursue examples/crush-chat-zh.txt --me 我 --ta TA --goal ask_out --out pursuit-output
-```
-
-生成：
-
-```text
-pursuit-output/
-  pursuit_report.md
-  topic_plan.md
-```
-
-生成 3 条可直接发送的回复：
-
-```bash
-npm run cli -- reply examples/crush-chat-zh.txt --latest "周末可能去 你也喜欢这种吗？" --me 我 --ta TA --style natural
-```
-
-生成话题计划：
-
-```bash
-npm run cli -- topics examples/crush-chat-zh.txt --me 我 --ta TA
-```
-
-拒绝场景测试：
-
-```bash
-npm run cli -- pursue examples/refusal-chat-en.txt --me Me --ta TA --goal recover_cold_chat
-```
-
-这个场景只会输出尊重边界和停止推进建议。
-
-## Reply Lab 回复实验室
-
-Reply Lab 会读取最新一句和上下文，生成三条可发送回复，并给出：
-
-- 回复标签：稳妥、轻松、真诚、克制、直球、温柔。
-- 为什么适合当前 stage。
-- 预期效果。
-- 风险提醒。
-- `boundarySafe: true`。
-
-Reply Lab 的目标不是让你控制对方，而是让真实意图表达得更清楚、更轻、更尊重边界。
-
-## 创建 Persona Pack
-
-```bash
-npm run cli -- init "Rain Archive" --type character --language zh --out local-packs/rain-archive
-```
-
-导入资料并蒸馏：
-
-```bash
-npm run cli -- import examples/character-world.md --type character --pack local-packs/rain-archive
-npm run cli -- distill local-packs/rain-archive
-```
-
-查看 Prompt Stack、记忆和检查：
-
-```bash
-npm run cli -- inspect local-packs/rain-archive
-npm run cli -- memory local-packs/rain-archive
-npm run cli -- eval local-packs/rain-archive
-```
-
-## Persona Pack 结构
-
-```text
-persona.yaml
-persona.md
-sources/
-memory/
-  state.json
-  episodes.jsonl
-  lorebook.json
-distillation/
-  evidence.jsonl
-  claims.jsonl
-  contradictions.md
-exports/
-```
-
-### evidence / confidence
-
-K.skill 不会把“猜测”伪装成事实。每个强判断都尽量带：
-
-- `sourceId`：来自哪份聊天、文章、角色卡或手动输入。
-- `quote`：原始证据片段。
-- `claim`：从证据得出的判断。
-- `kind`：direct、inferred、contradiction、user_supplied。
-- `confidence`：置信度。
-
-证据不足时，K.skill 会把结论保留为不确定，而不是强行补全人格。
-
-## Prompt Stack
-
-Prompt Stack 不是一段巨大的 system prompt，而是可检查的层：
-
-- **Identity**：身份、语气、表达 DNA、允许用途。
-- **Memory**：关系事实、事件、偏好、修正、lorebook。
-- **Mental Models**：决策模型、启发式、反模式。
-- **Evidence**：引用、claim、source、confidence。
-- **Safety**：不冒充、不越界、不在拒绝后继续推进。
-- **Export Layer**：为 Codex、Claude、ChatGPT 等客户端编译目标格式。
-
-```bash
-npm run cli -- inspect local-packs/rain-archive
-```
-
-## 导出到各平台
-
-```bash
-npm run cli -- compile local-packs/rain-archive --target codex
-npm run cli -- compile local-packs/rain-archive --target claude
-npm run cli -- compile local-packs/rain-archive --target chatgpt
-npm run cli -- compile local-packs/rain-archive --target deepseek
-npm run cli -- compile local-packs/rain-archive --target sillytavern
-npm run cli -- compile local-packs/rain-archive --target hermes
-npm run cli -- compile local-packs/rain-archive --target lobe
-npm run cli -- compile local-packs/rain-archive --target openwebui
-```
-
-| 目标 | 输出 |
-|---|---|
-| Codex | `SKILL.md` + `references/` |
-| Claude Code | `SKILL.md` + `references/` |
-| ChatGPT | `instructions.md` + `knowledge/` |
-| DeepSeek / OpenAI-compatible API | `system-prompt.json` |
-| SillyTavern | Character Card V2 JSON + lorebook |
-| Hermes | `SOUL.md` + skills |
-| LobeChat | agent JSON |
-| Open WebUI | agent JSON |
-
-Codex / Claude Code 本地安装示例：
-
-```bash
-mkdir -p .codex/skills
-cp -R local-packs/rain-archive/exports/codex .codex/skills/rain-archive
-
-mkdir -p .claude/skills
-cp -R local-packs/rain-archive/exports/claude .claude/skills/rain-archive
-```
-
-ChatGPT 使用 `exports/chatgpt/instructions.md` 作为 GPT 或 Project instructions，并把 `knowledge/` 文件作为知识文件上传。DeepSeek / OpenAI-compatible API 使用 `exports/deepseek/system-prompt.json`。SillyTavern 导入 `character-card-v2.json` 和 `lorebook.json`。Hermes 使用 `SOUL.md` 和 `skills/`。LobeChat / Open WebUI 导入生成的 agent JSON。
-
-## 为什么比参考项目更完整
-
-K.skill 的基线不是“实现一个能跑的 skill”。它站在几个参考方向之上继续做：
-
-- `ex-skill` 证明了亲密关系资料可以变成可调用的人格和关系记忆。
-- `nuwa-skill` 证明了公开资料可以蒸馏出心智模型、表达 DNA、决策启发式和诚实边界。
-- `st-memory-enhancement` 证明了长期记忆不能只靠一段 prompt，必须结构化、可编辑、可追踪。
-- SillyTavern 生态证明了角色卡、lorebook、世界观、聊天预设有真实用户需求。
-
-| 参考能力 | 已有 baseline | K.skill 提高的地方 |
-|---|---|---|
-| 关系记忆 | ex-skill 提取共同经历、语气、亲密关系模式 | 增加关系阶段、边界信号、回复建议、追 TA 分析，不只“像 TA 聊天” |
-| 心智蒸馏 | nuwa-skill 抽取心智模型和表达 DNA | 同时支持导师、角色、自己、恋人、朋友，并能导出到多个客户端 |
-| 长期记忆 | ST memory 强调表格化/结构化记忆 | 改成 persona pack 标准记忆层，支持 evidence、confidence、Prompt Stack 检查 |
-| 角色世界 | SillyTavern 角色卡和 lorebook 成熟 | 不锁死在酒馆，导出到 Codex、Claude、ChatGPT、DeepSeek、Hermes、LobeChat、Open WebUI |
-| 使用体验 | 参考项目偏 CLI/skill/插件 | K.skill 提供社交产品式 README、Web GUI、Reply Lab、可视化 Prompt Stack |
-| 安全边界 | 部分项目有提醒 | 把“拒绝后停止推进”“不 PUA”“不冒充真人”写进追 TA 核心逻辑 |
-
-| 能力 | ex-skill | nuwa-skill | ST memory | SillyTavern | K.skill |
-|---|---:|---:|---:|---:|---:|
-| 关系记忆 | yes | no | partial | partial | yes |
-| 公开资料心智蒸馏 | no | yes | no | no | yes |
-| 角色卡 / 世界观 | partial | no | no | yes | yes |
-| 结构化长期记忆 | partial | no | yes | yes | yes |
-| 我要追TA分析 | no | no | no | no | yes |
-| Reply Lab 回复生成 | no | no | no | no | yes |
-| Prompt Stack 检查 | no | no | partial | partial | yes |
-| 多平台导出 | partial | partial | no | no | yes |
-| evidence / confidence | partial | yes | partial | no | yes |
-| eval 测试 | no | yes | no | no | yes |
-| 中英日韩西文档 | no | no | no | no | yes |
-| 社交产品式展示 | no | no | no | partial | yes |
-
-## Web GUI 怎么用
-
-1. `npm run dev`
-2. 在左侧选择工作流：关系记忆、角色世界、精神导师、我要追TA。
-3. 在中间面板上传文件或粘贴资料。
-4. `我要追TA` 中填写 `Me` 和 `TA` 的聊天记录名称。
-5. 选择目标：破冰、延续聊天、约出来、判断机会、挽回冷场、写回复。
-6. 查看 Stage、Warmth、Risk、Action。
-7. 在 Reply Lab 中输入 TA 最新一句话，选择自然/幽默/真诚/克制/直球/温柔。
-8. 右侧检查 Prompt Stack，确认用了哪些身份、记忆和边界。
-9. 保存 report，或用 CLI 导出到目标平台。
-
-## 隐私和安全边界
-
-- 本项目默认本地运行。
-- 私人聊天记录不会进入 Git，`.gitignore` 已排除本地包、输出和常见聊天记录文件。
-- 不提供 PUA、操控、制造焦虑、冷暴力、绕过拒绝的策略。
-- 不鼓励冒充真实人物。
-- TA 明确拒绝或不舒服时，`我要追TA` 只给尊重边界、道歉、收尾和自我复盘建议。
-- 导出到第三方平台前，请确认你有权使用相关资料。
-
-## 开发与测试
-
-```bash
-npm install
 npm run lint
 npm test
-npm run build
+npm run check:readme
+npm run check:exports
+npm run test:e2e
+npm run smoke
+npm run score:release
+npm run verify
 ```
 
-Smoke test：
+`npm run verify` 会串行执行 lint、test、build、exports、README 检查、e2e、smoke、release score 和 npm pack dry-run。README 检查会确认 5 种语言、所有图片、所有核心命令、所有导出目标、Life Mentor 命名、安全边界和 no outside comparison claims。
 
-```bash
-npm run cli -- pursue examples/crush-chat-zh.txt --me 我 --ta TA --goal ask_out
-npm run cli -- reply examples/crush-chat-en.txt --latest "Then you should bring your suspiciously good cafe radar too." --me Me --ta TA
-npm run cli -- init "Demo Mentor" --type advisor --language en --out local-packs/demo-mentor
-npm run cli -- import examples/mentor-source.md --type advisor --pack local-packs/demo-mentor
-npm run cli -- compile local-packs/demo-mentor --target codex
-npm run cli -- eval local-packs/demo-mentor
-```
+## 许可证
 
-## Roadmap
-
-- 更完整的微信、QQ、iMessage、Telegram、WhatsApp 导入器。
-- 本地 SQLite vault 和可视化版本回滚。
-- 更强的 eval harness。
-- Persona marketplace 的私有/授权发布模式。
-- Tauri 桌面版。
-
-## License
-
-MIT
+Apache-2.0

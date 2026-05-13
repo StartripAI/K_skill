@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -18,73 +18,171 @@ function requireFile(path) {
   assert(existsSync(resolve(root, path)), `Missing referenced file: ${path}`);
 }
 
-const readme = read("README.md");
+function localImagePaths(markdown) {
+  const paths = new Set();
+  for (const match of markdown.matchAll(/!\[[^\]]+\]\(([^)]+)\)/g)) {
+    const target = match[1]?.trim();
+    if (target && !/^https?:\/\//i.test(target) && !target.startsWith("#")) paths.add(target);
+  }
+  for (const match of markdown.matchAll(/<img\s+[^>]*src=["']([^"']+)["'][^>]*>/gi)) {
+    const target = match[1]?.trim();
+    if (target && !/^https?:\/\//i.test(target) && !target.startsWith("#")) paths.add(target);
+  }
+  return [...paths];
+}
+
+function pngDimensions(path) {
+  const buffer = readFileSync(resolve(root, path));
+  if (buffer.length < 24 || buffer.toString("ascii", 1, 4) !== "PNG") return undefined;
+  return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+}
+
+function assertImage(path) {
+  requireFile(path);
+  const ext = extname(path).toLowerCase();
+  if (ext === ".png") {
+    const dimensions = pngDimensions(path);
+    assert(dimensions, `${path} is not a readable PNG`);
+    assert(dimensions.width >= 1000, `${path} is too narrow for README use`);
+    assert(dimensions.height >= 600, `${path} is too short for README use`);
+    assert(statSync(resolve(root, path)).size <= 3_000_000, `${path} is larger than 3MB`);
+  }
+  if (ext === ".svg") {
+    const svg = read(path);
+    assert(svg.includes("<title"), `${path} is missing <title>`);
+    assert(svg.includes("<desc"), `${path} is missing <desc>`);
+    assert(svg.includes("viewBox"), `${path} is missing viewBox`);
+  }
+}
+
+function assertNoForbiddenREADMEClaims(path, content) {
+  const forbidden = [
+    ["ex", "skill"].join("-"),
+    ["nuwa", "skill"].join("-"),
+    ["ST", "memory"].join(" "),
+    ["thereal", "XiaomanChu"].join(""),
+    ["per", "kfly"].join(""),
+    ["al", "chaincyf"].join(""),
+    ["mu", "yoou"].join(""),
+    ["参考", "项目"].join(""),
+    ["借", "鉴"].join(""),
+    ["base", "line"].join("")
+  ];
+  for (const word of forbidden) {
+    assert(!content.includes(word), `${path} must not mention outside comparison wording: ${word}`);
+  }
+}
+
 const packageJson = JSON.parse(read("package.json"));
 const exporterSource = read("packages/exporters/src/index.ts");
-
-const linkedFiles = [
-  "assets/hero-chat-workbench.svg",
+const readmeFiles = ["README.md", "README_EN.md", "README_JA.md", "README_KO.md", "README_ES.md"];
+const requiredLocalFiles = [
   "LICENSE",
-  "README_EN.md",
-  "README_JA.md",
-  "README_KO.md",
-  "README_ES.md",
   "examples/crush-chat-zh.txt",
   "examples/crush-chat-en.txt",
   "examples/refusal-chat-en.txt",
-  "examples/mentor-source.md"
+  "examples/cold-chat-zh.txt",
+  "examples/relationship-memory-chat.txt",
+  "examples/character-world.md",
+  "examples/movie-character.md",
+  "examples/life-mentor-source.md"
 ];
 
-for (const path of linkedFiles) {
+for (const path of requiredLocalFiles) {
   requireFile(path);
 }
 
-const requiredHeadings = [
-  "# K.skill",
-  "## K.skill 是什么",
-  "## 四个主工作流",
-  "## 导出到各平台",
-  "## Web GUI 怎么用",
-  "## 隐私和安全边界",
-  "## 开发与测试"
+const requiredImages = [
+  "assets/readme/hero-persona-workbench.png",
+  "assets/readme/crush-coach-reply-lab.png",
+  "assets/readme/relationship-memory-chat.png",
+  "assets/readme/anime-character-world.png",
+  "assets/readme/virtual-persona-chat.png",
+  "assets/readme/movie-character-pack.png",
+  "assets/readme/life-mentor-model.png",
+  "assets/readme/web-gui-flow.png",
+  "assets/readme/export-matrix.png"
 ];
 
-for (const heading of requiredHeadings) {
-  assert(readme.includes(heading), `README is missing heading: ${heading}`);
-}
-
-const requiredCommands = [
-  "npm install",
-  "npm run build",
-  "npm run dev",
-  "npm run cli -- --help",
-  "npm run lint",
-  "npm test"
-];
-
-for (const command of requiredCommands) {
-  assert(readme.includes(command), `README is missing command: ${command}`);
-}
-
-const packageScripts = packageJson.scripts ?? {};
-const documentedScriptNames = [...readme.matchAll(/npm run ([a-z0-9:.-]+)/gi)].map((match) => match[1]);
-for (const scriptName of new Set(documentedScriptNames)) {
-  assert(packageScripts[scriptName], `README documents missing package script: ${scriptName}`);
+for (const image of requiredImages) {
+  assertImage(image);
 }
 
 const requiredTargets = ["codex", "claude", "chatgpt", "deepseek", "sillytavern", "hermes", "lobe", "openwebui"];
+const requiredScripts = ["build", "dev", "cli", "lint", "test", "check:readme", "check:exports", "test:e2e", "smoke", "score:release", "verify"];
+const packageScripts = packageJson.scripts ?? {};
+
+for (const scriptName of requiredScripts) {
+  assert(packageScripts[scriptName], `package.json is missing script: ${scriptName}`);
+}
+
 for (const target of requiredTargets) {
-  assert(readme.toLowerCase().includes(target), `README is missing export target: ${target}`);
   assert(exporterSource.includes(`"${target}"`), `Exporter source is missing target: ${target}`);
 }
 
-for (const localized of ["README_EN.md", "README_JA.md", "README_KO.md", "README_ES.md"]) {
-  const content = read(localized);
-  assert(content.includes("K.skill"), `${localized} does not identify the project`);
-  assert(content.length > 500, `${localized} is too small to be useful documentation`);
+const semanticNeedles = [
+  "Crush Coach",
+  "Relationship Memory",
+  "Character World",
+  "Movie Character",
+  "Life Mentor",
+  "Reply Lab",
+  "Prompt Stack",
+  "evidence",
+  "confidence",
+  "local-first",
+  "no impersonation",
+  "no pressure after refusal",
+  "Codex",
+  "Claude",
+  "ChatGPT",
+  "DeepSeek",
+  "SillyTavern",
+  "Hermes",
+  "LobeChat",
+  "Open WebUI"
+];
+
+for (const path of readmeFiles) {
+  const content = read(path);
+  assert(content.includes("# K.skill"), `${path} must identify K.skill`);
+  assert(content.length > 8_000, `${path} is too small to be complete product documentation`);
+  assertNoForbiddenREADMEClaims(path, content);
+  for (const needle of semanticNeedles) {
+    assert(content.includes(needle), `${path} is missing required product concept: ${needle}`);
+  }
+  for (const image of requiredImages) {
+    assert(content.includes(image), `${path} is missing image: ${image}`);
+  }
+  for (const image of localImagePaths(content)) {
+    assertImage(image);
+  }
+  for (const scriptName of [...content.matchAll(/npm run ([a-z0-9:.-]+)/gi)].map((match) => match[1])) {
+    assert(packageScripts[scriptName], `${path} documents missing package script: ${scriptName}`);
+  }
+  for (const target of requiredTargets) {
+    assert(content.toLowerCase().includes(target), `${path} is missing export target: ${target}`);
+  }
 }
 
-assert(readme.includes("不提供 PUA"), "README must document non-manipulation boundaries");
-assert(readme.includes("本项目默认本地运行"), "README must document local-first privacy");
+const zh = read("README.md");
+const requiredZhHeadings = [
+  "## 先看一个 DM 场景",
+  "## 四个主工作流",
+  "## GUI 怎么用",
+  "## CLI 怎么用",
+  "## 导出到真实工具",
+  "## 隐私和安全边界",
+  "## 开发与验证"
+];
 
-console.log(`README check passed: ${requiredHeadings.length} headings, ${requiredCommands.length} commands, ${requiredTargets.length} export targets.`);
+for (const heading of requiredZhHeadings) {
+  assert(zh.includes(heading), `README.md is missing heading: ${heading}`);
+}
+
+assert(!zh.includes(["精神", "导师"].join("")), "README.md must use Life Mentor instead of the legacy Chinese label");
+assert(!zh.includes(["导师", " ->"].join("")), "README.md examples must use Life Mentor instead of the legacy example speaker");
+assert(zh.includes("不做 PUA"), "README.md must document non-manipulation boundaries");
+assert(zh.includes("本项目默认本地运行"), "README.md must document local-first privacy");
+
+console.log(`README check passed: ${readmeFiles.length} locales, ${requiredImages.length} images, ${requiredTargets.length} export targets, no outside comparison claims.`);

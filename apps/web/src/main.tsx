@@ -52,7 +52,7 @@ const workflows: Array<{ id: PersonaType; icon: React.ReactNode; title: string; 
   { id: "pursuit", icon: <MessageCircleHeart size={19} />, title: "Crush Coach", subline: "DM heat + safe replies" },
   { id: "relationship", icon: <HeartHandshake size={19} />, title: "Relationship", subline: "Memory from chat history" },
   { id: "character", icon: <Sparkles size={19} />, title: "Character", subline: "World and persona card" },
-  { id: "advisor", icon: <Bot size={19} />, title: "Advisor", subline: "Mind model distillation" }
+  { id: "advisor", icon: <Bot size={19} />, title: "Life Mentor", subline: "Public notes + mental models" }
 ];
 
 const goals: Array<{ value: PursuitGoal; label: string }> = [

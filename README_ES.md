@@ -2,38 +2,371 @@
 
 # K.skill
 
-![K.skill social persona system](assets/hero-chat-workbench.svg)
+![K.skill complete persona system](assets/readme/hero-persona-workbench.png)
 
-**K.skill convierte chats, personajes, recuerdos, conversaciones con crushes y modelos mentales en sistemas de persona de IA portátiles.**
+**K.skill turns chats, characters, memories, crushes, and minds into portable AI persona systems.**
 
-Idiomas: [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · **Español**
+[中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · **Español**
 
 </div>
 
-<p align="center">
-  <img src="assets/readme-dm-flow.svg" width="32%" alt="DM flow">
-  <img src="assets/prompt-stack-social.svg" width="32%" alt="Prompt Stack inspector">
-  <img src="assets/persona-export-matrix.svg" width="32%" alt="Export matrix">
-</p>
+K.skill es un **Persona Pack OS** local-first y un sistema de persona completo que se puede usar de verdad. Convierte chats, material de relación, personajes originales, Movie Character, mundos narrativos, textos públicos y principios personales en persona packs inspeccionables, testeables y exportables. La GUI cubre subida, parseo, reportes, Reply Lab y descargas. La CLI compila el mismo pack para Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat y Open WebUI.
 
-## Qué Es K.skill
+Cada capacidad escrita aquí tiene comando real, ejemplo real, salida real y puerta de verificación. No es una capa vacía de prompts.
 
-K.skill es un **Persona Pack OS** local-first. Importa historiales de chat, memorias de relación, notas de personajes originales, tarjetas de SillyTavern, textos públicos, material de mentores y notas personales. Luego los convierte en persona packs inspeccionables, testeables y exportables.
+## Primero, una escena DM
 
-La primera experiencia se parece más a una app social que a una herramienta de bajo nivel: historias, DM, tarjetas de respuesta, temperatura de relación, evidence, confidence y exportaciones antes de entrar en schema o CLI.
+![K.skill Crush Coach Reply Lab](assets/readme/crush-coach-reply-lab.png)
+
+TA responde y no sabes si continuar, esperar, invitar o cambiar de tema. Crush Coach convierte el chat en señales sociales legibles, no en guiones manipuladores.
 
 ```text
-subir o pegar material -> parsear -> destilar -> memoria -> Prompt Stack -> eval -> exportar -> probar en chat
+TA: Maybe this weekend. Do you like this kind of exhibition too?
+
+K.skill lee:
+- relationship stage: warm
+- warmth: TA pregunta de vuelta y deja abierto el tema de la exposición
+- risk: no hay rechazo explícito ni incomodidad en los últimos turnos
+- evidence: question, interest topic, relaxed tone
+- confidence: 0.76
+- safety: no impersonation, no pressure after refusal
+
+Reply Lab:
+Safe: That actually made me curious. Which part would you recommend for someone going in fresh?
+Light: You sound way more animated when you talk about this exhibit. I am taking notes, promise not to ask too many beginner questions.
+Slightly forward: Low-pressure idea: if you feel like going one day, call me. I will keep my amateur commentary under control.
 ```
 
-Flujos principales:
+Si el chat muestra rechazo claro, incomodidad o una petición de parar, K.skill no genera estrategias de avance. Solo da cierre respetuoso, disculpa, respeto de límites y revisión personal.
 
-- **Crush Coach**: analiza señales de chat y propone respuestas respetuosas.
-- **Memoria de relación**: conserva experiencias compartidas, formas de llamarse, límites y episodios.
-- **Personaje / mundo narrativo**: compila OCs, Markdown de mundo y Character Cards de SillyTavern.
-- **Mentor mental / modelo propio**: destila ADN expresivo, modelos mentales, heurísticas, antipatrones y límites de honestidad.
+## Cuatro Workflows
 
-## Inicio Rápido
+![K.skill GUI workflow](assets/readme/web-gui-flow.png)
+
+| Workflow | Para quién | Entrada | Salida | Cuándo usarlo |
+|---|---|---|---|---|
+| **Crush Coach** | Personas que quieren comunicarse naturalmente con TA | WeChat, QQ, iMessage, Telegram, WhatsApp, pasted chat logs | `pursuit_report.md`, `topic_plan.md`, 3 respuestas, send-or-not | Cuando dudas cómo responder, invitar o pausar |
+| **Relationship Memory** | Personas que ordenan material de pareja, amistad, ex o relación cercana | chats, recuerdos compartidos, correcciones | memoria de relación, patrones de trato, episodios, límites, exportable persona pack | Revisión de relación, contexto largo, escritura, narrativa interactiva |
+| **Character World** | Creadores de OC, usuarios 2D, roleplay, juegos y cine | Markdown, character card, lorebook, Movie Character notes | identidad, reglas de mundo, Prompt Stack, SillyTavern card, lorebook | Cuando el personaje necesita memoria y reglas, no solo muletillas |
+| **Life Mentor** | Personas que convierten textos públicos y principios en modelo de pensamiento | artículos, entrevistas, notas públicas, decisiones, principios | mental models, heuristics, anti-patterns, evidence, confidence, honesty boundaries | Decisiones, revisión, sistema personal, pensamiento asistido |
+
+Las fronteras son claras:
+
+- **Crush Coach** maneja avance respetuoso de relación y no evita rechazos.
+- **Relationship Memory** guarda y audita contexto largo de relación; no genera estrategia de conquista.
+- **Character World** maneja personajes ficticios, mundos originales, Movie Character y roleplay cards; no suplanta personas reales.
+- **Life Mentor** convierte material público y notas propias en modelo de pensamiento; no dice ser una persona real.
+
+## Crush Coach
+
+![K.skill Crush Coach social flow](assets/readme/crush-coach-reply-lab.png)
+
+Crush Coach analiza relationship stage, warmth signals, risk signals, topic windows, date readiness y boundaries.
+
+GUI:
+
+1. Inicia la GUI local con `npm run dev` o `npm run cli -- serve --port 5999`.
+2. Elige `Crush Coach`.
+3. Sube un chat o pega la conversación reciente.
+4. Define nombres para `me` y `TA`.
+5. Elige goal: break ice, continue chat, judge chance, ask out, recover cold chat, write reply.
+6. Pulsa `Run lab`.
+7. Descarga `pursuit_report.md`, revisa `Reply Lab` y lee `topic_plan.md`.
+
+CLI:
+
+```bash
+npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
+npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
+npm run cli -- topics examples/crush-chat-en.txt --me Me --ta TA
+npm run cli -- send-or-not examples/crush-chat-en.txt --draft "Want to go together?" --latest "Maybe, I might go this weekend."
+```
+
+Escenarios incluidos:
+
+```text
+examples/crush-chat-zh.txt       progresión cálida en chino
+examples/crush-chat-en.txt       continuación natural en inglés
+examples/refusal-chat-en.txt     rechazo claro; solo cierre
+examples/cold-chat-zh.txt        conversación fría; decidir si esperar
+```
+
+Archivos generados:
+
+```text
+tmp/pursuit-en/
+  pursuit_report.md
+  pursuit_report.json
+  topic_plan.md
+```
+
+Cada juicio fuerte debe traer `evidence` y `confidence`. Si la evidencia es débil, el sistema lo muestra.
+
+## Relationship Memory
+
+![K.skill relationship memory](assets/readme/relationship-memory-chat.png)
+
+Relationship Memory convierte material de relación en contexto largo auditable. Sirve para episodios compartidos, formas de llamarse, preferencias, corrections y boundaries. No clona a una persona real.
+
+GUI:
+
+1. Elige `Relationship`.
+2. Sube `examples/relationship-memory-chat.txt` o tu propio material.
+3. Confirma speakers, message count, language y preview.
+4. Guarda en el local vault.
+5. Inspecciona Prompt Stack o memory state.
+6. Exporta el pack cuando esté listo.
+
+CLI:
+
+```bash
+npm run cli -- init "Rain Bookstore Memory" --type relationship --language zh --out local-packs/rain-bookstore
+npm run cli -- import examples/relationship-memory-chat.txt --type relationship --pack local-packs/rain-bookstore
+npm run cli -- memory local-packs/rain-bookstore
+npm run cli -- inspect local-packs/rain-bookstore
+```
+
+Salidas:
+
+- shared memory episodes
+- relationship facts and address patterns
+- preferences and corrections
+- no impersonation boundaries
+- exportable persona pack files
+
+## Character World
+
+![K.skill anime character world](assets/readme/anime-character-world.png)
+
+Character World es para fictional characters, original characters, OCs estilo anime, worldbuilding, lorebooks y character cards. Mantiene identity, world rules, memory triggers, voice rhythm y safety boundaries en el mismo pack.
+
+CLI:
+
+```bash
+npm run cli -- init "Rain Archive" --type character --language zh --out local-packs/rain-archive
+npm run cli -- import examples/character-world.md --type character --pack local-packs/rain-archive
+npm run cli -- distill local-packs/rain-archive
+npm run cli -- inspect local-packs/rain-archive
+```
+
+Entradas útiles:
+
+- original character sheets
+- worldbuilding Markdown
+- dialogue samples
+- SillyTavern Character Card V2
+- lorebook entries
+- manual boundaries
+
+Salidas:
+
+- `persona.yaml`
+- `persona.md`
+- `memory.lorebook`
+- `Prompt Stack`
+- real client export bundles
+
+## Movie Character
+
+![K.skill movie character pack](assets/readme/movie-character-pack.png)
+
+Movie Character es un caso concreto de Character World para personajes de cine originales, roles de guion, scene cards, character arcs y dialogue samples. No copia personajes protegidos, no imita actores y no reclama celebrity identity.
+
+CLI:
+
+```bash
+npm run cli -- init "Mira Vale" --type character --language en --out local-packs/mira-vale
+npm run cli -- import examples/movie-character.md --type character --pack local-packs/mira-vale
+npm run cli -- compile local-packs/mira-vale --target sillytavern --out local-packs/mira-vale/exports/sillytavern
+npm run cli -- export-zip local-packs/mira-vale --target chatgpt --out local-packs/mira-vale/exports/chatgpt.zip
+```
+
+Entradas:
+
+- script fragments
+- character biography
+- scene cards
+- dialogue samples
+- relationship map in text form
+- public-domain or licensed material
+
+La salida incluye character identity, arc, scene memory, voice rhythm, copyright / real-person boundaries, SillyTavern card y lorebook.
+
+## Virtual Persona
+
+![K.skill virtual persona chat](assets/readme/virtual-persona-chat.png)
+
+Virtual Persona sirve para AI companions originales, virtual streamer personas, game NPCs, social avatars y product characters. Se diferencia de Relationship Memory porque no representa una relación real ni una private person.
+
+GUI:
+
+1. Elige `Character`.
+2. Sube o pega el persona brief.
+3. Confirma source preview.
+4. Importa y destila.
+5. Revisa identity, voice, memory y boundaries en Prompt Stack.
+6. Exporta al cliente objetivo.
+
+CLI:
+
+```bash
+npm run cli -- init "Nova Social" --type character --language en --out local-packs/nova-social
+npm run cli -- import examples/character-world.md --type character --pack local-packs/nova-social
+npm run cli -- compile local-packs/nova-social --target lobe --out local-packs/nova-social/exports/lobe
+```
+
+## Life Mentor
+
+![K.skill life mentor model](assets/readme/life-mentor-model.png)
+
+Life Mentor convierte public writing, interviews, personal notes, decision records y principles en un compañero de pensamiento. Modela hábitos de razonamiento y estilo de comunicación; no se convierte en una persona real.
+
+CLI:
+
+```bash
+npm run cli -- init "Decision Life Mentor" --type advisor --language en --out local-packs/decision-life-mentor
+npm run cli -- import examples/life-mentor-source.md --type advisor --pack local-packs/decision-life-mentor
+npm run cli -- distill local-packs/decision-life-mentor
+npm run cli -- inspect local-packs/decision-life-mentor
+```
+
+Life Mentor extrae:
+
+- expression DNA
+- mental models
+- heuristics
+- anti-patterns
+- contradictions
+- evidence / confidence
+- honesty boundaries
+
+public figures y celebrities se tratan solo como Life Mentor models basados en material público. K.skill no crea recognizable real-person substitute, no inventa private facts y no afirma ser esa persona.
+
+## Persona Pack
+
+```text
+persona.yaml          structured persona pack
+persona.md            readable persona description
+sources/              imported material
+memory/               episodes, corrections, lorebook
+distillation/         evidence, claims, contradictions, runs
+exports/              target-specific files
+```
+
+Prompt Stack:
+
+```text
+identity       role, voice, expression DNA
+mental_models  Life Mentor or character reasoning models
+memory         profile facts, relationship facts, episodes
+boundaries     no impersonation, no pressure after refusal, safety limits
+export layer   target platform format
+```
+
+## GUI
+
+![K.skill local GUI flow](assets/readme/web-gui-flow.png)
+
+```bash
+npm install
+npm run build
+npm run cli -- serve --port 5999
+```
+
+Abre la URL local impresa, normalmente `http://127.0.0.1:5999`.
+
+GUI flow:
+
+1. Elige Crush Coach, Relationship Memory, Character World o Life Mentor.
+2. Escribe pack name y language.
+3. Upload o paste.
+4. Confirma consent / privacy.
+5. Lee parse preview.
+6. En Crush Coach, ejecuta Run lab.
+7. Descarga report markdown.
+8. Exporta zip para el cliente objetivo.
+
+Local API:
+
+```text
+GET  /api/health
+GET  /api/packs
+POST /api/imports
+POST /api/packs/:id/pastes
+POST /api/packs/:id/pursuit
+GET  /api/reports/:reportId/download
+POST /api/packs/:id/exports
+GET  /api/exports/:exportId/download
+GET  /api/packs/:id/memory
+PATCH /api/packs/:id/memory
+```
+
+## CLI
+
+```bash
+npm run cli -- --help
+npm run cli -- init "My Pack" --type relationship --language en --out local-packs/my-pack
+npm run cli -- import examples/relationship-memory-chat.txt --type relationship --pack local-packs/my-pack
+npm run cli -- distill local-packs/my-pack
+npm run cli -- inspect local-packs/my-pack
+npm run cli -- memory local-packs/my-pack
+npm run cli -- eval local-packs/my-pack
+```
+
+Crush Coach:
+
+```bash
+npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal judge_chance --out tmp/pursuit-en
+npm run cli -- reply examples/crush-chat-en.txt --latest "Maybe, I might go this weekend." --me Me --ta TA --style gentle
+npm run cli -- topics examples/cold-chat-zh.txt --me 我 --ta TA
+npm run cli -- send-or-not examples/refusal-chat-en.txt --draft "Please give me one more chance." --latest "Please stop asking."
+```
+
+Export:
+
+```bash
+npm run cli -- compile local-packs/my-pack --target codex --out local-packs/my-pack/exports/codex
+npm run cli -- export-zip local-packs/my-pack --target sillytavern --out local-packs/my-pack/exports/sillytavern.zip
+```
+
+## Export To Real Tools
+
+![K.skill export matrix](assets/readme/export-matrix.png)
+
+| Target | Files | Uso |
+|---|---|---|
+| Codex | `SKILL.md`, `references/persona.md`, `references/memory.md`, `references/evidence.json` | Coloca el directorio exportado en tu ruta de skills |
+| Claude | `SKILL.md`, `references/` | Instala como skill de Claude Code |
+| ChatGPT | `instructions.md`, `knowledge/`, `gpt-config.json` | Pega instructions en GPT o Project y sube knowledge |
+| DeepSeek | `system-prompt.json`, `api-request.json` | Úsalo como system context o request template |
+| SillyTavern | `character-card-v2.json`, `lorebook.json` | Importa card y lorebook |
+| Hermes | `SOUL.md`, `skills/` | Usa `SOUL.md` como identidad principal |
+| LobeChat | `lobe-agent.json` | Importa el agent JSON |
+| Open WebUI | `openwebui-agent.json` | Importa agent/model JSON |
+
+```bash
+npm run check:exports
+```
+
+## Privacy And Safety
+
+K.skill is local-first. Private chats do not enter Git. El contenido solo sale de tu máquina si configuras explícitamente un provider externo.
+
+Reglas:
+
+- no impersonation
+- no pressure after refusal
+- no coercive tactics
+- no privacy extraction
+- no stalking, harassment, or boundary bypass
+- no invented private facts
+- low evidence means low confidence
+
+Si TA rechaza, K.skill solo permite closing, apology, stopping escalation, respecting space y self-review.
+
+## Development And Verification
+
+![K.skill complete product workbench](assets/readme/hero-persona-workbench.png)
 
 ```bash
 git clone https://github.com/StartripAI/K_skill.git
@@ -41,168 +374,24 @@ cd K_skill
 npm install
 npm run build
 npm run dev
-```
-
-Abre la URL local que muestra Vite. Normalmente es `http://127.0.0.1:5173`.
-
-CLI:
-
-```bash
 npm run cli -- --help
 ```
 
-Prueba local como comando global:
+Quality gate:
 
 ```bash
-npm link
-kskill --help
-```
-
-## Crush Coach en 5 Minutos
-
-Analiza un chat:
-
-```bash
-npm run cli -- pursue examples/crush-chat-en.txt --me Me --ta TA --goal ask_out --out pursuit-output
-```
-
-Archivos generados:
-
-```text
-pursuit-output/
-  pursuit_report.md
-  topic_plan.md
-```
-
-Genera tres respuestas listas para enviar:
-
-```bash
-npm run cli -- reply examples/crush-chat-en.txt --latest "Then you should bring your suspiciously good cafe radar too." --me Me --ta TA --style natural
-```
-
-Genera un plan de temas:
-
-```bash
-npm run cli -- topics examples/crush-chat-en.txt --me Me --ta TA
-```
-
-Escenario con rechazo:
-
-```bash
-npm run cli -- pursue examples/refusal-chat-en.txt --me Me --ta TA --goal recover_cold_chat
-```
-
-Si la otra persona rechaza o expresa incomodidad, K.skill solo propone respetar el límite, disculparse brevemente, cerrar la conversación o reflexionar. No ofrece tácticas de presión.
-
-## Reply Lab
-
-Reply Lab es el laboratorio de respuestas estilo DM. Lee el último mensaje y el contexto del chat, luego devuelve tres borradores enviables con:
-
-- etiqueta como safe, playful, sincere, restrained, direct o gentle;
-- por qué encaja con la etapa actual;
-- efecto esperado;
-- nota de riesgo;
-- `boundarySafe: true`.
-
-El objetivo no es controlar a otra persona. Es expresar una intención real con menos ambigüedad, menos presión y más respeto.
-
-## Crear Un Persona Pack
-
-```bash
-npm run cli -- init "Rain Archive" --type character --language es --out local-packs/rain-archive
-npm run cli -- import examples/character-world.md --type character --pack local-packs/rain-archive
-npm run cli -- distill local-packs/rain-archive
-```
-
-Inspecciona Prompt Stack, memoria y checks:
-
-```bash
-npm run cli -- inspect local-packs/rain-archive
-npm run cli -- memory local-packs/rain-archive
-npm run cli -- eval local-packs/rain-archive
-```
-
-Estructura:
-
-```text
-persona.yaml
-persona.md
-sources/
-memory/
-  state.json
-  episodes.jsonl
-  lorebook.json
-distillation/
-  evidence.jsonl
-  claims.jsonl
-  contradictions.md
-exports/
-```
-
-## Prompt Stack, Evidence y Confidence
-
-K.skill trata la persona como una pila de capas, no como un prompt largo sin estructura.
-
-- **Identity**: rol, voz, ADN expresivo, usos permitidos.
-- **Memory**: episodios, hechos de relación, preferencias, correcciones, lorebook.
-- **Mental models**: criterios de decisión, heurísticas, antipatrones.
-- **Evidence**: quote, claim, source id, kind, confidence.
-- **Safety**: no suplantación, no presión después de un rechazo, no inventar hechos privados.
-- **Export layer**: instrucciones específicas para cada cliente.
-
-Cuando la evidencia es débil, el sistema mantiene incertidumbre en lugar de convertir una inferencia en hecho.
-
-## Exportaciones
-
-```bash
-npm run cli -- compile local-packs/rain-archive --target codex
-npm run cli -- compile local-packs/rain-archive --target claude
-npm run cli -- compile local-packs/rain-archive --target chatgpt
-npm run cli -- compile local-packs/rain-archive --target deepseek
-npm run cli -- compile local-packs/rain-archive --target sillytavern
-npm run cli -- compile local-packs/rain-archive --target hermes
-npm run cli -- compile local-packs/rain-archive --target lobe
-npm run cli -- compile local-packs/rain-archive --target openwebui
-```
-
-| Destino | Salida |
-|---|---|
-| Codex | `SKILL.md` y `references/` |
-| Claude Code | `SKILL.md` y `references/` |
-| ChatGPT | `instructions.md` y `knowledge/` |
-| DeepSeek / APIs compatibles con OpenAI | `system-prompt.json` |
-| SillyTavern | Character Card V2 JSON y lorebook |
-| Hermes | `SOUL.md` y skills |
-| LobeChat | agent JSON |
-| Open WebUI | agent JSON |
-
-## Mejoras Frente a la Base
-
-| Área | Base existente | Mejora de K.skill |
-|---|---|---|
-| `ex-skill` | memoria de relación, tono, experiencias compartidas | etapa de relación, señales de calidez/riesgo, Reply Lab, Crush Coach con límites primero |
-| `nuwa-skill` | modelos mentales, ADN expresivo, límites de honestidad | un mismo pack para mentores, personajes, uno mismo, parejas y amistades |
-| ST memory | memoria estructurada de largo plazo | evidence, confidence, correcciones, evals e inspección de Prompt Stack |
-| SillyTavern | Character Cards y lorebooks maduros | no queda encerrado en un cliente; exporta a Codex, Claude, ChatGPT, DeepSeek, SillyTavern, Hermes, LobeChat y Open WebUI |
-
-## Seguridad y Límites
-
-- Local-first por defecto.
-- No comites chats privados en Git.
-- No PUA, juegos de celos, presión, bypass de rechazo, stalking ni suplantación.
-- No simules a una persona privada real sin consentimiento.
-- Si aparece rechazo o incomodidad, se detiene la escalada.
-- Antes de exportar a herramientas externas, confirma que tienes derecho a usar el material.
-
-## Desarrollo
-
-```bash
-npm install
 npm run lint
 npm test
-npm run build
+npm run check:readme
+npm run check:exports
+npm run test:e2e
+npm run smoke
+npm run score:release
+npm run verify
 ```
+
+`npm run verify` ejecuta lint, tests, build, exports, README checks, e2e, smoke, release scoring y npm pack dry-run. README checks exige cinco idiomas, images, commands, targets, Life Mentor naming, safety y no outside comparison claims.
 
 ## License
 
-MIT
+Apache-2.0

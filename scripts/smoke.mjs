@@ -60,13 +60,13 @@ const boundaryReply = generateReplySuggestions(refusalReport, "Please stop askin
 assert(boundaryReply[0]?.label === "Respect boundary", "Boundary reply did not use the respect-boundary path");
 assert(boundaryReply[0]?.text.includes("stop asking"), "Boundary reply did not tell the user to stop asking");
 
-const mentorSource = parseChatText(readFileSync(join(root, "examples/mentor-source.md"), "utf8"), {
-  name: "mentor-source.md",
+const lifeMentorSource = parseChatText(readFileSync(join(root, "examples/life-mentor-source.md"), "utf8"), {
+  name: "life-mentor-source.md",
   language: "en",
   private: false,
   consentConfirmed: true
 });
-const pack = distillPersonaPack(createPersonaPack({ name: "Smoke Mentor", type: "advisor", language: "en" }), mentorSource);
+const pack = distillPersonaPack(createPersonaPack({ name: "Smoke Life Mentor", type: "advisor", language: "en" }), lifeMentorSource);
 const validation = validatePersonaPack(pack);
 assert(validation.success, validation.success ? "" : validation.error.message);
 

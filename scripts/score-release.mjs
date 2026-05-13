@@ -19,15 +19,17 @@ const categories = {
         label: "Defines a Persona Pack OS instead of a generic prompt wrapper",
         points: 20,
         artifacts: ["README.md", "packages/core/src/index.ts"],
-        check: (repo) => includes(repo, "README.md", ["Persona Pack OS", "产品气质", "Prompt Stack"]) &&
+        check: (repo) => includes(repo, "README.md", ["Persona Pack OS", "完整人格系统", "Prompt Stack"]) &&
           includes(repo, "packages/core/src/index.ts", ["PersonaPackSchema", "personaTypes"])
       },
       {
-        id: "reference-superset",
-        label: "Positions K.skill as a superset over relationship, Nuwa, ST memory, and SillyTavern references",
+        id: "complete-workflow-suite",
+        label: "Ships a complete four-workflow product without outside comparison positioning",
         points: 20,
         artifacts: ["README.md"],
-        check: (repo) => includes(repo, "README.md", ["ex-skill", "nuwa-skill", "ST memory", "SillyTavern", "参考项目"])
+        check: (repo) => includes(repo, "README.md", ["Crush Coach", "Relationship Memory", "Character World", "Movie Character", "Life Mentor"]) &&
+          ![["ex", "skill"].join("-"), ["nuwa", "skill"].join("-"), ["ST", "memory"].join(" "), ["参考", "项目"].join(""), ["借", "鉴"].join(""), ["base", "line"].join("")]
+            .some((needle) => text(repo, "README.md").includes(needle))
       },
       {
         id: "localized-docs",
@@ -35,7 +37,7 @@ const categories = {
         points: 20,
         artifacts: ["README.md", "README_EN.md", "README_JA.md", "README_KO.md", "README_ES.md"],
         check: (repo) => ["README_EN.md", "README_JA.md", "README_KO.md", "README_ES.md"].every((path) => text(repo, path).includes("K.skill")) &&
-          includes(repo, "README.md", ["English", "日本語", "한국어", "Español"])
+          includes(repo, "README.md", ["English", "日本語", "한국어", "Español", "Life Mentor"])
       },
       {
         id: "multi-client-exporters",
@@ -54,7 +56,7 @@ const categories = {
         points: 20,
         artifacts: ["packages/pursuit/src/index.ts", "README.md", "examples/refusal-chat-en.txt"],
         check: (repo) => includes(repo, "packages/pursuit/src/index.ts", ["boundaryDetected", "respect_boundary", "stop pursuing", "no bypassing refusal"]) &&
-          includes(repo, "README.md", ["我要追TA", "不提供 PUA", "TA 明确拒绝"])
+          includes(repo, "README.md", ["我要追TA", "不做 PUA", "TA 明确拒绝"])
       },
       {
         id: "broad-import-surface",
@@ -62,14 +64,14 @@ const categories = {
         points: 15,
         artifacts: ["packages/importers/src/index.ts", "README.md"],
         check: (repo) => includes(repo, "packages/importers/src/index.ts", ["parseJsonChat", "parseCsvChat", "stripHtml", "parseCharacterCard"]) &&
-          includes(repo, "README.md", ["上传文件", "粘贴资料", "SillyTavern Character Card"])
+          includes(repo, "README.md", ["上传文件", "粘贴资料", "SillyTavern Character Card", "movie-character.md"])
       },
       {
         id: "social-product-workbench",
         label: "Provides a social-product Web workbench, not only a library API",
         points: 15,
         artifacts: ["apps/web/src/main.tsx", "apps/web/src/styles.css"],
-        check: (repo) => includes(repo, "apps/web/src/main.tsx", ["Reply Lab", "Crush Coach", "Downloads", "stage-card"]) &&
+        check: (repo) => includes(repo, "apps/web/src/main.tsx", ["Reply Lab", "Crush Coach", "Life Mentor", "Downloads", "stage-card"]) &&
           includes(repo, "apps/web/src/styles.css", [".reply-card", ".stage-card", ".story-strip"])
       },
       {
@@ -234,7 +236,7 @@ const categories = {
         label: "Endgame privacy stance is local-first",
         points: 2,
         artifacts: ["README.md"],
-        check: (repo) => includes(repo, "README.md", ["本项目默认本地运行", "私人聊天记录不会进入 Git"])
+        check: (repo) => includes(repo, "README.md", ["本项目默认本地运行", "私人聊天记录不会进入 Git", "no impersonation"])
       },
       {
         id: "roadmap",
