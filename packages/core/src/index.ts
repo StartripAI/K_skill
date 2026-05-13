@@ -6,6 +6,9 @@ export type PackLanguage = (typeof supportedPackLanguages)[number];
 export const personaTypes = ["relationship", "character", "advisor", "self", "pursuit"] as const;
 export type PersonaType = (typeof personaTypes)[number];
 
+export const personaPackSchemaVersions = ["1.0", "1.1"] as const;
+export type PersonaPackSchemaVersion = (typeof personaPackSchemaVersions)[number];
+
 export const EvidenceSchema = z.object({
   id: z.string(),
   sourceId: z.string(),
@@ -40,7 +43,7 @@ export const MemoryEpisodeSchema = z.object({
 });
 
 export const PersonaPackSchema = z.object({
-  schemaVersion: z.literal("1.0"),
+  schemaVersion: z.enum(personaPackSchemaVersions),
   id: z.string(),
   name: z.string(),
   type: z.enum(personaTypes),
@@ -94,7 +97,19 @@ export const PersonaPackSchema = z.object({
         confidence: z.number().min(0).max(1)
       })
     ),
-    contradictions: z.array(z.string())
+    contradictions: z.array(z.string()),
+    runs: z.array(
+      z.object({
+        id: z.string(),
+        mode: z.enum(["heuristic", "llm"]),
+        provider: z.string(),
+        model: z.string().optional(),
+        sourceId: z.string().optional(),
+        evidenceCount: z.number().int().nonnegative(),
+        warnings: z.array(z.string()).default([]),
+        createdAt: z.string()
+      })
+    ).default([])
   }),
   evals: z.array(
     z.object({
@@ -132,6 +147,7 @@ export type CreatePersonaPackInput = {
   language?: PackLanguage;
   description?: string;
   privatePerson?: boolean;
+  idSeed?: string;
 };
 
 export function slugify(value: string): string {
@@ -163,7 +179,7 @@ export function nowIso(): string {
 
 export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
   const timestamp = nowIso();
-  const id = createId("pack", `${input.name}:${input.type}`);
+  const id = createId("pack", `${input.name}:${input.type}:${input.idSeed ?? "default"}`);
   const typeLabels: Record<PersonaType, string> = {
     relationship: "relationship memory companion",
     character: "character and world persona",
@@ -174,7 +190,7 @@ export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
   const privatePerson = input.privatePerson ?? (input.type === "relationship" || input.type === "pursuit");
 
   return {
-    schemaVersion: "1.0",
+    schemaVersion: "1.1",
     id,
     name: input.name,
     type: input.type,
@@ -234,7 +250,8 @@ export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
     distillation: {
       evidence: [],
       claims: [],
-      contradictions: []
+      contradictions: [],
+      runs: []
     },
     evals: [
       {
@@ -248,7 +265,23 @@ export function createPersonaPack(input: CreatePersonaPackInput): PersonaPack {
 }
 
 export function validatePersonaPack(pack: unknown): ReturnType<typeof PersonaPackSchema.safeParse> {
-  return PersonaPackSchema.safeParse(pack);
+  return PersonaPackSchema.safeParse(migratePersonaPack(pack));
+}
+
+export function migratePersonaPack(pack: unknown): unknown {
+  if (!pack || typeof pack !== "object") return pack;
+  const record = structuredClone(pack) as Record<string, unknown>;
+  if (record.schemaVersion === "1.0") {
+    record.schemaVersion = "1.1";
+  }
+  const distillation = record.distillation;
+  if (distillation && typeof distillation === "object") {
+    const distillationRecord = distillation as Record<string, unknown>;
+    if (!Array.isArray(distillationRecord.runs)) {
+      distillationRecord.runs = [];
+    }
+  }
+  return record;
 }
 
 export function estimateTokens(content: string): number {

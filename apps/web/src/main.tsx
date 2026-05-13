@@ -1,30 +1,116 @@
-import React, { useMemo, useState } from "react";
+import React, { type ChangeEvent, type DragEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Archive, Brain, Download, FileUp, Heart, Languages, MessageCircleHeart, Search, ShieldCheck, Sparkles, Upload, WandSparkles } from "lucide-react";
-import { createPersonaPack, inspectPromptStack, type PackLanguage, type PersonaPack, type PersonaType } from "../../../packages/core/src/index.ts";
-import { distillPersonaPack } from "../../../packages/distiller/src/index.ts";
-import { parseChatText } from "../../../packages/importers/src/index.ts";
-import { analyzePursuit, generateReplySuggestions, generateTopicPlan, renderPursuitReport, type PursuitGoal, type ReplyStyle } from "../../../packages/pursuit/src/index.ts";
-import { messages, type Locale } from "../../../packages/i18n/src/index.ts";
+import {
+  Archive,
+  AtSign,
+  Bot,
+  CheckCircle2,
+  CircleAlert,
+  Clock3,
+  Download,
+  FileArchive,
+  FileText,
+  HeartHandshake,
+  ImageUp,
+  Inbox,
+  Layers3,
+  Loader2,
+  MessageCircle,
+  MessageCircleHeart,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  UploadCloud,
+  WandSparkles,
+  X
+} from "lucide-react";
+import {
+  createApiClient,
+  exportTargets,
+  packLanguages,
+  replyStyles,
+  type ExportTarget,
+  type PackLanguage,
+  type PackSummary,
+  type ParsePreview,
+  type PersonaType,
+  type PursuitGoal,
+  type PursuitReport,
+  type ReplyStyle,
+  type ReplySuggestion,
+  type TopicPlan
+} from "./api.ts";
 import "./styles.css";
 
-const exportTargets = ["codex", "claude", "chatgpt", "deepseek", "sillytavern", "hermes", "lobe", "openwebui"] as const;
-const demoChat = `我: 今天那家咖啡店还挺适合看书的
-TA: 哈哈哈你终于发现了 我上次就说那里安静
-我: 你最近还在看那个展吗
-TA: 在看！周末可能去 你也喜欢这种吗？
-我: 有点兴趣
-TA: 那你可以先看他们那个短片 还挺有意思`;
+const api = createApiClient();
 
-const workflows: Array<{ id: PersonaType | "pursuit"; icon: React.ReactNode; titleKey: keyof typeof messages.zh; copy: string }> = [
-  { id: "relationship", icon: <Heart size={18} />, titleKey: "relationship", copy: "从聊天、照片描述、共同经历里生成关系记忆和人格语气。" },
-  { id: "character", icon: <Sparkles size={18} />, titleKey: "character", copy: "导入原创设定、角色卡、世界观，把角色变成可移植 persona pack。" },
-  { id: "advisor", icon: <Brain size={18} />, titleKey: "mentor", copy: "像 Nuwa 一样抽取心智模型、表达 DNA、决策启发式和诚实边界。" },
-  { id: "pursuit", icon: <MessageCircleHeart size={18} />, titleKey: "pursuit", copy: "上传你和 TA 的聊天记录，判断热度、边界、话题窗口，并生成可直接发送的回复。" }
+type StatusTone = "neutral" | "busy" | "success" | "error";
+type Status = { tone: StatusTone; message: string };
+
+const workflows: Array<{ id: PersonaType; icon: React.ReactNode; title: string; subline: string }> = [
+  { id: "pursuit", icon: <MessageCircleHeart size={19} />, title: "Crush Coach", subline: "DM heat + safe replies" },
+  { id: "relationship", icon: <HeartHandshake size={19} />, title: "Relationship", subline: "Memory from chat history" },
+  { id: "character", icon: <Sparkles size={19} />, title: "Character", subline: "World and persona card" },
+  { id: "advisor", icon: <Bot size={19} />, title: "Advisor", subline: "Mind model distillation" }
 ];
 
-function downloadText(filename: string, text: string): void {
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+const goals: Array<{ value: PursuitGoal; label: string }> = [
+  { value: "break_ice", label: "Break ice" },
+  { value: "continue_chat", label: "Continue chat" },
+  { value: "ask_out", label: "Ask out" },
+  { value: "judge_chance", label: "Judge chance" },
+  { value: "recover_cold_chat", label: "Recover cold chat" },
+  { value: "write_reply", label: "Write reply" }
+];
+
+const styleLabels: Record<ReplyStyle, string> = {
+  natural: "Natural",
+  humorous: "Humorous",
+  sincere: "Sincere",
+  restrained: "Restrained",
+  direct: "Direct",
+  gentle: "Gentle"
+};
+
+const languageLabels: Record<PackLanguage, string> = {
+  zh: "中文",
+  en: "English",
+  ja: "日本語",
+  ko: "한국어",
+  es: "Español"
+};
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unexpected API error";
+}
+
+function upsertPack(packs: PackSummary[], pack: PackSummary): PackSummary[] {
+  return [pack, ...packs.filter((item) => item.id !== pack.id)];
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatDate(value: string | undefined): string {
+  if (!value) return "fresh";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function safeFilename(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\u4e00-\u9fa5-]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "kskill-pack";
+}
+
+function downloadBlob(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
@@ -33,198 +119,620 @@ function downloadText(filename: string, text: string): void {
   URL.revokeObjectURL(url);
 }
 
+function stageClass(stage: string): string {
+  return stage.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+}
+
+function confidencePercent(report: PursuitReport | null): number {
+  if (!report) return 0;
+  return Math.max(0, Math.min(100, Math.round(report.confidence * 100)));
+}
+
 function App() {
-  const [locale, setLocale] = useState<Locale>("zh");
-  const [workflow, setWorkflow] = useState<PersonaType | "pursuit">("pursuit");
-  const [chatText, setChatText] = useState(demoChat);
-  const [packName, setPackName] = useState("K Demo Persona");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [packs, setPacks] = useState<PackSummary[]>([]);
+  const [activePackId, setActivePackId] = useState("");
+  const [workflow, setWorkflow] = useState<PersonaType>("pursuit");
+  const [language, setLanguage] = useState<PackLanguage>("zh");
+  const [packName, setPackName] = useState("K.skill DM Pack");
+  const [consentConfirmed, setConsentConfirmed] = useState(true);
+  const [files, setFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [pasteName, setPasteName] = useState("dm-paste.txt");
+  const [pasteText, setPasteText] = useState("");
+  const [preview, setPreview] = useState<ParsePreview | null>(null);
   const [me, setMe] = useState("我");
   const [ta, setTa] = useState("TA");
   const [goal, setGoal] = useState<PursuitGoal>("ask_out");
   const [latest, setLatest] = useState("周末可能去 你也喜欢这种吗？");
   const [replyStyle, setReplyStyle] = useState<ReplyStyle>("natural");
-  const lang: PackLanguage = locale === "zh" || locale === "en" || locale === "ja" || locale === "ko" || locale === "es" ? locale : "zh";
+  const [report, setReport] = useState<PursuitReport | null>(null);
+  const [reportId, setReportId] = useState("");
+  const [replies, setReplies] = useState<ReplySuggestion[]>([]);
+  const [topicPlan, setTopicPlan] = useState<TopicPlan | null>(null);
+  const [exportTarget, setExportTarget] = useState<ExportTarget>("sillytavern");
+  const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [status, setStatus] = useState<Status>({ tone: "neutral", message: "Local API ready at /api" });
 
-  const parsed = useMemo(() => parseChatText(chatText, { language: lang, name: "workspace-paste" }), [chatText, lang]);
-  const pack = useMemo<PersonaPack>(() => {
-    const type: PersonaType = workflow === "pursuit" ? "pursuit" : workflow;
-    return distillPersonaPack(createPersonaPack({ name: packName, type, language: lang }), parsed);
-  }, [workflow, packName, lang, parsed]);
-  const report = useMemo(() => analyzePursuit(parsed.messages, { userName: me, targetName: ta, goal, language: lang }), [parsed, me, ta, goal, lang]);
-  const replies = useMemo(() => generateReplySuggestions(report, latest, replyStyle), [report, latest, replyStyle]);
-  const topics = useMemo(() => generateTopicPlan(report), [report]);
-  const stack = useMemo(() => inspectPromptStack(pack), [pack]);
+  const activePack = useMemo(() => packs.find((pack) => pack.id === activePackId) ?? null, [activePackId, packs]);
+  const currentPackName = activePack?.name ?? (packName.trim() || "Untitled pack");
+  const canUpload = files.length > 0 && packName.trim().length > 0 && consentConfirmed && busyAction === null;
+  const canPaste = pasteText.trim().length > 0 && packName.trim().length > 0 && consentConfirmed && busyAction === null;
+  const canRunPursuit = (activePackId.length > 0 || pasteText.trim().length > 0 || files.length > 0) && busyAction === null;
+  const canDownloadReport = reportId.length > 0 && busyAction === null;
+  const reportConfidence = confidencePercent(report);
+
+  const refreshPacks = useCallback(async (quiet = false) => {
+    if (!quiet) setStatus({ tone: "busy", message: "Refreshing pack vault" });
+    try {
+      const next = await api.listPacks();
+      setPacks(next);
+      setActivePackId((current) => current || next[0]?.id || "");
+      if (!quiet) setStatus({ tone: "success", message: `Loaded ${next.length} pack${next.length === 1 ? "" : "s"}` });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshPacks(true);
+  }, [refreshPacks]);
+
+  const ensureActivePack = useCallback(async (): Promise<string> => {
+    if (activePackId) return activePackId;
+    const created = await api.createPack({
+      name: packName.trim() || "Untitled K.skill Pack",
+      type: workflow,
+      language
+    });
+    if (!created.id) throw new Error("API did not return a pack id");
+    setPacks((current) => upsertPack(current, created));
+    setActivePackId(created.id);
+    return created.id;
+  }, [activePackId, language, packName, workflow]);
+
+  function addFiles(nextFiles: File[]): void {
+    if (nextFiles.length === 0) return;
+    setFiles((current) => [...current, ...nextFiles]);
+    setStatus({ tone: "neutral", message: `${nextFiles.length} file${nextFiles.length === 1 ? "" : "s"} staged for import` });
+  }
+
+  function handleFileSelection(event: ChangeEvent<HTMLInputElement>): void {
+    addFiles(Array.from(event.target.files ?? []));
+    event.target.value = "";
+  }
+
+  function handleDrop(event: DragEvent<HTMLDivElement>): void {
+    event.preventDefault();
+    setIsDragging(false);
+    addFiles(Array.from(event.dataTransfer.files));
+  }
+
+  async function handleUpload(): Promise<void> {
+    if (!canUpload) return;
+    setBusyAction("upload");
+    setStatus({ tone: "busy", message: "Importing files through /api/imports" });
+    try {
+      const result = await api.uploadImport({
+        packName: packName.trim(),
+        type: workflow,
+        language,
+        consentConfirmed,
+        files
+      });
+      if (!result.packId) throw new Error("Import completed but no pack id was returned");
+      setActivePackId(result.packId);
+      if (result.pack) setPacks((current) => upsertPack(current, result.pack!));
+      setPreview(result.preview ?? { sourceCount: result.sourceCount, duplicateCount: result.duplicateCount, messages: [] });
+      setFiles([]);
+      await refreshPacks(true);
+      setStatus({ tone: "success", message: `Imported ${result.sourceCount} source${result.sourceCount === 1 ? "" : "s"}` });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handlePaste(): Promise<void> {
+    const text = pasteText.trim();
+    if (!canPaste || !text) return;
+    setBusyAction("paste");
+    setStatus({ tone: "busy", message: "Saving paste into the active pack" });
+    try {
+      const packId = await ensureActivePack();
+      const result = await api.pasteSource(packId, {
+        text,
+        name: pasteName.trim() || "dm-paste.txt",
+        consentConfirmed
+      });
+      if (result.pack) setPacks((current) => upsertPack(current, result.pack!));
+      setPreview(result.preview ?? { sourceCount: result.sourceCount, duplicateCount: result.duplicateCount, messages: [], summary: "Paste saved in the local vault." });
+      await refreshPacks(true);
+      setStatus({ tone: "success", message: `Paste stored with ${result.sourceCount} parsed source${result.sourceCount === 1 ? "" : "s"}` });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function runPursuitLab(): Promise<void> {
+    if (!canRunPursuit) return;
+    setBusyAction("pursuit");
+    setStatus({ tone: "busy", message: "Running pursuit report and Reply Lab" });
+    try {
+      const packId = await ensureActivePack();
+      const payload = { me, ta, goal, latest, style: replyStyle };
+      const result = await api.createPursuitReport(packId, payload);
+      setReport(result.report);
+      setReportId(result.reportId);
+      setTopicPlan(result.topicPlan ?? null);
+      let nextReplies = result.replies;
+
+      if (nextReplies.length === 0) {
+        try {
+          const replyPayload = result.reportId ? { ...payload, reportId: result.reportId } : payload;
+          const replyResult = await api.createReplySuggestions(packId, replyPayload);
+          nextReplies = replyResult.replies;
+          if (replyResult.report) setReport(replyResult.report);
+        } catch {
+          nextReplies = [];
+        }
+      }
+
+      setReplies(nextReplies);
+      await refreshPacks(true);
+      setStatus({
+        tone: "success",
+        message: nextReplies.length > 0 ? `Report ready with ${nextReplies.length} replies` : "Report ready; no reply suggestions returned"
+      });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleReportDownload(): Promise<void> {
+    if (!reportId) return;
+    setBusyAction("report-download");
+    setStatus({ tone: "busy", message: "Downloading pursuit report" });
+    try {
+      const blob = await api.downloadReport(reportId);
+      downloadBlob(`pursuit_report_${reportId}.md`, blob);
+      setStatus({ tone: "success", message: "Report download started" });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleExportDownload(): Promise<void> {
+    if (!activePackId) {
+      setStatus({ tone: "error", message: "Select or create a pack before exporting" });
+      return;
+    }
+    setBusyAction("export");
+    setStatus({ tone: "busy", message: `Building ${exportTarget} ZIP export` });
+    try {
+      const created = await api.createExport(activePackId, exportTarget);
+      if (!created.exportId) throw new Error("Export completed but no export id was returned");
+      const blob = await api.downloadExport(created.exportId);
+      downloadBlob(`${safeFilename(currentPackName)}-${exportTarget}.zip`, blob);
+      await refreshPacks(true);
+      setStatus({ tone: "success", message: "Export ZIP download started" });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
 
   return (
-    <main className="shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="mark">K</div>
-          <div>
-            <h1>K.skill</h1>
-            <p>{messages[locale].tagline}</p>
+    <main className="app-shell">
+      <aside className="left-rail">
+        <section className="brand-card" aria-label="K.skill">
+          <div className="brand-mark">K</div>
+          <div className="brand-copy">
+            <p>Persona Pack OS</p>
+            <h1>K.skill Studio</h1>
           </div>
-        </div>
-        <label className="locale">
-          <Languages size={16} />
-          <select value={locale} onChange={(event) => setLocale(event.target.value as Locale)}>
-            <option value="zh">中文</option>
-            <option value="en">English</option>
-            <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-            <option value="es">Español</option>
-          </select>
-        </label>
-        <nav className="workflow-list">
+        </section>
+
+        <section className="story-strip" aria-label="Workflows">
           {workflows.map((item) => (
-            <button key={item.id} className={workflow === item.id ? "active" : ""} onClick={() => setWorkflow(item.id)}>
-              {item.icon}
-              <span>{messages[locale][item.titleKey]}</span>
+            <button
+              key={item.id}
+              type="button"
+              className={`story-button ${workflow === item.id ? "active" : ""}`}
+              onClick={() => setWorkflow(item.id)}
+            >
+              <span className="story-ring">{item.icon}</span>
+              <strong>{item.title}</strong>
+              <small>{item.subline}</small>
             </button>
           ))}
-        </nav>
-        <section className="export-card">
-          <h2><Download size={16} /> Export targets</h2>
-          <div className="target-grid">
-            {exportTargets.map((target) => <span key={target}>{target}</span>)}
+        </section>
+
+        <section className="rail-panel pack-list-panel">
+          <div className="section-head">
+            <div>
+              <p>Vault</p>
+              <h2>Pack list</h2>
+            </div>
+            <button className="icon-button" type="button" onClick={() => void refreshPacks()} aria-label="Refresh packs">
+              <RefreshCw size={17} />
+            </button>
+          </div>
+
+          <div className="pack-list">
+            {packs.length > 0 ? packs.map((pack) => (
+              <button
+                key={pack.id}
+                type="button"
+                className={`pack-row ${activePackId === pack.id ? "active" : ""}`}
+                onClick={() => {
+                  setActivePackId(pack.id);
+                  setReport(null);
+                  setReplies([]);
+                  setTopicPlan(null);
+                  setStatus({ tone: "neutral", message: `Selected ${pack.name}` });
+                }}
+              >
+                <span className="avatar">{pack.name.slice(0, 1).toUpperCase()}</span>
+                <span>
+                  <strong>{pack.name}</strong>
+                  <small>{pack.type} · {pack.language} · {pack.sourceCount ?? 0} sources</small>
+                </span>
+                <em>{formatDate(pack.updatedAt ?? pack.createdAt)}</em>
+              </button>
+            )) : (
+              <div className="empty-card compact">
+                <Inbox size={18} />
+                <span>No packs from /api yet</span>
+              </div>
+            )}
           </div>
         </section>
       </aside>
 
-      <section className="workspace">
-        <header className="topbar">
+      <section className="main-feed">
+        <header className="studio-header">
           <div>
-            <p className="eyebrow">Local-first persona workbench</p>
-            <h2>{workflow === "pursuit" ? "Crush Coach / 我要追TA" : messages[locale].appTitle}</h2>
+            <p className="eyebrow"><AtSign size={14} /> INS / DM workbench</p>
+            <h2>{currentPackName}</h2>
           </div>
-          <button className="primary" onClick={() => downloadText("pursuit_report.md", renderPursuitReport(report))}>
-            <Archive size={16} /> Save report
-          </button>
+          <div className={`status-pill ${status.tone}`} role="status">
+            {status.tone === "busy" ? <Loader2 className="spin" size={16} /> : status.tone === "error" ? <CircleAlert size={16} /> : <CheckCircle2 size={16} />}
+            <span>{status.message}</span>
+          </div>
         </header>
 
-        <div className="grid">
-          <section className="panel intake">
-            <div className="panel-title">
-              <FileUp size={18} />
-              <h3>{messages[locale].upload}</h3>
+        <section className="composer-card">
+          <div className="section-head">
+            <div>
+              <p>Import</p>
+              <h2>DM intake</h2>
             </div>
-            <div className="dropzone">
-              <Upload size={24} />
-              <strong>Drop .txt / .json / .csv / .html / card files here</strong>
-              <span>Browser demo keeps data in memory. CLI supports real local files.</span>
-            </div>
+            <ImageUp size={20} />
+          </div>
+
+          <div
+            className={`dropzone ${isDragging ? "dragging" : ""}`}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              className="sr-only"
+              type="file"
+              multiple
+              accept=".txt,.md,.json,.csv,.html,.htm"
+              onChange={handleFileSelection}
+            />
+            <UploadCloud size={28} />
+            <strong>{files.length > 0 ? `${files.length} file${files.length === 1 ? "" : "s"} selected` : "Drop chat exports"}</strong>
+            <span>.txt · .json · .csv · .html · .md</span>
+            <button className="secondary-action" type="button" onClick={() => fileInputRef.current?.click()}>
+              Choose files
+            </button>
+          </div>
+
+          {files.length > 0 && (
+            <ul className="file-list">
+              {files.map((file, index) => (
+                <li key={`${file.name}-${file.lastModified}-${index}`}>
+                  <FileText size={16} />
+                  <span>{file.name}</span>
+                  <small>{formatSize(file.size)}</small>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${file.name}`}
+                    onClick={() => setFiles((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+                  >
+                    <X size={15} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="control-grid">
             <label>
               Pack name
               <input value={packName} onChange={(event) => setPackName(event.target.value)} />
             </label>
             <label>
-              {messages[locale].paste}
-              <textarea value={chatText} onChange={(event) => setChatText(event.target.value)} rows={11} />
+              Workflow
+              <select value={workflow} onChange={(event) => setWorkflow(event.target.value as PersonaType)}>
+                {workflows.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}
+              </select>
             </label>
-          </section>
-
-          <section className="panel coach">
-            <div className="panel-title">
-              <MessageCircleHeart size={18} />
-              <h3>{messages[locale].pursuit}</h3>
-            </div>
-            <div className="form-row">
-              <label>Me<input value={me} onChange={(event) => setMe(event.target.value)} /></label>
-              <label>TA<input value={ta} onChange={(event) => setTa(event.target.value)} /></label>
-            </div>
             <label>
-              Goal
-              <select value={goal} onChange={(event) => setGoal(event.target.value as PursuitGoal)}>
-                <option value="break_ice">想破冰</option>
-                <option value="continue_chat">想延续聊天</option>
-                <option value="ask_out">想约出来</option>
-                <option value="judge_chance">想判断有没有机会</option>
-                <option value="recover_cold_chat">想挽回冷掉的对话</option>
-                <option value="write_reply">想写一条现在就能发的回复</option>
+              Language
+              <select value={language} onChange={(event) => setLanguage(event.target.value as PackLanguage)}>
+                {packLanguages.map((item) => <option key={item} value={item}>{languageLabels[item]}</option>)}
               </select>
             </label>
-            <div className={`stage ${report.stage}`}>
-              <span>Stage</span>
-              <strong>{report.stage}</strong>
-              <em>{Math.round(report.confidence * 100)}%</em>
-            </div>
-            <div className="signal-grid">
-              <div>
-                <b>Warmth</b>
-                <span>{report.warmthSignals.length} signals</span>
-              </div>
-              <div>
-                <b>Risk</b>
-                <span>{report.riskSignals.length} signals</span>
-              </div>
-              <div>
-                <b>Action</b>
-                <span>{report.strategy.action}</span>
-              </div>
-            </div>
-            <p className="strategy">{report.strategy.summary}</p>
-            <p className="next">{report.strategy.nextMove}</p>
-          </section>
-        </div>
+            <label className="check-row">
+              <input type="checkbox" checked={consentConfirmed} onChange={(event) => setConsentConfirmed(event.target.checked)} />
+              <span>Consent confirmed</span>
+            </label>
+          </div>
 
-        <section className="panel reply-lab">
-          <div className="panel-title">
-            <WandSparkles size={18} />
-            <h3>{messages[locale].replyLab}</h3>
-          </div>
-          <div className="reply-controls">
-            <label>TA latest<input value={latest} onChange={(event) => setLatest(event.target.value)} /></label>
-            <label>Style
-              <select value={replyStyle} onChange={(event) => setReplyStyle(event.target.value as ReplyStyle)}>
-                <option value="natural">自然</option>
-                <option value="humorous">幽默</option>
-                <option value="sincere">真诚</option>
-                <option value="restrained">克制</option>
-                <option value="direct">直球</option>
-                <option value="gentle">温柔</option>
-              </select>
-            </label>
-          </div>
-          <div className="reply-grid">
-            {replies.map((reply) => (
-              <article key={reply.label} className="reply-card">
-                <h4>{reply.label}</h4>
-                <p className="bubble">{reply.text}</p>
-                <small>{reply.why}</small>
-                <small>{reply.risk}</small>
-              </article>
-            ))}
+          <button className="primary-action" type="button" disabled={!canUpload} onClick={() => void handleUpload()}>
+            {busyAction === "upload" ? <Loader2 className="spin" size={17} /> : <UploadCloud size={17} />}
+            Upload to API
+          </button>
+
+          <div className="paste-panel">
+            <div className="section-head mini">
+              <div>
+                <p>Paste</p>
+                <h3>DM text</h3>
+              </div>
+              <MessageCircle size={18} />
+            </div>
+            <textarea
+              value={pasteText}
+              rows={7}
+              placeholder="我: 今天那家咖啡店还挺适合看书的&#10;TA: 哈哈哈你终于发现了"
+              onChange={(event) => setPasteText(event.target.value)}
+            />
+            <div className="paste-actions">
+              <input value={pasteName} onChange={(event) => setPasteName(event.target.value)} aria-label="Paste source name" />
+              <button className="secondary-action" type="button" disabled={!canPaste} onClick={() => void handlePaste()}>
+                {busyAction === "paste" ? <Loader2 className="spin" size={16} /> : <Send size={16} />}
+                Save paste
+              </button>
+            </div>
           </div>
         </section>
 
-        <section className="panel topics">
-          <div className="panel-title">
-            <Search size={18} />
-            <h3>Topic Plan</h3>
+        <div className="feed-grid">
+          <section className="surface-card parse-preview">
+            <div className="section-head">
+              <div>
+                <p>Parser</p>
+                <h2>Parse preview</h2>
+              </div>
+              <Layers3 size={20} />
+            </div>
+            {preview ? (
+              <>
+                <div className="preview-stats">
+                  <span><strong>{preview.sourceCount ?? 0}</strong> sources</span>
+                  <span><strong>{preview.duplicateCount ?? 0}</strong> duplicates</span>
+                  <span><strong>{preview.messages.length}</strong> messages</span>
+                </div>
+                {preview.summary && <p className="summary-line">{preview.summary}</p>}
+                <div className="dm-thread">
+                  {preview.messages.length > 0 ? preview.messages.map((message, index) => (
+                    <article key={`${message.speaker}-${message.text}-${index}`} className={index % 2 === 0 ? "bubble incoming" : "bubble outgoing"}>
+                      <strong>{message.speaker}</strong>
+                      <p>{message.text}</p>
+                      {message.timestamp && <small>{message.timestamp}</small>}
+                    </article>
+                  )) : (
+                    <div className="empty-card compact">Stored source has no message preview</div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="empty-card">
+                <Inbox size={22} />
+                <span>Import or paste to see parser output</span>
+              </div>
+            )}
+          </section>
+
+          <section className="surface-card report-card">
+            <div className="section-head">
+              <div>
+                <p>Pursuit</p>
+                <h2>Report</h2>
+              </div>
+              <Archive size={20} />
+            </div>
+
+            <div className="pursuit-form">
+              <label>Me<input value={me} onChange={(event) => setMe(event.target.value)} /></label>
+              <label>TA<input value={ta} onChange={(event) => setTa(event.target.value)} /></label>
+              <label>
+                Goal
+                <select value={goal} onChange={(event) => setGoal(event.target.value as PursuitGoal)}>
+                  {goals.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+              </label>
+            </div>
+
+            {report ? (
+              <div className="report-body">
+                <div className={`stage-card ${stageClass(report.stage)}`}>
+                  <span>Stage</span>
+                  <strong>{report.stage}</strong>
+                  <em>{reportConfidence}%</em>
+                  <div className="meter"><i style={{ width: `${reportConfidence}%` }} /></div>
+                </div>
+                <div className="signal-grid">
+                  <div><b>{report.warmthSignals.length}</b><span>Warmth</span></div>
+                  <div><b>{report.riskSignals.length}</b><span>Risk</span></div>
+                  <div><b>{report.strategy.action}</b><span>Action</span></div>
+                </div>
+                <p className="strategy-copy">{report.strategy.summary || "No strategy summary returned."}</p>
+                <p className="next-copy">{report.strategy.nextMove || "No next move returned."}</p>
+                <div className="evidence-list">
+                  {[...report.warmthSignals, ...report.riskSignals].slice(0, 4).map((item, index) => (
+                    <article key={`${item.claim}-${index}`}>
+                      <span>{Math.round((item.confidence ?? 0) * 100)}%</span>
+                      <p>{item.quote}</p>
+                      <small>{item.claim}</small>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="empty-card">
+                <Clock3 size={22} />
+                <span>Run analysis after a pack has sources</span>
+              </div>
+            )}
+          </section>
+        </div>
+
+        <section className="surface-card reply-lab-card">
+          <div className="section-head">
+            <div>
+              <p>Reply Lab</p>
+              <h2>Generate sendable replies</h2>
+            </div>
+            <WandSparkles size={21} />
           </div>
-          <div className="topic-columns">
-            <div><b>Low risk</b>{topics.lowRiskTopics.slice(0, 5).map((topic) => <span key={topic}>{topic}</span>)}</div>
-            <div><b>Interest-based</b>{topics.interestBasedTopics.map((topic) => <span key={topic}>{topic}</span>)}</div>
-            <div><b>Do not</b>{topics.avoidTopics.map((topic) => <span key={topic}>{topic}</span>)}</div>
+          <div className="reply-controls">
+            <label>
+              TA latest
+              <input value={latest} onChange={(event) => setLatest(event.target.value)} />
+            </label>
+            <label>
+              Style
+              <select value={replyStyle} onChange={(event) => setReplyStyle(event.target.value as ReplyStyle)}>
+                {replyStyles.map((style) => <option key={style} value={style}>{styleLabels[style]}</option>)}
+              </select>
+            </label>
+            <button className="primary-action" type="button" disabled={!canRunPursuit} onClick={() => void runPursuitLab()}>
+              {busyAction === "pursuit" ? <Loader2 className="spin" size={17} /> : <WandSparkles size={17} />}
+              Run lab
+            </button>
+          </div>
+
+          <div className="reply-grid">
+            {replies.length > 0 ? replies.map((reply) => (
+              <article className="reply-card" key={`${reply.label}-${reply.text}`}>
+                <div>
+                  <strong>{reply.label}</strong>
+                  <span>{reply.boundarySafe ? "Boundary-safe" : "Review needed"}</span>
+                </div>
+                <p>{reply.text}</p>
+                <small>{reply.why || reply.expectedEffect}</small>
+                {reply.risk && <em>{reply.risk}</em>}
+              </article>
+            )) : (
+              <div className="empty-card compact">
+                <MessageCircleHeart size={19} />
+                <span>No replies returned yet</span>
+              </div>
+            )}
           </div>
         </section>
       </section>
 
-      <aside className="inspector">
-        <div className="panel-title">
-          <ShieldCheck size={18} />
-          <h3>Prompt Stack</h3>
-        </div>
-        <p className="muted">{messages[locale].safety}</p>
-        {stack.layers.map((layer) => (
-          <details key={layer.name} open={layer.name === "identity" || layer.name === "boundaries"}>
-            <summary>
-              <span>{layer.name}</span>
-              <em>{layer.tokensEstimate} tok</em>
-            </summary>
-            <pre>{layer.content}</pre>
-          </details>
-        ))}
+      <aside className="right-dock">
+        <section className="surface-card action-card">
+          <div className="section-head">
+            <div>
+              <p>Artifacts</p>
+              <h2>Downloads</h2>
+            </div>
+            <Download size={20} />
+          </div>
+          <button className="download-row" type="button" disabled={!canDownloadReport} onClick={() => void handleReportDownload()}>
+            <Archive size={17} />
+            <span>Report markdown</span>
+          </button>
+          <label>
+            Export target
+            <select value={exportTarget} onChange={(event) => setExportTarget(event.target.value as ExportTarget)}>
+              {exportTargets.map((target) => <option key={target} value={target}>{target}</option>)}
+            </select>
+          </label>
+          <button className="download-row accent" type="button" disabled={!activePackId || busyAction !== null} onClick={() => void handleExportDownload()}>
+            {busyAction === "export" ? <Loader2 className="spin" size={17} /> : <FileArchive size={17} />}
+            <span>Export ZIP</span>
+          </button>
+        </section>
+
+        <section className="surface-card topic-card">
+          <div className="section-head">
+            <div>
+              <p>Plan</p>
+              <h2>Topic windows</h2>
+            </div>
+            <MessageCircle size={20} />
+          </div>
+          {topicPlan ? (
+            <div className="topic-columns">
+              <div>
+                <b>Low risk</b>
+                {topicPlan.lowRiskTopics.slice(0, 5).map((topic) => <span key={topic}>{topic}</span>)}
+              </div>
+              <div>
+                <b>Interest</b>
+                {topicPlan.interestBasedTopics.slice(0, 4).map((topic) => <span key={topic}>{topic}</span>)}
+              </div>
+              <div>
+                <b>Avoid</b>
+                {topicPlan.avoidTopics.slice(0, 4).map((topic) => <span key={topic}>{topic}</span>)}
+              </div>
+            </div>
+          ) : (
+            <div className="empty-card compact">
+              <MessageCircle size={18} />
+              <span>Run lab for topic plan</span>
+            </div>
+          )}
+        </section>
+
+        <section className="surface-card safety-card">
+          <div className="section-head">
+            <div>
+              <p>Boundaries</p>
+              <h2>Safety gate</h2>
+            </div>
+            <ShieldCheck size={20} />
+          </div>
+          {report ? (
+            <>
+              <div className={`safety-pill ${report.safety.boundaryDetected ? "blocked" : "clear"}`}>
+                {report.safety.boundaryDetected ? "Boundary detected" : "No boundary refusal detected"}
+              </div>
+              <ul className="safety-list">
+                {report.safety.nonManipulation.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </>
+          ) : (
+            <div className="empty-card compact">
+              <ShieldCheck size={18} />
+              <span>Awaiting report</span>
+            </div>
+          )}
+        </section>
       </aside>
     </main>
   );

@@ -1,4 +1,4 @@
-import { messages } from "./messages.ts";
+import { messages } from "./messages.js";
 
 export { messages };
 

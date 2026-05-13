@@ -1,4 +1,4 @@
-import type { PersonaPack } from "../../core/src/index.ts";
+import type { PersonaPack } from "../../core/src/index.js";
 
 export type MemoryPatch = {
   op: "add" | "replace" | "remove";
