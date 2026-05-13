@@ -4,7 +4,7 @@
 
 ![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**Workbench local para convertir voz, chats, imágenes, personajes y memoria de relación en persona packs que puedes escuchar, conversar y exportar.**  
+**Workbench local para convertir voz, chats, imágenes, personajes y memoria de relación en persona packs que puedes escuchar, conversar y exportar.**<br>
 **A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · **Español**
@@ -19,7 +19,7 @@ Cada capacidad escrita aquí tiene comando real, ejemplo real, salida real y pue
 
 ![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-Muchas veces no recordamos solo la frase, sino cómo sonaba.  
+Muchas veces no recordamos solo la frase, sino cómo sonaba.<br>
 Una pausa, una risa, una muletilla, la velocidad de una respuesta o un tono más suave pueden traer más presencia que una página de notas. Con personajes pasa igual: cuando hay sensación de voz, la conversación arranca con más vida.
 
 K.skill pone Voice Memory al inicio del workbench. El audio primero se convierte en transcript revisable; después se organiza como voice DNA, ritmo de chat, memoria de relación, tono de personaje y archivos exportables. Puedes empezar con una sola voice note, o mezclar voz con chats, imágenes, stickers, PDFs y video transcripts.

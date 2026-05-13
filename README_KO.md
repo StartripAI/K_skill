@@ -4,7 +4,7 @@
 
 ![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**음성, 채팅, 이미지, 캐릭터 설정, 관계 기억을 듣고 말하고 내보낼 수 있는 persona pack으로 만드는 로컬 워크벤치.**  
+**음성, 채팅, 이미지, 캐릭터 설정, 관계 기억을 듣고 말하고 내보낼 수 있는 persona pack으로 만드는 로컬 워크벤치.**<br>
 **A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 [中文](README.md) · [English](README_EN.md) · [日本語](README_JA.md) · **한국어** · [Español](README_ES.md)
@@ -19,7 +19,7 @@ K.skill은 local-first 인격 워크벤치입니다. voice note, 채팅 로그, 
 
 ![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-우리가 기억하는 건 문장만이 아닐 때가 많습니다.  
+우리가 기억하는 건 문장만이 아닐 때가 많습니다.<br>
 잠깐 멈추는 방식, 웃음, 말버릇, 답장의 속도, 목소리의 온도. 이런 작은 것들이 긴 메모보다 더 “그 사람 같다”는 느낌을 줍니다. 캐릭터도 마찬가지입니다. 목소리의 결이 있으면 대화가 훨씬 빨리 살아납니다.
 
 K.skill은 Voice Memory를 워크벤치의 첫 입구로 둡니다. 음성은 먼저 확인 가능한 transcript가 되고, 그다음 voice DNA, chat rhythm, relationship memory, character tone, export 가능한 pack으로 정리됩니다. voice note 하나로 시작해도 되고, 채팅, 이미지, sticker, PDF, video transcript와 함께 넣어도 됩니다.

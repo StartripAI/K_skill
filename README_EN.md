@@ -4,7 +4,7 @@
 
 ![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**  
+**A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**<br>
 **把语音、聊天、图片、角色设定和关系记忆，整理成能听、能聊、能带走的 persona pack。**
 
 [中文](README.md) · **English** · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
@@ -19,7 +19,7 @@ Everything shown here has a real command, real sample input, real output, and a 
 
 ![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-What stays with us is often not only the sentence, but how it sounded.  
+What stays with us is often not only the sentence, but how it sounded.<br>
 A pause, a laugh, a catchphrase, the speed of a reply, or a softer tone can carry more presence than a page of notes. For characters, the same thing matters: the voice is what makes the role feel alive.
 
 K.skill puts Voice Memory at the front of the workbench. Audio becomes inspectable transcript first, then turns into voice DNA, chat rhythm, relationship memory, character tone, and exportable persona files. You can start from a single voice note, or mix voice with chats, images, stickers, PDFs, and video transcripts.

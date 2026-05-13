@@ -4,7 +4,7 @@
 
 ![K.skill cinematic voice memory hero](assets/readme/hero-voice-memory-cinema.png)
 
-**把语音、聊天、图片、角色设定和关系记忆，整理成能听、能聊、能带走的 persona pack。**  
+**把语音、聊天、图片、角色设定和关系记忆，整理成能听、能聊、能带走的 persona pack。**<br>
 **A local voice-first persona workbench for chats, memories, characters, and Life Mentor packs.**
 
 **中文** · [English](README_EN.md) · [日本語](README_JA.md) · [한국어](README_KO.md) · [Español](README_ES.md)
@@ -19,7 +19,7 @@
 
 ![K.skill voice memory flow](assets/readme/voice-memory-flow-cinema.png)
 
-很多时候，我们想记住的不是一句话本身，而是那句话的语气。  
+很多时候，我们想记住的不是一句话本身，而是那句话的语气。<br>
 一段停顿、一次笑、一个口头禅、慢半拍的回复、突然变轻的声音，比长篇文字更容易让人想起某个人，也更容易让一个角色真的活起来。
 
 K.skill 把 Voice Memory 放在整个工作台的第一层：语音先变成可检查的 transcript，再沉淀成 voice DNA、聊天节奏、关系记忆、角色语气和可导出的包。你可以从声音开始，也可以把声音和聊天、图片、表情、PDF、视频字幕一起放进来。
