@@ -109,4 +109,25 @@ describe("web API client", () => {
     expect(created.exportId).toBe("export_1");
     expect(new Uint8Array(await blob.arrayBuffer())).toEqual(new Uint8Array([0x50, 0x4b]));
   });
+
+  test("renders an avatar video by posting image + audio to /api/avatar/render", async () => {
+    const requests: Array<{ input: RequestInfo | URL; init: RequestInit | undefined }> = [];
+    const client = createApiClient(async (input, init) => {
+      requests.push({ input, init });
+      return new Response(new Uint8Array([0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70]), { status: 200 });
+    });
+
+    const blob = await client.renderAvatarVideo({
+      image: new File([new Uint8Array([1])], "face.png", { type: "image/png" }),
+      audio: new File([new Uint8Array([2])], "voice.wav", { type: "audio/wav" })
+    });
+
+    expect(requests[0]?.input).toBe("/api/avatar/render");
+    expect(requests[0]?.init?.method).toBe("POST");
+    const body = requests[0]?.init?.body;
+    expect(body).toBeInstanceOf(FormData);
+    expect((body as FormData).get("image")).toBeInstanceOf(File);
+    expect((body as FormData).get("audio")).toBeInstanceOf(File);
+    expect((await blob.arrayBuffer()).byteLength).toBe(8);
+  });
 });

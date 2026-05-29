@@ -1,8 +1,11 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createKskillApp } from "../packages/server/src/index.ts";
 import { openVault } from "../packages/vault/src/index.ts";
+
+const hasFfmpeg = spawnSync("ffmpeg", ["-version"]).status === 0;
 
 function tempVault() {
   const dir = mkdtempSync(join(tmpdir(), "kskill-cap-"));
@@ -43,6 +46,30 @@ describe("capability + avatar API", () => {
     } finally {
       ctx.vault.close();
       ctx.cleanup();
+    }
+  });
+
+  test.skipIf(!hasFfmpeg)("POST /api/avatar/render returns a real mp4 via the ffmpeg floor", async () => {
+    const ctx = tempVault();
+    const dir = mkdtempSync(join(tmpdir(), "kskill-render-"));
+    const png = join(dir, "in.png");
+    const wav = join(dir, "in.wav");
+    spawnSync("ffmpeg", ["-y", "-f", "lavfi", "-i", "color=c=red:s=64x64:d=1", "-frames:v", "1", png], { stdio: "ignore" });
+    spawnSync("ffmpeg", ["-y", "-f", "lavfi", "-i", "sine=frequency=440:duration=1", wav], { stdio: "ignore" });
+    try {
+      const app = createKskillApp({ vault: ctx.vault, staticDir: "dist-web" });
+      const form = new FormData();
+      form.set("image", new File([readFileSync(png)], "face.png", { type: "image/png" }));
+      form.set("audio", new File([readFileSync(wav)], "voice.wav", { type: "audio/wav" }));
+      const res = await app.request("/api/avatar/render", { method: "POST", body: form });
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("video/mp4");
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      expect(bytes.length).toBeGreaterThan(200);
+    } finally {
+      ctx.vault.close();
+      ctx.cleanup();
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 });

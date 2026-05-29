@@ -723,6 +723,14 @@ export function createApiClient(fetcher: Fetcher = (input, init) => fetch(input,
 
     async downloadExport(exportId: string): Promise<Blob> {
       return requestBlob(fetcher, `/api/exports/${exportId}/download`);
+    },
+
+    async renderAvatarVideo(input: { image: File; audio: File; providerId?: string }): Promise<Blob> {
+      const form = new FormData();
+      form.set("image", input.image);
+      form.set("audio", input.audio);
+      if (input.providerId) form.set("providerId", input.providerId);
+      return requestBlob(fetcher, "/api/avatar/render", { method: "POST", body: form });
     }
   };
 }

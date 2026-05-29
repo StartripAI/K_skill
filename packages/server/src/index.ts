@@ -15,7 +15,7 @@ import {
 } from "../../contracts/src/index.js";
 import { ingest, selectAcquisitionProviders, serverDeviceProfile, type AcquisitionResult } from "../../acquisition/src/index.js";
 import { detectHardware, serverCapability } from "../../capability/src/index.js";
-import { selectAvatarProviders } from "../../avatar/src/index.js";
+import { renderAvatar, selectAvatarProviders } from "../../avatar/src/index.js";
 import { createPersonaPack, inspectPromptStack, renderPersonaMarkdown, type PackLanguage, type PersonaType } from "../../core/src/index.js";
 import { distillPersonaPack } from "../../distiller/src/index.js";
 import { exportPersonaPackZip } from "../../exporters/src/index.js";
@@ -199,6 +199,31 @@ export function createKskillApp(options: KskillAppOptions = {}) {
 
   app.get("/api/avatar/providers", (c) =>
     c.json(ok({ providers: selectAvatarProviders(detectHardware()) })));
+
+  app.post("/api/avatar/render", async (c) => {
+    const body = await c.req.parseBody({ all: true });
+    const image = normalizeFiles(body.image)[0];
+    const audio = normalizeFiles(body.audio)[0];
+    if (!image || !audio) {
+      return c.json(fail("invalid_request", "image and audio files are required"), 400);
+    }
+    try {
+      const video = await renderAvatar(
+        {
+          imageBytes: new Uint8Array(await image.arrayBuffer()),
+          audioBytes: new Uint8Array(await audio.arrayBuffer())
+        },
+        detectHardware()
+      );
+      const out = video.bytes;
+      const arrayBuffer = out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength) as ArrayBuffer;
+      return new Response(arrayBuffer, {
+        headers: { "content-type": video.mimeType, "x-avatar-provider": video.providerId }
+      });
+    } catch (error) {
+      return c.json(fail("render_failed", error instanceof Error ? error.message : "render failed"), 500);
+    }
+  });
 
   app.post("/api/acquisition/ingest", async (c) => {
     const contentType = c.req.header("content-type") ?? "";

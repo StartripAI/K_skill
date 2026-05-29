@@ -166,6 +166,9 @@ function App() {
   const [replies, setReplies] = useState<ReplySuggestion[]>([]);
   const [topicPlan, setTopicPlan] = useState<TopicPlan | null>(null);
   const [exportTarget, setExportTarget] = useState<ExportTarget>("sillytavern");
+  const [avatarImage, setAvatarImage] = useState<File | null>(null);
+  const [avatarAudio, setAvatarAudio] = useState<File | null>(null);
+  const [avatarVideoUrl, setAvatarVideoUrl] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>({ tone: "neutral", message: "Local API ready at /api" });
 
@@ -288,6 +291,24 @@ function App() {
       });
       downloadBlob("kskill-voice-preview.wav", blob);
       setStatus({ tone: "success", message: "Voice preview download started" });
+    } catch (error) {
+      setStatus({ tone: "error", message: errorMessage(error) });
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleGenerateVideo(): Promise<void> {
+    if (!avatarImage || !avatarAudio) {
+      setStatus({ tone: "error", message: "Pick a portrait photo and an audio clip first" });
+      return;
+    }
+    setBusyAction("avatar");
+    setStatus({ tone: "busy", message: "Rendering talking portrait via /api/avatar/render" });
+    try {
+      const blob = await api.renderAvatarVideo({ image: avatarImage, audio: avatarAudio });
+      setAvatarVideoUrl(URL.createObjectURL(blob));
+      setStatus({ tone: "success", message: "Talking portrait generated" });
     } catch (error) {
       setStatus({ tone: "error", message: errorMessage(error) });
     } finally {
@@ -764,6 +785,36 @@ function App() {
             )}
           </section>
         </div>
+
+        <section className="surface-card avatar-card" aria-label="Talking portrait">
+          <div className="section-head">
+            <div>
+              <p>Talking portrait</p>
+              <h2>Photo + voice → video</h2>
+            </div>
+          </div>
+          <div className="reply-controls">
+            <label>
+              Portrait photo
+              <input type="file" accept="image/*" onChange={(event) => setAvatarImage(event.target.files?.[0] ?? null)} />
+            </label>
+            <label>
+              Voice clip
+              <input type="file" accept="audio/*" onChange={(event) => setAvatarAudio(event.target.files?.[0] ?? null)} />
+            </label>
+            <button
+              className="primary-button"
+              type="button"
+              disabled={busyAction !== null || !avatarImage || !avatarAudio}
+              onClick={() => void handleGenerateVideo()}
+            >
+              Generate video
+            </button>
+          </div>
+          {avatarVideoUrl ? (
+            <video className="avatar-preview" src={avatarVideoUrl} controls playsInline style={{ width: "100%", marginTop: 12, borderRadius: 12 }} />
+          ) : null}
+        </section>
 
         <section className="surface-card reply-lab-card">
           <div className="section-head">
