@@ -49,6 +49,14 @@
       "types": "./dist/packages/acquisition/src/index.d.ts",
       "import": "./dist/packages/acquisition/src/index.js"
     },
+    "./capability": {
+      "types": "./dist/packages/capability/src/index.d.ts",
+      "import": "./dist/packages/capability/src/index.js"
+    },
+    "./avatar": {
+      "types": "./dist/packages/avatar/src/index.d.ts",
+      "import": "./dist/packages/avatar/src/index.js"
+    },
     "./media": {
       "types": "./dist/packages/media/src/index.d.ts",
       "import": "./dist/packages/media/src/index.js"

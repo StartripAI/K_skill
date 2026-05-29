@@ -14,6 +14,8 @@ import {
   ok
 } from "../../contracts/src/index.js";
 import { ingest, selectAcquisitionProviders, serverDeviceProfile } from "../../acquisition/src/index.js";
+import { detectHardware, serverCapability } from "../../capability/src/index.js";
+import { selectAvatarProviders } from "../../avatar/src/index.js";
 import { createPersonaPack, inspectPromptStack, renderPersonaMarkdown, type PackLanguage, type PersonaType } from "../../core/src/index.js";
 import { distillPersonaPack } from "../../distiller/src/index.js";
 import { exportPersonaPackZip } from "../../exporters/src/index.js";
@@ -162,6 +164,11 @@ export function createKskillApp(options: KskillAppOptions = {}) {
 
   app.get("/api/acquisition/providers", (c) =>
     c.json(ok({ providers: selectAcquisitionProviders(serverDeviceProfile()) })));
+
+  app.get("/api/capabilities", (c) => c.json(ok(serverCapability())));
+
+  app.get("/api/avatar/providers", (c) =>
+    c.json(ok({ providers: selectAvatarProviders(detectHardware()) })));
 
   app.post("/api/acquisition/ingest", async (c) => {
     const contentType = c.req.header("content-type") ?? "";
