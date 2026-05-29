@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseMediaFile, type MediaInputFile } from "../../media/src/index.js";
+import { parseMediaFile, type MediaInputFile, type ParsedAsset } from "../../media/src/index.js";
 import { parseImport, type ParsedSource } from "../../importers/src/index.js";
 
 export type AcquisitionPlatform =
@@ -55,6 +55,7 @@ export type AcquisitionInput =
 export type AcquisitionResult = {
   providerId: string;
   sources: ParsedSource[];
+  assets: ParsedAsset[];
   diagnostics: AcquisitionDiagnostic[];
 };
 
@@ -90,6 +91,7 @@ const fileExportProvider: AcquisitionProvider = {
     return {
       providerId: "file-export",
       sources: result.sources,
+      assets: result.assets,
       diagnostics: result.diagnostics.map((d) => ({ severity: d.severity, code: d.code, message: d.message }))
     };
   }
@@ -112,7 +114,7 @@ const manualPasteProvider: AcquisitionProvider = {
     if (input.kind !== "paste") throw new Error("manual-paste provider requires a paste input");
     const result = parseImport({ name: input.name, text: input.text, forcedFormat: forcedFormatFor(input.platform) });
     const sources = result.import ? [result.import] : [];
-    return { providerId: "manual-paste", sources, diagnostics: [] };
+    return { providerId: "manual-paste", sources, assets: [], diagnostics: [] };
   }
 };
 
@@ -181,7 +183,7 @@ const wechatExtractProvider: AcquisitionProvider = {
     if (!commandLine) throw new Error("KSKILL_WECHAT_EXTRACT_COMMAND is not configured");
     const text = await runExtractCommand(commandLine, { platform: input.platform, contact: input.contact ?? "" });
     const result = parseImport({ name: `${input.platform}-export.txt`, text });
-    return { providerId: "wechat-extract", sources: result.import ? [result.import] : [], diagnostics: [] };
+    return { providerId: "wechat-extract", sources: result.import ? [result.import] : [], assets: [], diagnostics: [] };
   }
 };
 

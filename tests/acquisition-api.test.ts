@@ -75,4 +75,32 @@ describe("acquisition API", () => {
       ctx.cleanup();
     }
   });
+
+  test("POST /api/acquisition/ingest persists to a pack when packName is given and dedupes", async () => {
+    const ctx = tempVault();
+    try {
+      const app = createKskillApp({ vault: ctx.vault, staticDir: "dist-web" });
+      const payload = {
+        kind: "paste",
+        name: "c.txt",
+        text: "Alice: 在吗\nBob: 在的，刚下班",
+        packName: "AcqPack",
+        consentConfirmed: true
+      };
+      const init = { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) };
+
+      const first = await app.request("/api/acquisition/ingest", init);
+      const firstBody = (await first.json()) as { ok: true; data: { packId: string; sourceCount: number } };
+      expect(firstBody.ok).toBe(true);
+      expect(firstBody.data.sourceCount).toBeGreaterThan(0);
+      expect(ctx.vault.listPacks().some((pack) => pack.name === "AcqPack")).toBe(true);
+
+      const second = await app.request("/api/acquisition/ingest", init);
+      const secondBody = (await second.json()) as { ok: true; data: { duplicateCount: number } };
+      expect(secondBody.data.duplicateCount).toBe(1);
+    } finally {
+      ctx.vault.close();
+      ctx.cleanup();
+    }
+  });
 });

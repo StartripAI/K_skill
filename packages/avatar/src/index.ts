@@ -5,7 +5,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { resolveTier, type CapabilityTier, type HardwareProfile } from "../../capability/src/index.js";
 
-export type AvatarProviderId = "sadtalker-local-command" | "echomimic-cuda" | "phosphene-mlx";
+export type AvatarProviderId =
+  | "ffmpeg-static-portrait"
+  | "sadtalker-local-command"
+  | "echomimic-cuda"
+  | "phosphene-mlx";
 export type AvatarAccelerator = "cpu" | "mps" | "cuda";
 
 export type AvatarProviderInfo = {
@@ -39,7 +43,7 @@ export interface AvatarProvider {
 
 // Each provider shells out to an external, swappable model command (env-configured) —
 // no model code or weights vendored. Same pattern as the voice local-command adapter.
-const ENV: Record<AvatarProviderId, string> = {
+const ENV: Partial<Record<AvatarProviderId, string>> = {
   "sadtalker-local-command": "KSKILL_AVATAR_COMMAND",
   "echomimic-cuda": "KSKILL_AVATAR_COMMAND_CUDA",
   "phosphene-mlx": "KSKILL_PHOSPHENE_COMMAND"
@@ -52,7 +56,8 @@ function sha256(bytes: Uint8Array): string {
 }
 
 function commandFor(id: AvatarProviderId): string | undefined {
-  return process.env[ENV[id]];
+  const key = ENV[id];
+  return key ? process.env[key] : undefined;
 }
 
 function mapAccelerator(accelerator: HardwareProfile["accelerator"]): AvatarAccelerator {
@@ -123,14 +128,77 @@ function makeProvider(info: AvatarProviderInfo): AvatarProvider {
   };
 }
 
+// Real, no-model, no-GPU video floor: loops the photo over the audio into an mp4 via
+// ffmpeg. Produces a genuine "speaking portrait" clip on any machine that has ffmpeg —
+// the graceful-degradation baseline below the talking-head models.
+async function runFfmpegStaticPortrait(
+  imageBytes: Uint8Array,
+  audioBytes: Uint8Array,
+  timeoutMs = 120000
+): Promise<Uint8Array> {
+  const dir = mkdtempSync(join(tmpdir(), "kskill-ffmpeg-"));
+  const imageFile = join(dir, "face.png");
+  const audioFile = join(dir, "voice.wav");
+  const outFile = join(dir, "portrait.mp4");
+  writeFileSync(imageFile, imageBytes);
+  writeFileSync(audioFile, audioBytes);
+  const args = [
+    "-loop", "1", "-i", imageFile,
+    "-i", audioFile,
+    "-c:v", "libx264", "-tune", "stillimage",
+    "-c:a", "aac", "-b:a", "192k",
+    "-pix_fmt", "yuv420p", "-shortest", "-y", outFile
+  ];
+  await new Promise<void>((resolvePromise, reject) => {
+    const child = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "pipe"] });
+    const timeout = setTimeout(() => {
+      child.kill("SIGKILL");
+      reject(new Error(`ffmpeg timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+    const stderr: Buffer[] = [];
+    child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
+    child.on("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+    child.on("close", (code) => {
+      clearTimeout(timeout);
+      if (code !== 0) {
+        reject(new Error(`ffmpeg exited with ${code}: ${Buffer.concat(stderr).toString("utf8")}`));
+        return;
+      }
+      resolvePromise();
+    });
+  });
+  return new Uint8Array(readFileSync(outFile));
+}
+
+const ffmpegStaticPortrait: AvatarProvider = {
+  info: {
+    id: "ffmpeg-static-portrait",
+    label: "Static portrait clip (ffmpeg, no model / no GPU)",
+    accelerator: ["cpu", "mps", "cuda"],
+    minTier: "T1",
+    local: true,
+    external: { tool: "ffmpeg", swappable: true },
+    privacyLabel: "local"
+  },
+  isAvailable: (profile) => TIER_RANK[resolveTier(profile)] >= TIER_RANK.T1 && profile.ffmpegAvailable,
+  async render(input) {
+    const bytes = await runFfmpegStaticPortrait(input.imageBytes, input.audioBytes);
+    return { providerId: "ffmpeg-static-portrait", bytes, mimeType: "video/mp4", sha256: sha256(bytes) };
+  }
+};
+
+// Ordered best-quality first; ffmpeg static portrait is the universal floor (last resort).
 export const avatarProviders: AvatarProvider[] = [
   makeProvider({
-    id: "sadtalker-local-command",
-    label: "SadTalker (baseline, single photo + audio)",
-    accelerator: ["cpu", "mps", "cuda"],
-    minTier: "T2",
+    id: "phosphene-mlx",
+    label: "Phosphene / LTX-2 MLX (HQ, Apple Silicon)",
+    accelerator: ["mps"],
+    minTier: "T3",
     local: true,
-    external: { tool: "KSKILL_AVATAR_COMMAND", swappable: true },
+    external: { tool: "KSKILL_PHOSPHENE_COMMAND", swappable: true },
     privacyLabel: "local"
   }),
   makeProvider({
@@ -143,14 +211,15 @@ export const avatarProviders: AvatarProvider[] = [
     privacyLabel: "local"
   }),
   makeProvider({
-    id: "phosphene-mlx",
-    label: "Phosphene / LTX-2 MLX (HQ, Apple Silicon)",
-    accelerator: ["mps"],
-    minTier: "T3",
+    id: "sadtalker-local-command",
+    label: "SadTalker (talking head, single photo + audio)",
+    accelerator: ["cpu", "mps", "cuda"],
+    minTier: "T2",
     local: true,
-    external: { tool: "KSKILL_PHOSPHENE_COMMAND", swappable: true },
+    external: { tool: "KSKILL_AVATAR_COMMAND", swappable: true },
     privacyLabel: "local"
-  })
+  }),
+  ffmpegStaticPortrait
 ];
 
 export function selectAvatarProviders(profile: HardwareProfile): AvatarProviderInfo[] {

@@ -13,7 +13,7 @@ import {
   fail,
   ok
 } from "../../contracts/src/index.js";
-import { ingest, selectAcquisitionProviders, serverDeviceProfile } from "../../acquisition/src/index.js";
+import { ingest, selectAcquisitionProviders, serverDeviceProfile, type AcquisitionResult } from "../../acquisition/src/index.js";
 import { detectHardware, serverCapability } from "../../capability/src/index.js";
 import { selectAvatarProviders } from "../../avatar/src/index.js";
 import { createPersonaPack, inspectPromptStack, renderPersonaMarkdown, type PackLanguage, type PersonaType } from "../../core/src/index.js";
@@ -137,6 +137,36 @@ function remapAssets(assets: ParsedAsset[], sourceId: string): ParsedAsset[] {
   return assets.map((item) => ({ ...item, asset: { ...item.asset, sourceId } }));
 }
 
+function persistAcquiredSources(
+  vault: VaultStore,
+  options: { packName: string; type: PersonaType; language: PackLanguage; consentConfirmed: boolean },
+  results: AcquisitionResult[]
+): { packId: string; sourceCount: number; duplicateCount: number } {
+  const pack =
+    vault.findPackByName(options.packName) ??
+    vault.createPack({ name: options.packName, type: options.type, language: options.language });
+  let duplicateCount = 0;
+  for (const result of results) {
+    for (const source of result.sources) {
+      const stored = vault.addSource(pack.id, {
+        ...source,
+        source: { ...source.source, consentConfirmed: options.consentConfirmed, private: true }
+      });
+      duplicateCount += stored.inserted ? 0 : 1;
+      const sourceAssets = remapAssets(
+        result.assets.filter((asset) => asset.asset.sourceId === source.source.id || result.sources.length === 1),
+        stored.sourceId
+      );
+      if (sourceAssets.length) vault.addAssets(pack.id, sourceAssets);
+      if (stored.inserted) {
+        const current = vault.getPack(pack.id) ?? pack;
+        vault.upsertPack(distillPersonaPack(current, { ...source, source: { ...source.source, id: stored.sourceId } }));
+      }
+    }
+  }
+  return { packId: pack.id, sourceCount: vault.listSources(pack.id).length, duplicateCount };
+}
+
 export function createKskillApp(options: KskillAppOptions = {}) {
   const vault = options.vault ?? openVault(options.vaultPath ?? defaultVaultPath());
   const staticDir = options.staticDir ?? "dist-web";
@@ -175,14 +205,31 @@ export function createKskillApp(options: KskillAppOptions = {}) {
     if (contentType.includes("multipart/form-data")) {
       const body = await c.req.parseBody({ all: true });
       const files = normalizeFiles(body.files);
-      const sources: Awaited<ReturnType<typeof ingest>>["sources"] = [];
-      const diagnostics: Awaited<ReturnType<typeof ingest>>["diagnostics"] = [];
+      const results: AcquisitionResult[] = [];
       for (const file of files) {
-        const result = await ingest({ kind: "file", file: await toMediaInput(file) }, serverDeviceProfile());
-        sources.push(...result.sources);
-        diagnostics.push(...result.diagnostics);
+        results.push(await ingest({ kind: "file", file: await toMediaInput(file) }, serverDeviceProfile()));
       }
-      return c.json(ok({ providerId: "file-export", sourceCount: sources.length, diagnostics }));
+      const packName = typeof body.packName === "string" ? body.packName : "";
+      if (packName) {
+        const persisted = persistAcquiredSources(
+          vault,
+          {
+            packName,
+            type: String(body.type ?? "pursuit") as PersonaType,
+            language: String(body.language ?? "zh") as PackLanguage,
+            consentConfirmed: String(body.consentConfirmed ?? "false") === "true"
+          },
+          results
+        );
+        return c.json(ok({ providerId: "file-export", ...persisted }));
+      }
+      return c.json(
+        ok({
+          providerId: "file-export",
+          sourceCount: results.reduce((sum, result) => sum + result.sources.length, 0),
+          diagnostics: results.flatMap((result) => result.diagnostics)
+        })
+      );
     }
     let payload: ReturnType<typeof AcquisitionIngestRequestSchema.parse>;
     try {
@@ -194,6 +241,19 @@ export function createKskillApp(options: KskillAppOptions = {}) {
       { kind: "paste", name: payload.name, text: payload.text, platform: payload.platform },
       serverDeviceProfile()
     );
+    if (payload.packName) {
+      const persisted = persistAcquiredSources(
+        vault,
+        {
+          packName: payload.packName,
+          type: payload.type,
+          language: payload.language,
+          consentConfirmed: payload.consentConfirmed
+        },
+        [result]
+      );
+      return c.json(ok({ providerId: result.providerId, ...persisted }));
+    }
     return c.json(ok({ providerId: result.providerId, sourceCount: result.sources.length, diagnostics: result.diagnostics }));
   });
 

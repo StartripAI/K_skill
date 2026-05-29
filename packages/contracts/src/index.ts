@@ -63,7 +63,11 @@ export const AcquisitionIngestRequestSchema = z.object({
   text: z.string().min(1),
   platform: z
     .enum(["whatsapp", "telegram", "imessage", "wechat", "qq", "line", "generic", "manual"])
-    .default("manual")
+    .default("manual"),
+  packName: z.string().min(1).optional(),
+  type: z.enum(personaTypes).default("pursuit"),
+  language: z.enum(supportedPackLanguages).default("zh"),
+  consentConfirmed: z.boolean().default(false)
 });
 
 export const MemoryPatchRequestSchema = z.object({
