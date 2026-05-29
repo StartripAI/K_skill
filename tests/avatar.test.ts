@@ -28,7 +28,7 @@ describe("avatar provider selection", () => {
     const previous = process.env.KSKILL_AVATAR_COMMAND;
     delete process.env.KSKILL_AVATAR_COMMAND;
     try {
-      expect(selectAvatarProviders(t2cpu).map((info) => info.id)).not.toContain("sadtalker-local-command");
+      expect(selectAvatarProviders(t2cpu).map((info) => info.id)).not.toContain("talkinghead-local-command");
     } finally {
       if (previous !== undefined) process.env.KSKILL_AVATAR_COMMAND = previous;
     }
@@ -46,8 +46,8 @@ describe("avatar provider selection", () => {
     const previous = process.env.KSKILL_AVATAR_COMMAND;
     process.env.KSKILL_AVATAR_COMMAND = "noop";
     try {
-      expect(selectAvatarProviders(t2cpu).map((info) => info.id)).toContain("sadtalker-local-command");
-      expect(selectAvatarProviders(t1box).map((info) => info.id)).not.toContain("sadtalker-local-command");
+      expect(selectAvatarProviders(t2cpu).map((info) => info.id)).toContain("talkinghead-local-command");
+      expect(selectAvatarProviders(t1box).map((info) => info.id)).not.toContain("talkinghead-local-command");
     } finally {
       if (previous === undefined) delete process.env.KSKILL_AVATAR_COMMAND;
       else process.env.KSKILL_AVATAR_COMMAND = previous;
@@ -78,10 +78,10 @@ process.stdin.on("end", () => {
     process.env.KSKILL_AVATAR_COMMAND = `${process.execPath} ${runner}`;
     try {
       const video = await renderAvatar(
-        { imageBytes: new Uint8Array([1, 2, 3]), audioBytes: new Uint8Array([4, 5, 6]), providerId: "sadtalker-local-command" },
+        { imageBytes: new Uint8Array([1, 2, 3]), audioBytes: new Uint8Array([4, 5, 6]), providerId: "talkinghead-local-command" },
         t2cpu
       );
-      expect(video.providerId).toBe("sadtalker-local-command");
+      expect(video.providerId).toBe("talkinghead-local-command");
       expect(video.mimeType).toBe("video/mp4");
       expect(video.bytes.length).toBeGreaterThan(0);
       expect(video.sha256).toHaveLength(64);

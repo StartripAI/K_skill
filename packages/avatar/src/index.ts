@@ -7,7 +7,7 @@ import { resolveTier, type CapabilityTier, type HardwareProfile } from "../../ca
 
 export type AvatarProviderId =
   | "ffmpeg-static-portrait"
-  | "sadtalker-local-command"
+  | "talkinghead-local-command"
   | "echomimic-cuda"
   | "phosphene-mlx";
 export type AvatarAccelerator = "cpu" | "mps" | "cuda";
@@ -44,7 +44,7 @@ export interface AvatarProvider {
 // Each provider shells out to an external, swappable model command (env-configured) —
 // no model code or weights vendored. Same pattern as the voice local-command adapter.
 const ENV: Partial<Record<AvatarProviderId, string>> = {
-  "sadtalker-local-command": "KSKILL_AVATAR_COMMAND",
+  "talkinghead-local-command": "KSKILL_AVATAR_COMMAND",
   "echomimic-cuda": "KSKILL_AVATAR_COMMAND_CUDA",
   "phosphene-mlx": "KSKILL_PHOSPHENE_COMMAND"
 };
@@ -211,8 +211,8 @@ export const avatarProviders: AvatarProvider[] = [
     privacyLabel: "local"
   }),
   makeProvider({
-    id: "sadtalker-local-command",
-    label: "SadTalker (talking head, single photo + audio)",
+    id: "talkinghead-local-command",
+    label: "Local talking-head model (external command: Wav2Lip / SadTalker / EchoMimic)",
     accelerator: ["cpu", "mps", "cuda"],
     minTier: "T2",
     local: true,
