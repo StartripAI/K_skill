@@ -45,6 +45,10 @@
       "types": "./dist/packages/voice/src/index.d.ts",
       "import": "./dist/packages/voice/src/index.js"
     },
+    "./acquisition": {
+      "types": "./dist/packages/acquisition/src/index.d.ts",
+      "import": "./dist/packages/acquisition/src/index.js"
+    },
     "./media": {
       "types": "./dist/packages/media/src/index.d.ts",
       "import": "./dist/packages/media/src/index.js"

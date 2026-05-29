@@ -3,6 +3,7 @@ import { extname, join } from "node:path";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import {
+  AcquisitionIngestRequestSchema,
   CreatePackRequestSchema,
   ExportRequestSchema,
   MemoryPatchRequestSchema,
@@ -12,6 +13,7 @@ import {
   fail,
   ok
 } from "../../contracts/src/index.js";
+import { ingest, selectAcquisitionProviders, serverDeviceProfile } from "../../acquisition/src/index.js";
 import { createPersonaPack, inspectPromptStack, renderPersonaMarkdown, type PackLanguage, type PersonaType } from "../../core/src/index.js";
 import { distillPersonaPack } from "../../distiller/src/index.js";
 import { exportPersonaPackZip } from "../../exporters/src/index.js";
@@ -157,6 +159,36 @@ export function createKskillApp(options: KskillAppOptions = {}) {
         : !provider.requiresSecret
     }))
   })));
+
+  app.get("/api/acquisition/providers", (c) =>
+    c.json(ok({ providers: selectAcquisitionProviders(serverDeviceProfile()) })));
+
+  app.post("/api/acquisition/ingest", async (c) => {
+    const contentType = c.req.header("content-type") ?? "";
+    if (contentType.includes("multipart/form-data")) {
+      const body = await c.req.parseBody({ all: true });
+      const files = normalizeFiles(body.files);
+      const sources: Awaited<ReturnType<typeof ingest>>["sources"] = [];
+      const diagnostics: Awaited<ReturnType<typeof ingest>>["diagnostics"] = [];
+      for (const file of files) {
+        const result = await ingest({ kind: "file", file: await toMediaInput(file) }, serverDeviceProfile());
+        sources.push(...result.sources);
+        diagnostics.push(...result.diagnostics);
+      }
+      return c.json(ok({ providerId: "file-export", sourceCount: sources.length, diagnostics }));
+    }
+    let payload: ReturnType<typeof AcquisitionIngestRequestSchema.parse>;
+    try {
+      payload = AcquisitionIngestRequestSchema.parse(await c.req.json());
+    } catch (error) {
+      return c.json(fail("invalid_request", error instanceof Error ? error.message : "bad request"), 400);
+    }
+    const result = await ingest(
+      { kind: "paste", name: payload.name, text: payload.text, platform: payload.platform },
+      serverDeviceProfile()
+    );
+    return c.json(ok({ providerId: result.providerId, sourceCount: result.sources.length, diagnostics: result.diagnostics }));
+  });
 
   app.post("/api/packs", async (c) => {
     const input = await readJson(c.req.raw, CreatePackRequestSchema);

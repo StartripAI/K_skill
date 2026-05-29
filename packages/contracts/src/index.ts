@@ -57,6 +57,15 @@ export const TtsRequestSchema = z.object({
   timeoutMs: z.number().int().positive().max(600000).optional()
 });
 
+export const AcquisitionIngestRequestSchema = z.object({
+  kind: z.enum(["paste"]),
+  name: z.string().default("pasted-chat.txt"),
+  text: z.string().min(1),
+  platform: z
+    .enum(["whatsapp", "telegram", "imessage", "wechat", "qq", "line", "generic", "manual"])
+    .default("manual")
+});
+
 export const MemoryPatchRequestSchema = z.object({
   corrections: z.array(z.string()).optional(),
   preferences: z.array(z.string()).optional(),
