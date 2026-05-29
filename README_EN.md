@@ -362,6 +362,10 @@ Typical GUI flow:
 7. Download report markdown.
 8. Export a zip for the target client.
 
+### Talking portrait video
+
+Turn a single photo plus a voice clip into a short talking-portrait video, entirely on your own machine. The speech generated in Voice Studio drives the portrait, and the result is a self-contained MP4 you can replay or carry inside a pack. A built-in renderer produces a real clip on any computer that has video tooling installed — no graphics card required — and a higher-fidelity talking-head model can be plugged in locally when your hardware supports it.
+
 Local API:
 
 ```text
@@ -437,6 +441,8 @@ npm run check:exports
 ## Privacy And Feel
 
 Private chats stay outside the repository. Content leaves your machine only when you explicitly configure an external model provider. You can run the full sample flow with stub ASR / stub TTS before connecting your own voice or model service.
+
+K.skill adapts to the device it runs on: the lightest setups stay with text and voice, while richer media such as the talking portrait unlocks as the machine allows — from a phone-class browser up to a workstation. Detection happens on the device, and you can override the tier by hand.
 
 The feel is closer to keeping a relationship, character, or thinking archive open over time than asking a one-off question. You open it when you want to:
 

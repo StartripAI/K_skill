@@ -359,6 +359,10 @@ GUI flow:
 7. Descarga report markdown.
 8. Exporta zip para el cliente objetivo.
 
+### Video de retrato hablante
+
+Convierte una sola foto más un clip de voz en un breve video de retrato hablante, por completo en tu propia máquina. La voz generada por Voice Studio anima el retrato, y el resultado es un MP4 autónomo que puedes reproducir de nuevo o llevar dentro de un pack. Un renderizador integrado produce un clip real en cualquier computadora que tenga herramientas de video instaladas —sin necesidad de tarjeta gráfica— y un modelo de talking-head de mayor fidelidad puede conectarse localmente cuando tu hardware lo permite.
+
 Local API:
 
 ```text
@@ -444,6 +448,8 @@ K.skill sirve para:
 - mostrar evidence y confidence
 
 Las decisiones intentan quedar explicadas: por qué esa respuesta, por qué conviene esperar, de qué fuente salió una idea del Life Mentor y cuánta confianza merece.
+
+K.skill se adapta al dispositivo donde corre: las configuraciones más livianas se quedan con texto y voz, mientras que medios más ricos como el retrato hablante se habilitan según lo permita la máquina —desde un navegador de gama de teléfono hasta una estación de trabajo. La detección ocurre en el dispositivo y puedes ajustar el nivel a mano.
 
 ## Development And Verification
 

@@ -359,6 +359,10 @@ GUI flow:
 7. report markdown 다운로드.
 8. target client zip export.
 
+### 말하는 초상 영상
+
+사진 한 장과 voice clip 하나를, 전부 내 컴퓨터 안에서 짧은 말하는 초상 영상으로 바꿉니다. Voice Studio가 만든 음성이 초상을 움직이고, 결과물은 다시 재생하거나 pack 안에 담아 가져갈 수 있는 자족적인 MP4가 됩니다. 내장 renderer는 video 도구가 설치된 컴퓨터라면 어디서든 실제 클립을 만들어 내며 — graphics card는 필요하지 않습니다 — 하드웨어가 받쳐 줄 때는 더 정교한 talking-head model을 로컬에서 끼워 넣을 수 있습니다.
+
 Local API:
 
 ```text
@@ -432,6 +436,8 @@ npm run check:exports
 ## Privacy And Feel
 
 Private chats stay outside the repository. 외부 provider를 명시적으로 설정하지 않으면 자료는 내 컴퓨터에 남습니다.
+
+K.skill은 돌아가는 기기에 맞춰집니다. 가장 가벼운 환경은 텍스트와 목소리에 머물고, 말하는 초상 같은 풍부한 미디어는 phone 수준의 브라우저부터 workstation까지 기기가 허락하는 만큼 열리며, 감지는 기기 안에서 일어나고 tier는 직접 손으로 바꿀 수 있습니다.
 
 K.skill이 잘하는 일:
 
